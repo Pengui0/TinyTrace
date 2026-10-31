@@ -118,14 +118,6 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
             Corporate entities verified and under procurement due diligence in this workspace. Click any vendor to inspect historical audit reports and trends.
           </p>
         </div>
-        <Button
-          variant="primary"
-          size="md"
-          icon={<Plus className="w-4 h-4" />}
-          onClick={onStartInvestigation}
-        >
-          Add & Investigate Vendor
-        </Button>
       </div>
 
       {/* Persistence State Banner */}
