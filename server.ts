@@ -310,12 +310,12 @@ app.post('/api/integrations/tinyfish/test', async (req: Request, res: Response) 
     // Validate target URL format if provided
     let validatedUrl = 'https://mca.gov.in';
     if (url !== undefined && url !== null && url !== '') {
-      if (typeof url !== 'string' || (!url.startsWith('http://') && !url.startsWith('https://'))) {
+      if (typeof url !== 'string') {
         res.status(400).json({
           status: 'FAILED',
           result: null,
           elapsedMs: 0,
-          diagnosticMessage: 'Invalid URL. Must be an absolute http:// or https:// web address.',
+          diagnosticMessage: 'Invalid URL. Enter a public website address beginning with http:// or https://.',
           isMock: Boolean(useMock),
         });
         return;
@@ -330,7 +330,7 @@ app.post('/api/integrations/tinyfish/test', async (req: Request, res: Response) 
           status: 'FAILED',
           result: null,
           elapsedMs: 0,
-          diagnosticMessage: `URL rejected by source safety policy: ${targetValidation.reason}`,
+          diagnosticMessage: `URL rejected: ${targetValidation.reason}`,
           isMock: false,
         });
         return;

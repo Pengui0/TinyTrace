@@ -493,7 +493,7 @@ export const IntegrationsView: React.FC = () => {
                 />
               </div>
               <span className="text-[10px] text-[#8A91A0] mt-1 block">
-                Use an approved public regulatory source (for example, mca.gov.in). Arbitrary domains are blocked.
+                Enter any public company or organization website. Private/local network addresses are blocked for safety.
               </span>
             </div>
 
