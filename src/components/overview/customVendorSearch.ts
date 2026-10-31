@@ -49,11 +49,11 @@ export function resolutionModeLabel(isMock: boolean): 'Demo fixture' | 'Live pro
   return isMock ? 'Demo fixture' : 'Live provider';
 }
 
-export function profileMatchesCandidate(profile: { canonicalName?: string; cin?: string | null; llpin?: string | null; gstins?: string[]; pan?: string | null }, candidate: CandidateEntity): boolean {
+export function profileMatchesCandidate(profile: { canonicalName?: string; cin?: string | null; formerCins?: string[]; llpin?: string | null; gstins?: string[]; pan?: string | null }, candidate: CandidateEntity): boolean {
   const nameMatches = (profile.canonicalName || '').trim().toLocaleLowerCase() === candidate.canonicalName.trim().toLocaleLowerCase();
   let identifierMatches = false;
   switch (candidate.identifierType) {
-    case 'CIN': identifierMatches = (profile.cin || '').toUpperCase() === candidate.identifierValue.toUpperCase(); break;
+    case 'CIN': identifierMatches = (profile.cin || '').toUpperCase() === candidate.identifierValue.toUpperCase() || (profile.formerCins || []).some((value) => value.toUpperCase() === candidate.identifierValue.toUpperCase()); break;
     case 'LLPIN': identifierMatches = (profile.llpin || '').replace(/-/g, '').toUpperCase() === candidate.identifierValue.replace(/-/g, '').toUpperCase(); break;
     case 'GSTIN': identifierMatches = (profile.gstins || []).some((value) => value.toUpperCase() === candidate.identifierValue.toUpperCase()); break;
     case 'PAN': identifierMatches = (profile.pan || '').toUpperCase() === candidate.identifierValue.toUpperCase(); break;

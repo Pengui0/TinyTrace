@@ -5,6 +5,7 @@ export interface TabItem<T extends string = string> {
   label: string;
   count?: number;
   icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export interface TabsProps<T extends string = string> {
@@ -35,8 +36,10 @@ export function Tabs<T extends string = string>({
               key={tab.id}
               role="tab"
               aria-selected={isActive}
+              aria-disabled={tab.disabled || undefined}
+              disabled={tab.disabled}
               onClick={() => onChange(tab.id)}
-              className={`flex flex-1 basis-[180px] min-w-0 items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-center whitespace-normal break-words font-medium rounded transition-colors cursor-pointer select-none ${
+              className={`flex flex-1 basis-[180px] min-w-0 items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-center whitespace-normal break-words font-medium rounded transition-colors cursor-pointer select-none disabled:cursor-not-allowed disabled:opacity-45 ${
                 isActive
                   ? 'bg-white text-[#1C1F26] shadow-xs font-semibold'
                   : 'text-[#5F6572] hover:text-[#1C1F26] hover:bg-white/50'
@@ -65,8 +68,10 @@ export function Tabs<T extends string = string>({
             key={tab.id}
             role="tab"
             aria-selected={isActive}
+            aria-disabled={tab.disabled || undefined}
+            disabled={tab.disabled}
             onClick={() => onChange(tab.id)}
-            className={`flex items-center gap-2 pb-2.5 text-sm font-medium transition-colors cursor-pointer relative ${
+            className={`flex items-center gap-2 pb-2.5 text-sm font-medium transition-colors cursor-pointer relative disabled:cursor-not-allowed disabled:opacity-45 ${
               isActive
                 ? 'text-[#1C1F26] font-semibold'
                 : 'text-[#5F6572] hover:text-[#1C1F26]'

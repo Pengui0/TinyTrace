@@ -39,6 +39,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
   coverageGaps = [],
 }) => {
   const [expandedChains, setExpandedChains] = useState<Record<string, boolean>>({});
+  const [isLedgerExpanded, setIsLedgerExpanded] = useState(true);
 
   const toggleChain = (id: string) => {
     setExpandedChains((prev) => ({
@@ -157,10 +158,21 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
               Partial Report
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => setIsLedgerExpanded((expanded) => !expanded)}
+            aria-expanded={isLedgerExpanded}
+            aria-label={`${isLedgerExpanded ? 'Collapse' : 'Expand'} findings and evidence ledger`}
+            className="inline-flex items-center gap-1 rounded border border-[#D5CEC2] px-2.5 py-1 font-semibold text-[#1C1F26] hover:bg-[#FAF8F5] focus:outline-none focus:ring-2 focus:ring-[#8A91A0]"
+          >
+            {isLedgerExpanded ? 'Collapse' : 'Expand'}
+            {isLedgerExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
         </div>
       }
       noPadding
     >
+      {isLedgerExpanded && (
       <div className="space-y-2.5 p-3">
         {findings.map((f, idx) => {
           const norm = normalizedFindings.find((nf) => nf.title === f.title || nf.id === f.id);
@@ -321,6 +333,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
           );
         })}
       </div>
+      )}
     </Card>
   );
 };

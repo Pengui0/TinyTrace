@@ -16,6 +16,7 @@ import {
   XCircle,
   Eye,
   Radio,
+  X,
 } from 'lucide-react';
 import { SanitizedStreamEvent } from '../../server/providers/tinyfishStreamingClient.js';
 
@@ -32,35 +33,16 @@ interface Workstream {
 interface LiveStreamingWorkbenchProps {
   targetName: string;
   identifiers?: string[];
-  isInvestigating: boolean;
   isDemoMode: boolean;
   onRunStream?: () => void;
   onCancelStream?: () => void;
 }
 
-const liveRunStorageKey = (scope: string) => `vendortrace.live-workbench.v1:${encodeURIComponent(scope)}`;
-const readSavedLiveRun = (scope: string) => {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = window.localStorage.getItem(liveRunStorageKey(scope));
-    if (!raw) return null;
-    const saved = JSON.parse(raw);
-    return saved?.version === 1 && saved.scope === scope && saved.lastCompletedRun?.result
-      ? saved
-      : null;
-  } catch {
-    return null;
-  }
-};
-
 export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
   targetName,
   identifiers = [],
-  isInvestigating,
   isDemoMode,
 }) => {
-  const identifierKey = identifiers.map((value) => value.trim().toUpperCase()).filter(Boolean).sort().join('|');
-  const scopeKey = JSON.stringify({ targetName: targetName.trim().toUpperCase(), identifierKey, isDemoMode });
   const [isRunning, setIsRunning] = useState(false);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [streamingUrl, setStreamingUrl] = useState<string | null>(null);
@@ -77,7 +59,16 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
   const [runStatus, setRunStatus] = useState<'IDLE' | 'RUNNING' | 'PARTIAL' | 'COMPLETED' | 'CANCELLED' | 'TIMED_OUT' | 'AUTH_ERROR' | 'RATE_LIMITED' | 'UPSTREAM_FAILURE' | 'FAILED'>('IDLE');
   const [attemptCount, setAttemptCount] = useState(0);
   const [agentTimeoutMs, setAgentTimeoutMs] = useState(120000);
-  const [hydratedScopeKey, setHydratedScopeKey] = useState<string | null>(null);
+  const [selectedSourceDetails, setSelectedSourceDetails] = useState<{ workstreamId: string; workstreamName: string } | null>(null);
+
+  useEffect(() => {
+    if (!selectedSourceDetails) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedSourceDetails(null);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [selectedSourceDetails]);
 
   // 4 Verified Actual Workstreams
   const [workstreams, setWorkstreams] = useState<Workstream[]>([
@@ -124,53 +115,13 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
   const runSequenceRef = useRef(0);
   const cancelledRef = useRef(false);
   const streamReaderRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null);
-  useEffect(() => {
+  useEffect(() => () => {
     runSequenceRef.current += 1;
     cancelledRef.current = true;
     abortControllerRef.current?.abort();
     if (streamReaderRef.current) void streamReaderRef.current.cancel().catch(() => undefined);
-    setIsRunning(false);
-    setActiveRunId(null);
-    setStreamingUrl(null);
-    const saved = readSavedLiveRun(scopeKey);
-    setStreamEvents(Array.isArray(saved?.streamEvents) ? saved.streamEvents : []);
-    setLastCompletedRun(saved?.lastCompletedRun || null);
-    setActiveError(null);
-    setRunStatus(saved?.runStatus || 'IDLE');
-    setAttemptCount(Number(saved?.attemptCount) || 0);
-    setElapsedTime(0);
-    setWorkstreams((prev) => {
-      const savedStatuses = saved?.workstreams;
-      return prev.map((workstream) => savedStatuses?.[workstream.id] ? {
-        ...workstream,
-        ...savedStatuses[workstream.id],
-      } : ({
-      ...workstream,
-      status: 'queued',
-      elapsedMs: 0,
-      message: 'Standby for source-backed verification',
-      }));
-    });
-    setHydratedScopeKey(scopeKey);
-  }, [scopeKey]);
-
-  useEffect(() => {
-    if (!lastCompletedRun || hydratedScopeKey !== scopeKey || typeof window === 'undefined') return;
-    try {
-      const savedStatuses = Object.fromEntries(workstreams.map(({ id, status, elapsedMs, message }) => [id, { status, elapsedMs, message }]));
-      window.localStorage.setItem(liveRunStorageKey(scopeKey), JSON.stringify({
-        version: 1,
-        scope: scopeKey,
-        lastCompletedRun,
-        streamEvents,
-        workstreams: savedStatuses,
-        runStatus,
-        attemptCount,
-      }));
-    } catch {
-      // Browser storage can be disabled or full; keep the live run usable for this session.
-    }
-  }, [lastCompletedRun, streamEvents, workstreams, runStatus, attemptCount, hydratedScopeKey, scopeKey]);
+    clearInterval(timerRef.current);
+  }, []);
 
   // Timer for elapsed seconds
   useEffect(() => {
@@ -318,7 +269,12 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
               const debarmentTask = ev.result?.dimensions?.blacklist_debarment;
               const evidenceOutcome = debarmentTask?.evidenceSearchOutcome as string | undefined;
               const reportComplete = ev.result?.status === 'completed' && ev.result?.coverageStatus === 'COMPLETE';
-              setRunStatus(useMock && validCompletion ? 'COMPLETED' : validCompletion ? reportComplete ? 'COMPLETED' : ev.result?.status === 'failed' ? 'FAILED' : 'PARTIAL' : 'FAILED');
+              const reportDimensions = Object.values(ev.result?.dimensions || {}) as any[];
+              const hasDimensionOutage = reportDimensions.some((task) => task?.status === 'failed' || task?.status === 'unavailable');
+              const hasDimensionResults = reportDimensions.some((task) => task?.status === 'completed' || task?.findings?.length || task?.sourcesChecked?.length);
+              const hasPartialReport = Boolean(ev.result?.dimensions)
+                && (ev.result?.coverageStatus !== 'COMPLETE' || ev.result?.status === 'partial_failure' || (hasDimensionOutage && hasDimensionResults));
+              setRunStatus(useMock && validCompletion ? 'COMPLETED' : validCompletion ? reportComplete ? 'COMPLETED' : hasPartialReport ? 'PARTIAL' : ev.result?.status === 'failed' ? 'FAILED' : 'PARTIAL' : 'FAILED');
               setWorkstreams((prev) => prev.map((workstream) => {
                 if (useMock) {
                   return { ...workstream, status: validCompletion ? 'completed' : 'failed', message: validCompletion ? 'Synthetic demo task completed; no live evidence is claimed.' : 'Demo run completed without a valid result.' };
@@ -337,6 +293,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                   ? task.coverageGaps?.length || task.evidenceSearchOutcome === 'SOURCE_UNAVAILABLE' ? 'partial' : 'completed'
                   : task.status === 'unavailable' ? 'unavailable'
                   : task.status === 'cancelled' ? 'cancelled'
+                  : task.findings?.length || task.sourcesChecked?.length ? 'partial'
                   : 'failed');
                 const status = taskStates.every((state: string) => state === 'completed') ? 'completed'
                   : taskStates.some((state: string) => state === 'completed' || state === 'partial') ? 'partial'
@@ -470,8 +427,12 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
   const formattedTime = (elapsedTime / 10).toFixed(1);
   const remainingAgentSeconds = Math.max(0, Math.ceil((agentTimeoutMs - elapsedTime * 100) / 1000));
   const completedReport = lastCompletedRun?.result;
-  const hasPartialCoverage = Boolean(completedReport?.dimensions && completedReport.coverageStatus !== 'COMPLETE');
-  const reportFailed = Boolean(completedReport?.dimensions && completedReport.status === 'failed');
+  const completedDimensions = Object.values(completedReport?.dimensions || {}) as any[];
+  const hasCompletedDimensionOutage = completedDimensions.some((task) => task?.status === 'failed' || task?.status === 'unavailable');
+  const hasCompletedDimensionResults = completedDimensions.some((task) => task?.status === 'completed' || task?.findings?.length || task?.sourcesChecked?.length);
+  const hasPartialCoverage = Boolean(completedReport?.dimensions)
+    && (completedReport.coverageStatus !== 'COMPLETE' || completedReport.status === 'partial_failure' || (hasCompletedDimensionOutage && hasCompletedDimensionResults));
+  const reportFailed = Boolean(completedReport?.dimensions && completedReport.status === 'failed' && !hasPartialCoverage);
 
   return (
     <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-lg p-5 space-y-5">
@@ -609,9 +570,24 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                 &ldquo;{ws.message}&rdquo;
               </div>
               {dimensionDetails.length > 0 && (
-                <details className="mt-2 border-t border-[#EAE6DF] pt-2 text-[10px] not-italic">
-                  <summary className="cursor-pointer font-semibold text-[#1C1F26]">View checked sources and coverage details</summary>
-                  <div className="mt-2 space-y-3">
+                <div className="mt-2 border-t border-[#EAE6DF] pt-2 text-[10px] not-italic">
+                  <button type="button" onClick={() => setSelectedSourceDetails({ workstreamId: ws.id, workstreamName: ws.name })} className="font-semibold text-[#1C1F26] hover:text-emerald-800 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                    View checked sources and coverage details
+                  </button>
+                  {selectedSourceDetails?.workstreamId === ws.id && (
+                  <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1C1F26]/55 p-4 backdrop-blur-[2px]" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedSourceDetails(null); }}>
+                    <section role="dialog" aria-modal="true" aria-labelledby="workstream-details-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[#D5CEC2] bg-white text-xs shadow-2xl">
+                      <header className="flex items-start justify-between gap-4 border-b border-[#EAE6DF] px-5 py-4">
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8A91A0]">Checked sources & coverage</p>
+                          <h2 id="workstream-details-title" className="mt-1 text-base font-bold text-[#1C1F26]">{selectedSourceDetails.workstreamName}</h2>
+                          <p className="mt-1 text-xs text-[#5F6572]">{ws.provider}</p>
+                        </div>
+                        <button type="button" autoFocus onClick={() => setSelectedSourceDetails(null)} aria-label="Close source details" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#EAE6DF] text-[#5F6572] hover:bg-[#FAF8F5] hover:text-[#1C1F26] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </header>
+                      <div className="max-h-[calc(88vh-76px)] space-y-3 overflow-y-auto p-5">
                     {dimensionDetails.map(({ key, result }: any) => (
                       <div key={key} className="space-y-1.5 rounded border border-[#EAE6DF] bg-white p-2.5">
                         <div className="flex flex-wrap items-center justify-between gap-1">
@@ -640,8 +616,11 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                         )) : <p className="text-[#8A91A0]">No validated finding was returned for this dimension.</p>}
                       </div>
                     ))}
+                      </div>
+                    </section>
                   </div>
-                </details>
+                  )}
+                </div>
               )}
             </div>
           );

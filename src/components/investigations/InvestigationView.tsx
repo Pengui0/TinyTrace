@@ -124,18 +124,21 @@ export const InvestigationView: React.FC<InvestigationViewProps> = ({
             label: 'Findings & evidence',
             count: currentInvestigation?.findings.length,
             icon: <FileText className="w-3.5 h-3.5" />,
+            disabled: !currentInvestigation && !isLoading,
           },
           {
             id: 'graph',
             label: 'Entity network',
             count: currentInvestigation?.relatedLeads.length,
             icon: <Network className="w-3.5 h-3.5" />,
+            disabled: !currentInvestigation,
           },
           {
             id: 'sources',
             label: 'Sources & audit',
             count: currentInvestigation?.sourcesChecked.length,
             icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+            disabled: !currentInvestigation,
           },
         ]}
         activeId={activeTab}

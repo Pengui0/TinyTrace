@@ -65,6 +65,10 @@ function DashboardApp() {
     setCurrentTab('investigations');
   };
   const handleNavigation = (tab: NavigationTab) => {
+    if (tab === 'live-search') setNotification(null);
+    if (tab === 'investigations') {
+      setInvestigationSubTab(currentInvestigation || isLoading ? 'evidence' : 'resolution');
+    }
     setCurrentTab(tab);
   };
   const toggleSidebar = () => {
@@ -165,9 +169,11 @@ function DashboardApp() {
       updateWorkspace((current) => ({ ...current, preferences: { ...current.preferences, currentInvestigationId: newInv.id } }));
       setInvestigations((prev) => [newInv, ...prev]);
       setCurrentTab('investigations');
+      const hasPartialResults = Boolean(newInv.coverageGaps?.length)
+        && (newInv.findings.length > 0 || Object.values(newInv.dimensionResults || {}).some((result: any) => result?.findings?.length || result?.sourcesChecked?.length));
       setNotification(newInv.status === 'CANCELLED'
         ? `Investigation cancelled for ${newInv.targetName}. Completed task results and coverage gaps were saved.`
-        : newInv.status === 'PARTIAL_FAILURE'
+        : newInv.status === 'PARTIAL_FAILURE' || (newInv.status === 'FAILED' && hasPartialResults)
         ? `Partial investigation completed for ${newInv.targetName}. Coverage gaps are included in the saved report.`
         : newInv.status === 'FAILED'
         ? `Investigation failed for ${newInv.targetName}. The report includes available task results and failure details.`
@@ -369,8 +375,8 @@ function DashboardApp() {
         />
 
         {/* Global Notification Banner if present */}
-        {notification && (
-          <div className="bg-emerald-50 border-b border-emerald-200 px-5 py-2 text-xs text-emerald-800 flex items-center justify-between">
+        {notification && currentTab !== 'live-search' && (
+          <div className="bg-emerald-50 border-b border-emerald-200 px-5 py-1.5 text-[11px] text-emerald-800 flex items-center justify-between">
             <span>{notification}</span>
             <button
               onClick={() => setNotification(null)}
@@ -429,11 +435,8 @@ function DashboardApp() {
 
           <div className={currentTab === 'live-search' ? 'block' : 'hidden'}>
             <LiveEvidenceView
-              investigation={currentInvestigation}
               investigations={investigations}
               isDemoMode={isDemoMode}
-              isInvestigating={isLoading}
-              onRunFullInvestigation={handleInvestigate}
             />
           </div>
 

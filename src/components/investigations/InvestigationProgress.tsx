@@ -239,9 +239,11 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
           const taskHasCoverageGaps = Boolean(result?.coverageGaps?.length);
           const sourceNames = Array.isArray(result?.sourcesChecked) ? result.sourcesChecked.filter(Boolean) : [];
           const detailLines = Array.from(new Set([...(result?.coverageGaps || []), result?.errorMessage].filter((line): line is string => Boolean(line)))).slice(0, 3);
+          const taskHasPartialResults = taskState === 'failed' && (taskHasCoverageGaps || resultFindings.length > 0 || checkedSourceCount > 0);
+          const displayTaskState = taskHasPartialResults ? 'completed' : taskState;
 
           const IconComponent = dim.icon;
-          const isFailed = taskState === 'failed';
+          const isFailed = taskState === 'failed' && !taskHasPartialResults;
           const isUnavailable = taskState === 'unavailable';
 
           return (
@@ -272,7 +274,7 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
                     </span>
                   </div>
                   <span className="shrink-0">
-                    {getStateBadge(taskState, result?.errorCategory, taskHasCoverageGaps)}
+                    {getStateBadge(displayTaskState, result?.errorCategory, taskHasCoverageGaps || taskHasPartialResults)}
                   </span>
                 </div>
 

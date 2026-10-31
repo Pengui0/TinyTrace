@@ -150,7 +150,9 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
         status: res.appStatus,
         errorCategory: res.errorCategory,
         upstreamRequestId: res.upstreamRequestId,
-        message: res.errorMessage,
+        message: res.status === 404
+          ? `IndiaCos returned HTTP 404 for the ${cleanCin} lookup. The registry record was not resolved; this does not prove the company does not exist. Check the identifier and IndiaCos endpoint configuration, or try searching by legal name.`
+          : res.errorMessage,
         isMock: false,
       };
     }
@@ -201,6 +203,7 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
       canonicalName: legalName,
       tradeName: raw.trade_name || null,
       cin: isLlp ? null : (raw.cin || cleanCin),
+      formerCins: raw.former_cin ? [String(raw.former_cin).toUpperCase()] : [],
       llpin: isLlp ? (raw.llpin || cleanCin) : null,
       gstins: extractGstins(raw),
       pan: raw.pan || null,

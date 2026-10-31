@@ -4,7 +4,7 @@
  * rate-limiting, and error redaction.
  */
 
-import { securityService, APPROVED_SOURCE_DOMAINS, globalErrorSanitizer } from '../security/securityService.js';
+import { securityService, globalErrorSanitizer } from '../security/securityService.js';
 
 export async function runSecurityHardeningTests(): Promise<{
   success: boolean;
@@ -35,10 +35,9 @@ export async function runSecurityHardeningTests(): Promise<{
   const validGem = securityService.validateTargetUrl('https://gem.gov.in/debarment/order/401');
   assert(validGem.isValid === true, 'Accepts valid official GeM procurement portal URL');
 
-  // Disallowed arbitrary external domain
-  const blockedArbitrary = securityService.validateTargetUrl('https://evil-unverified-site.com/steal-creds');
-  assert(blockedArbitrary.isValid === false, 'Blocks arbitrary third-party domain');
-  assert(blockedArbitrary.reason?.includes('not on the VendorTrace approved regulatory source allowlist') === true, 'Provides explicit open proxy block explanation');
+  // Public company websites are valid live research targets
+  const publicCompanySite = securityService.validateTargetUrl('https://www.apollopharmacy.in');
+  assert(publicCompanySite.isValid === true, 'Allows public company websites for user-requested live research');
 
   // Blocked loopbacks & local network IPs
   const blockedLocalhost = securityService.validateTargetUrl('http://localhost:8080/admin');

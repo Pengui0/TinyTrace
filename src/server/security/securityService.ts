@@ -5,26 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-
-// Strict Domain Allowlist for External Crawling/Browsing (SSRF Guard)
-export const APPROVED_SOURCE_DOMAINS = new Set([
-  'mca.gov.in',
-  'gst.gov.in',
-  'services.gst.gov.in',
-  'gem.gov.in',
-  'cvc.gov.in',
-  'ecourts.gov.in',
-  'services.ecourts.gov.in',
-  'delhicourts.nic.in',
-  'bombayhighcourt.nic.in',
-  'main.sci.gov.in',
-  'nclt.gov.in',
-  'ibbi.gov.in',
-  'indiacos.com',
-  'api.indiacos.com',
-  'tinyfish.ai',
-  'agent.tinyfish.ai',
-]);
+import { isIP } from 'node:net';
 
 export interface AuditEvent {
   id: string;
@@ -59,8 +40,8 @@ export class SecurityService {
   }
 
   /**
-   * SSRF Guard: Validates that a target URL is strictly on the approved public registry allowlist.
-   * Blocks localhost, private IP ranges, cloud metadata services, and arbitrary third-party domains.
+   * SSRF Guard for user-selected company sites. Allows public company domains while
+   * blocking local/private destinations and embedded credentials.
    */
   public validateTargetUrl(rawUrl: string): { isValid: boolean; reason?: string } {
     if (!rawUrl || typeof rawUrl !== 'string') {
@@ -104,15 +85,12 @@ export class SecurityService {
       return { isValid: false, reason: 'Access to private internal network addresses is strictly forbidden.' };
     }
 
-    // Check against approved domain list (allowing subdomains of approved domains)
-    const isApproved = Array.from(APPROVED_SOURCE_DOMAINS).some(
-      (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
-    );
-
-    if (!isApproved) {
+    // Only DNS hostnames are accepted here. Reject IP literals because they can
+    // target internal services and cannot be safely distinguished by hostname.
+    if (isIP(hostname) || !hostname.includes('.')) {
       return {
         isValid: false,
-        reason: `Domain ${hostname} is not on the VendorTrace approved regulatory source allowlist. Open proxy behaviour is blocked.`,
+        reason: 'Enter a public company website hostname; IP addresses and local hostnames are not allowed.',
       };
     }
 

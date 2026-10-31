@@ -50,13 +50,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'investigations' as NavigationTab,
-      label: 'Investigation workspace',
+      label: 'Investigate',
       icon: SearchCheck,
       badge: null,
     },
     {
       id: 'live-search' as NavigationTab,
-      label: 'Live source search',
+      label: 'Live research',
       icon: Radio,
       badge: 'LIVE',
       isLive: true,

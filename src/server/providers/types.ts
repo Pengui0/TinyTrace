@@ -72,6 +72,7 @@ export interface ResolvedCompanyProfile {
   canonicalName: string;
   tradeName?: string | null;
   cin?: string | null;
+  formerCins?: string[];
   llpin?: string | null;
   gstins: string[];
   pan?: string | null;

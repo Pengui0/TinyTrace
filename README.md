@@ -142,7 +142,7 @@ Compliance officers can filter past investigations across:
 
 ## Security & Isolation
 
-- **SSRF Regulatory Allowlist**: Server-side HTTP clients only connect to pre-approved regulatory endpoints (`mca.gov.in`, `gst.gov.in`, `gem.gov.in`, `cvc.gov.in`, `ecourts.gov.in`, `indiacos.com`, `agent.tinyfish.ai`).
+- **Public Website Research**: Live web research can target any public company website. Local/private addresses, IP-literal hosts, embedded credentials, and unsupported protocols are blocked.
 - **Payload & Rate Limiting**: Strict 50KB request payload ceiling and client IP rate limiting (30 requests/minute) protect upstream quotas.
 - **Prompt Injection Defense**: Vendor-supplied names and notes are stripped of jailbreak delimiters (`ignore previous instructions`, `system prompt:`) before reaching Gemini.
 - **Audit Ledger**: In-memory security audit ledger logs high-risk actions, authentication checks, and export activities with timestamp and IP provenance.

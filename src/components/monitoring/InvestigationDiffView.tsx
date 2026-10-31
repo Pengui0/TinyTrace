@@ -205,32 +205,32 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header with Re-Run Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#EAE6DF]">
-        <div>
-          <h2 className="text-lg font-bold text-[#1C1F26] flex items-center gap-2">
-            <GitCompareArrows className="w-5 h-5 text-[#1C1F26]" />
-            Continuous Monitoring & Signal Delta Engine
-          </h2>
-          <p className="mt-0.5 text-xs text-[#5F6572]">
-            Execute manual re-checks, track deterministic signal delta across runs, and review source modifications.
+      <div className="grid grid-cols-1 items-center gap-4 border-b border-[#EAE6DF] pb-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+        <div className="min-w-0">
+          <h1 className="flex items-center gap-2 text-lg font-bold leading-tight text-[#1C1F26] sm:text-xl">
+            <GitCompareArrows className="h-5 w-5 shrink-0 text-[#1C1F26]" />
+            <span>Monitoring &amp; report changes</span>
+          </h1>
+          <p className="mt-1 max-w-xl text-xs leading-relaxed text-[#5F6572]">
+            Re-run checks manually and compare reports to see what changed.
           </p>
         </div>
 
         {allInvestigations.length > 0 && (
-          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-            <label className="space-y-1 text-[10px] font-semibold text-[#5F6572]">
-              <span>Investigation to re-run</span>
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end">
+            <label className="min-w-0 flex-1 space-y-1 text-[11px] font-semibold text-[#5F6572]">
+              <span>Select a report to re-run</span>
               <select
                 aria-label="Investigation to re-run"
                 value={rerunTargetId}
                 onChange={(event) => setRerunTargetId(event.target.value)}
-                className="block min-w-[260px] max-w-[380px] min-h-11 rounded-lg border border-[#D5CEC2] bg-white px-3 py-2.5 text-sm text-[#1C1F26] shadow-sm focus:border-[#8A91A0] focus:outline-none focus:ring-2 focus:ring-[#EAE6DF]"
+                className="block min-h-10 w-full min-w-0 rounded-lg border border-[#D5CEC2] bg-white px-3 py-2 text-sm text-[#1C1F26] shadow-sm focus:border-[#8A91A0] focus:outline-none focus:ring-2 focus:ring-[#EAE6DF]"
               >
                 {allInvestigations.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.targetName} · {item.identifierValue || item.identifierType} · {new Date(item.createdAt).toLocaleString()}
+                    {item.targetName} � {new Date(item.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                   </option>
                 ))}
               </select>
@@ -239,14 +239,14 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
               type="button"
               onClick={handleTriggerReRun}
               disabled={isReRunning || !rerunTarget}
-              className={`min-h-11 min-w-[168px] whitespace-nowrap px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors ${
+              className={`min-h-10 shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors ${
                 isReRunning || !rerunTarget
                   ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
                   : 'bg-[#1C1F26] text-white hover:bg-[#2D323E]'
               }`}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isReRunning ? 'animate-spin' : ''}`} />
-              {isReRunning ? 'Re-running…' : 'Re-run investigation'}
+              {isReRunning ? 'Running' : 'Re-run report'}
             </button>
           </div>
         )}
@@ -258,27 +258,27 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-amber-950">
-              Deployment Scheduling Policy
+              Scheduled checks are off
             </span>
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-200 text-amber-900">
-              SCHEDULING NOT ENABLED IN THIS DEPLOYMENT
+              MANUAL RUNS ONLY
             </span>
           </div>
           <p className="text-[11px] text-amber-800 leading-relaxed">
-            In compliance with zero-fabrication standards: Background automated cron schedulers are inactive. All monitoring re-checks are executed manually via the button above to ensure authentic source queries and verifiable audit timestamps.
+            Re-checks run only when you select a report and click Re-run. Automated scheduling is not active in this deployment.
           </p>
         </div>
       </div>
 
       {/* Monitoring Frequency Preference Selector */}
-      <Card header="Monitoring Frequency Preference (Saved for Future Automation)">
+      <Card header="Monitoring frequency preference">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
           <div>
             <span className="font-semibold text-[#1C1F26] block">
               Desired Target Frequency
             </span>
             <p className="text-[11px] text-[#5F6572]">
-              Configures future automated scheduling triggers once external runner infrastructure is active.
+              Saved as a preference for future automation. Checks currently run manually.
             </p>
           </div>
 
