@@ -29,10 +29,7 @@ import { LandingPage } from './components/landing/LandingPage.js';
 
 function DashboardApp() {
   const [savedWorkspace] = useState<WorkspaceSnapshot>(() => loadWorkspace());
-  const [currentTab, setCurrentTab] = useState<NavigationTab>(() => {
-    const savedId = savedWorkspace.preferences.currentInvestigationId;
-    return typeof savedId === 'string' && savedWorkspace.investigations.some((item) => item.id === savedId) ? 'investigations' : 'overview';
-  });
+  const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => savedWorkspace.preferences.executionMode !== 'LIVE');
   const [workspace] = useState('Tata Steel Ltd. • Vendor Due Diligence');
   const [stats, setStats] = useState<WorkspaceStats | null>(null);
