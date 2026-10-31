@@ -22,7 +22,7 @@ export function LandingPage() {
     <div className="landing-page min-h-screen overflow-hidden bg-[#F5F7F8] text-[#171C25]">
       <nav className="relative z-20 mx-auto flex h-20 max-w-[1200px] items-center justify-between px-5 sm:px-8" aria-label="Primary navigation">
         <a href="/" className="flex items-center gap-3" aria-label="VendorTrace home">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#087F61] shadow-[0_8px_24px_rgba(8,127,97,0.16)]"><ShieldCheck className="h-5 w-5 text-[#B8E5D5]" strokeWidth={2} /></span>
+          <span aria-hidden="true" className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-[0_5px_12px_rgba(8,127,97,0.12)]"><img src="/images/vendortrace-logo.png" alt="" className="absolute left-1/2 top-0 h-auto w-20 max-w-none -translate-x-1/2" /></span>
           <span><span className="block text-[17px] font-bold tracking-[-0.02em]">VendorTrace</span><span className="block text-[9px] font-bold uppercase tracking-[0.18em] text-[#718096]">Intelligence, verified</span></span>
         </a>
         <button type="button" onClick={() => setShowMethodology((open) => !open)} className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-[#526176] transition hover:bg-white hover:text-[#087F61] sm:flex" aria-expanded={showMethodology}>
