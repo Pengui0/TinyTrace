@@ -1431,6 +1431,28 @@ app.get('/api/vendors', asyncHandler(async (req: Request, res: Response) => {
   });
 }));
 
+// API: Delete a tracked vendor record while retaining its investigation history.
+app.delete('/api/vendors/:id', asyncHandler(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const repositoryVendor = await db.vendors.findById(id);
+  const legacyVendor = store.getAllVendors().find((vendor) => vendor.id === id);
+  const target = repositoryVendor || legacyVendor;
+  if (!target) {
+    res.status(404).json({ error: 'Vendor record not found.' });
+    return;
+  }
+
+  if (repositoryVendor) await db.vendors.delete(id);
+  const legacyMatches = store.getAllVendors().filter((vendor) =>
+    vendor.id === id
+    || Boolean(repositoryVendor?.cin && vendor.cin?.toUpperCase() === repositoryVendor.cin.toUpperCase())
+    || Boolean(repositoryVendor?.gstins.some((gstin) => vendor.gstin?.toUpperCase() === gstin.toUpperCase()))
+  );
+  for (const vendor of legacyMatches) store.deleteVendor(vendor.id);
+
+  res.json({ success: true, deletedId: id, reportsRetained: true });
+}));
+
 // API: Export Single Due Diligence Report as PDF
 const exportPdf = (req: Request, res: Response) => {
   const inv = findInvestigationSnapshot(req.params.id, req.body?.investigation);

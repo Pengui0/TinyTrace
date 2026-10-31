@@ -131,6 +131,10 @@ class DataStore {
   public getAllVendors() {
     return Array.from(this.trackedVendors.values());
   }
+
+  public deleteVendor(id: string): boolean {
+    return this.trackedVendors.delete(id);
+  }
 }
 
 export const store = new DataStore();

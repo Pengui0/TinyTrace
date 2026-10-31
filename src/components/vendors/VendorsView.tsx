@@ -5,9 +5,8 @@ import { Button } from '../common/Button.js';
 import { Card } from '../common/Card.js';
 import { Badge } from '../common/Badge.js';
 import { VendorProfileView } from './VendorProfileView.js';
-import { Building2, Plus, Search, ShieldCheck, MapPin, Tag, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Building2, Plus, Search, ShieldCheck, MapPin, Tag, ArrowLeft, ExternalLink, Trash2 } from 'lucide-react';
 import { Investigation } from '../../types/vendor.js';
-import { loadWorkspace } from '../../persistence/localStore.js';
 
 interface VendorsViewProps {
   onStartInvestigation: () => void;
@@ -27,6 +26,8 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [storageStatus, setStorageStatus] = useState<any>(null);
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
+  const [deletingVendorId, setDeletingVendorId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchVendors = (query = '') => {
     setIsLoading(true);
@@ -35,25 +36,7 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
       .then((res) => res.json())
       .then((data) => {
         const fromServer: Vendor[] = data.vendors || [];
-        const sourceReports = investigations.length ? investigations : loadWorkspace().investigations;
-        const fromReports: Vendor[] = sourceReports.map((inv) => ({
-          id: `local-${inv.identifierType}-${inv.identifierValue}`,
-          canonicalName: inv.targetName,
-          inputNames: [inv.targetName],
-          cin: inv.identifierType === 'CIN' ? inv.identifierValue : null,
-          gstins: inv.identifierType === 'GSTIN' ? [inv.identifierValue] : [],
-          pan: inv.identifierType === 'PAN' ? inv.identifierValue : null,
-          companyStatus: 'UNKNOWN',
-          registeredAddress: null,
-          sourceReference: 'Saved investigation report',
-          firstSeenAt: inv.createdAt,
-          lastCheckedAt: inv.completedAt || inv.createdAt,
-          latestRiskStatus: inv.findingsCount.materialRisk ? 'MATERIAL_RISK' : inv.findingsCount.caution ? 'CAUTION' : inv.findingsCount.verifiedClear ? 'VERIFIED_CLEAR' : 'UNKNOWN',
-        }));
-        const merged = new Map<string, Vendor>();
-        [...fromReports, ...fromServer].forEach((vendor) => merged.set(vendor.id, vendor));
-        const all = [...merged.values()];
-        setVendors(query ? all.filter((v) => `${v.canonicalName} ${v.cin || ''} ${v.gstins.join(' ')}`.toLowerCase().includes(query.toLowerCase())) : all);
+        setVendors(fromServer);
         if (data.storageStatus) setStorageStatus(data.storageStatus);
       })
       .catch((err) => console.error('Error fetching vendors:', err))
@@ -67,6 +50,26 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchVendors(searchQuery);
+  };
+
+  const handleDeleteVendor = async (vendor: Vendor) => {
+    const confirmed = window.confirm(
+      `Delete ${vendor.canonicalName} from the vendor directory? Its saved investigation reports and evidence will be retained.`
+    );
+    if (!confirmed) return;
+
+    setDeletingVendorId(vendor.id);
+    setDeleteError(null);
+    try {
+      const response = await fetch(`/api/vendors/${encodeURIComponent(vendor.id)}`, { method: 'DELETE' });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'Vendor record could not be deleted.');
+      fetchVendors(searchQuery);
+    } catch (error: any) {
+      setDeleteError(error.message || 'Vendor record could not be deleted.');
+    } finally {
+      setDeletingVendorId(null);
+    }
   };
 
   const getRiskBadge = (status: Vendor['latestRiskStatus']) => {
@@ -166,6 +169,8 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
         )}
       </form>
 
+      {deleteError && <div role="alert" className="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">{deleteError}</div>}
+
       {/* Vendor Table or Empty State */}
       <Card
         header="Tracked Corporate Entities"
@@ -217,7 +222,20 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
                       RoC: {v.companyStatus}
                     </span>
                   </div>
-                  <div>{getRiskBadge(v.latestRiskStatus)}</div>
+                  <div className="flex items-center gap-2">
+                    {getRiskBadge(v.latestRiskStatus)}
+                    <button
+                      type="button"
+                      onClick={(event) => { event.stopPropagation(); void handleDeleteVendor(v); }}
+                      disabled={deletingVendorId === v.id}
+                      aria-label={`Delete ${v.canonicalName} from vendor directory`}
+                      title="Delete vendor record"
+                      className="inline-flex min-h-8 items-center gap-1 rounded border border-rose-200 bg-white px-2 text-[11px] font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-wait disabled:opacity-60"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      {deletingVendorId === v.id ? 'Deleting…' : 'Delete'}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-[#5F6572]">
