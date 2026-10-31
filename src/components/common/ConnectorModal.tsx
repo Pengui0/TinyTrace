@@ -28,8 +28,8 @@ export const ConnectorModal: React.FC<ConnectorModalProps> = ({
         </Button>
       }
     >
-      <div className="space-y-4 text-xs text-[#5F6572]">
-        <div className="flex items-center justify-between p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
+      <div className="space-y-4 text-xs text-[#687385]">
+        <div className="flex items-center justify-between p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
           <span className="font-semibold text-[#1C1F26]">Operating Status:</span>
           <Badge
             tone={
@@ -49,7 +49,7 @@ export const ConnectorModal: React.FC<ConnectorModalProps> = ({
           <p className="leading-relaxed">{connector.coverageNote}</p>
         </div>
 
-        <div className="p-3 bg-[#FCFBF9] border border-[#EAE6DF] rounded space-y-1 text-[11px]">
+        <div className="p-3 bg-[#F8FAFB] border border-[#E4E9EB] rounded space-y-1 text-[11px]">
           <div className="flex justify-between">
             <span>Server-side Key Configured:</span>
             <strong className="text-[#1C1F26]">
@@ -64,7 +64,7 @@ export const ConnectorModal: React.FC<ConnectorModalProps> = ({
           </div>
         </div>
 
-        <div className="text-[11px] text-[#8A91A0]">
+        <div className="text-[11px] text-[#8490A0]">
           * All external API calls occur via server-side provider proxies to protect credentials and maintain deterministic audit trails.
         </div>
       </div>

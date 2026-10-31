@@ -95,18 +95,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-64 h-full shrink-0 bg-[#FCFBF9] border-r border-[#EAE6DF] flex flex-col">
+    <aside className="flex h-full w-[286px] shrink-0 flex-col border-r border-[#E4E9EB] bg-white/90 backdrop-blur-xl">
       {/* Top Brand Identity */}
-      <div className="h-14 min-h-14 shrink-0 px-4 border-b border-[#EAE6DF] flex items-center justify-between gap-2.5">
+      <div className="h-16 min-h-16 shrink-0 px-4 border-b border-[#E4E9EB] flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
-        <div className="w-7 h-7 rounded bg-[#1C1F26] flex items-center justify-center text-white shrink-0">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0A9873] to-[#075C49] flex items-center justify-center text-white shrink-0 shadow-[0_5px_12px_rgba(8,127,97,0.2)]">
+          <ShieldCheck className="w-[18px] h-[18px] text-emerald-100" />
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold tracking-tight text-[#1C1F26]">
             VendorTrace
           </span>
-          <span className="text-[10px] text-[#5F6572] leading-none uppercase tracking-wider font-medium">
+          <span className="text-[10px] text-[#687385] leading-none uppercase tracking-wider font-medium">
             Due Diligence & Tracing
           </span>
         </div>
@@ -116,28 +116,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={onToggleCollapse}
           aria-label="Collapse sidebar"
           title="Collapse sidebar"
-          className="hidden md:flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#EAE6DF] bg-white/80 text-[#5F6572] transition hover:border-[#D5CEC2] hover:bg-[#F4F1EA] hover:text-[#1C1F26]"
+          className="hidden md:flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#E4E9EB] bg-white/80 text-[#687385] transition hover:border-[#D7DFE3] hover:bg-[#EEF2F3] hover:text-[#1C1F26]"
         >
           <PanelLeftClose className="h-4 w-4" />
         </button>
       </div>
 
       {/* Navigation List */}
-      <div className="px-3 pt-3">
+      <div className="px-3 pt-2.5">
         <button
           type="button"
           onClick={onStartInvestigation}
           disabled={isInvestigating}
           title={isInvestigating ? 'Finish or cancel the active investigation before starting another.' : undefined}
-          className={`w-full min-h-10 flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors ${isNewInvestigation ? 'bg-[#2D323E] ring-2 ring-[#D5CEC2]' : 'bg-[#1C1F26] hover:bg-[#2D323E]'} text-white disabled:cursor-not-allowed disabled:opacity-50`}
+          className={`w-full min-h-11 flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition duration-150 shadow-[0_5px_14px_rgba(8,127,97,0.16)] ${isNewInvestigation ? 'bg-[#066C53] ring-2 ring-emerald-200' : 'bg-[#087F61] hover:bg-[#066C53] hover:shadow-md'} text-white disabled:cursor-not-allowed disabled:opacity-50`}
         >
           <Plus className="h-4 w-4" /> New investigation
         </button>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto" aria-label="Main navigation">
+      <nav className="sidebar-navigation flex-1 px-3 py-3.5 space-y-3.5 overflow-y-auto" aria-label="Main navigation">
         {navGroups.map((group) => <section key={group.label} className="space-y-1">
-          <div className="px-3 pb-1 text-[10px] uppercase tracking-wider font-semibold text-[#8A91A0]">{group.label}</div>
+          <div className="px-3 pb-0.5 text-[10px] uppercase tracking-[0.13em] font-semibold text-[#8490A0]">{group.label}</div>
           {group.items.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
@@ -147,16 +147,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
               key={item.id}
               onClick={() => onSelectTab(item.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded transition-colors cursor-pointer select-none text-left ${
+              className={`relative w-full flex min-h-9 items-center justify-between px-3 py-2 text-xs font-medium rounded-xl transition duration-150 cursor-pointer select-none text-left ${
                 isActive
-                  ? 'bg-[#1C1F26] text-white font-semibold'
-                  : 'text-[#5F6572] hover:bg-[#F4F1EA] hover:text-[#1C1F26]'
+                  ? 'bg-[#E7F5F0] text-[#075842] font-semibold shadow-[inset_0_0_0_1px_rgba(8,127,97,0.07)] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-[#087F61]'
+                  : 'text-[#526176] hover:bg-[#F5F8F8] hover:text-[#171C25]'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <Icon
                   className={`w-4 h-4 ${
-                    isActive ? 'text-white' : 'text-[#8A91A0]'
+                    isActive ? 'text-[#087F61]' : 'text-[#8490A0]'
                   }`}
                 />
                 <span>{item.label}</span>
@@ -165,9 +165,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span
                   className={`text-[10px] tabular-nums px-1.5 py-0.5 rounded ${
                     isActive
-                      ? 'bg-white/20 text-white'
-                      : isLive ? 'bg-[#EAE6DF] text-[#5F6572]'
-                      : 'bg-[#EAE6DF] text-[#1C1F26]'
+                      ? 'bg-white text-[#087F61]'
+                      : isLive ? 'bg-[#E7F5F0] text-[#087F61]'
+                      : 'bg-[#EEF2F3] text-[#526176]'
                   }`}
                 >
                   {item.badge}
@@ -180,16 +180,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* Bottom Workspace & Connector Health summary */}
-      <div className="p-3 border-t border-[#EAE6DF] space-y-2">
+      <div className="space-y-2 border-t border-[#E4E9EB] bg-white/70 p-2.5">
         {/* Source connectors indicator */}
-        <div className="p-2.5 bg-[#FAF8F5] border border-[#EAE6DF] rounded text-xs space-y-1.5">
+        <div className="space-y-1 rounded-xl border border-[#E4E9EB] bg-[#F8FAFB] p-2.5 text-xs">
           <div className="flex items-center justify-between text-[11px] font-medium text-[#1C1F26]">
             <span>Connector Probes</span>
-            <span className="text-[#15803D] font-mono tabular-nums text-[10px]">
+            <span className="text-[#087F61] font-mono tabular-nums text-[10px]">
               {activeConnectorsCount}/{totalConnectorsCount} healthy
             </span>
           </div>
-          <p className="text-[10px] text-[#8A91A0] leading-snug">
+          <p className="line-clamp-2 text-[10px] leading-snug text-[#8490A0]">
             Successful connection probes only. Configured credentials and completed investigations are tracked separately.
           </p>
         </div>
@@ -197,13 +197,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Help & Documentation trigger */}
         <button
           onClick={onOpenHelp}
-          className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs text-[#5F6572] hover:text-[#1C1F26] hover:bg-[#F4F1EA] rounded transition-colors cursor-pointer"
+          className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs text-[#687385] hover:text-[#1C1F26] hover:bg-[#EEF2F3] rounded transition-colors cursor-pointer"
         >
           <span className="flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-[#8A91A0]" />
+            <HelpCircle className="w-3.5 h-3.5 text-[#8490A0]" />
             Diligence Methodology
           </span>
-          <span className="text-[10px] text-[#8A91A0]">Rules</span>
+          <span className="text-[10px] text-[#8490A0]">Rules</span>
         </button>
       </div>
     </aside>

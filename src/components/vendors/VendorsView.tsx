@@ -7,6 +7,7 @@ import { Badge } from '../common/Badge.js';
 import { VendorProfileView } from './VendorProfileView.js';
 import { Building2, Plus, Search, ShieldCheck, MapPin, Tag, ArrowLeft, ExternalLink, Trash2 } from 'lucide-react';
 import { Investigation } from '../../types/vendor.js';
+import { loadWorkspace } from '../../persistence/localStore.js';
 
 interface VendorsViewProps {
   onStartInvestigation: () => void;
@@ -93,7 +94,7 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
         <button
           type="button"
           onClick={() => setSelectedVendorId(null)}
-          className="text-xs font-semibold text-[#5F6572] hover:text-[#1C1F26] flex items-center gap-1.5 cursor-pointer pb-2"
+          className="text-xs font-semibold text-[#687385] hover:text-[#1C1F26] flex items-center gap-1.5 cursor-pointer pb-2"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Vendor Directory
@@ -112,21 +113,21 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#EAE6DF]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E4E9EB]">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-[#1C1F26]">
             Vendor Master Directory
           </h1>
-          <p className="mt-1 text-xs text-[#5F6572]">
+          <p className="mt-1 text-xs text-[#687385]">
             Corporate entities verified and under procurement due diligence in this workspace. Click any vendor to inspect historical audit reports and trends.
           </p>
         </div>
       </div>
 
       {/* Persistence State Banner */}
-      <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded text-xs flex items-center justify-between">
+      <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded text-xs flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-[#8A91A0]">Repository Storage:</span>
+          <span className="text-[#8490A0]">Repository Storage:</span>
           <span className="font-mono text-[#1C1F26] text-[11px]">
             {storageStatus?.activeAdapterName || 'DevInMemoryRepositoryAdapter'}
           </span>
@@ -134,7 +135,7 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
             {storageStatus?.isDurable ? 'Durable Firestore' : 'Non-Durable In-Memory Adapter'}
           </span>
         </div>
-        <span className="text-[11px] text-[#5F6572]">
+        <span className="text-[11px] text-[#687385]">
           {vendors.length} Vendor{vendors.length === 1 ? '' : 's'} on record
         </span>
       </div>
@@ -142,13 +143,13 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
       {/* Search Bar */}
       <form onSubmit={handleSearch} className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#8A91A0] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#8490A0] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by legal name, CIN, GSTIN, or alias..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-[#D5CEC2] rounded text-[#1C1F26] focus:outline-none focus:border-[#1C1F26]"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-[#D7DFE3] rounded text-[#1C1F26] focus:outline-none focus:border-[#1C1F26]"
           />
         </div>
         <Button type="submit" variant="secondary" size="md">
@@ -175,14 +176,14 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
       <Card
         header="Tracked Corporate Entities"
         headerAction={
-          <span className="text-xs text-[#5F6572]">
+          <span className="text-xs text-[#687385]">
             Click any row to open Vendor Profile & Report History
           </span>
         }
         noPadding={vendors.length > 0}
       >
         {isLoading ? (
-          <div className="p-8 text-center text-xs text-[#8A91A0]">
+          <div className="p-8 text-center text-xs text-[#8490A0]">
             Loading vendor records from repository...
           </div>
         ) : vendors.length === 0 ? (
@@ -202,20 +203,20 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
             }
           />
         ) : (
-          <div className="divide-y divide-[#EAE6DF]">
+          <div className="divide-y divide-[#E4E9EB]">
             {vendors.map((v) => (
               <div
                 key={v.id}
                 onClick={() => setSelectedVendorId(v.id)}
-                className="p-4 space-y-2 hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                className="p-4 space-y-2 hover:bg-[#F5F7F8] transition-colors cursor-pointer"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-bold text-[#1C1F26] hover:underline flex items-center gap-1.5">
                       {v.canonicalName}
-                      <ExternalLink className="w-3 h-3 text-[#5F6572]" />
+                      <ExternalLink className="w-3 h-3 text-[#687385]" />
                     </span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#5F6572]">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#687385]">
                       ID: {v.id}
                     </span>
                     <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
@@ -238,25 +239,25 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-[#5F6572]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-[#687385]">
                   <div>
-                    <span className="text-[#8A91A0]">CIN: </span>
+                    <span className="text-[#8490A0]">CIN: </span>
                     <span className="font-mono text-[#1C1F26]">{v.cin || 'Not Available'}</span>
                   </div>
                   <div>
-                    <span className="text-[#8A91A0]">GSTINs: </span>
+                    <span className="text-[#8490A0]">GSTINs: </span>
                     <span className="font-mono text-[#1C1F26]">
                       {v.gstins.length > 0 ? v.gstins.join(', ') : 'None on record'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#8A91A0]">Last Checked: </span>
+                    <span className="text-[#8490A0]">Last Checked: </span>
                     <span className="text-[#1C1F26]">{new Date(v.lastCheckedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
 
                 {v.inputNames.length > 1 && (
-                  <div className="flex items-center gap-1.5 text-[10px] text-[#8A91A0]">
+                  <div className="flex items-center gap-1.5 text-[10px] text-[#8490A0]">
                     <Tag className="w-3 h-3" />
                     <span>Aliases: {v.inputNames.join(' · ')}</span>
                   </div>

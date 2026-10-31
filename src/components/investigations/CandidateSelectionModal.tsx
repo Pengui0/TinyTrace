@@ -50,7 +50,7 @@ export const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = (
           {candidates.map((cand) => (
             <div
               key={cand.id}
-              className="p-3.5 bg-white border border-[#EAE6DF] hover:border-[#1C1F26] rounded transition-all space-y-2"
+              className="p-3.5 bg-white border border-[#E4E9EB] hover:border-[#1C1F26] rounded transition-all space-y-2"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="space-y-0.5">
@@ -72,7 +72,7 @@ export const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = (
                     </Badge>
                   </div>
                   {cand.tradeName && (
-                    <span className="text-[11px] text-[#5F6572] block">
+                    <span className="text-[11px] text-[#687385] block">
                       Trade Name: {cand.tradeName}
                     </span>
                   )}
@@ -90,21 +90,21 @@ export const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = (
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#5F6572] pt-1 border-t border-[#EAE6DF]/60">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#687385] pt-1 border-t border-[#E4E9EB]/60">
                 <div className="flex items-center gap-1 font-mono">
-                  <span className="text-[#8A91A0]">{cand.identifierType}:</span>
+                  <span className="text-[#8490A0]">{cand.identifierType}:</span>
                   <span className="text-[#1C1F26] font-semibold">{cand.identifierValue}</span>
                 </div>
                 {cand.state && (
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-[#8A91A0]" />
+                    <MapPin className="w-3 h-3 text-[#8490A0]" />
                     <span>Jurisdiction: {cand.state}</span>
                   </div>
                 )}
               </div>
 
               {cand.registeredAddress && (
-                <p className="text-[10px] text-[#8A91A0] line-clamp-1">
+                <p className="text-[10px] text-[#8490A0] line-clamp-1">
                   Address: {cand.registeredAddress}
                 </p>
               )}

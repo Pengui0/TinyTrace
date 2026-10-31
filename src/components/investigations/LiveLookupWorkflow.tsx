@@ -233,32 +233,32 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
         <div className="space-y-4 text-xs">
           {/* Quick Scenario Buttons */}
           <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] text-[#8A91A0] mr-1">Sample Indian registry lookups:</span>
+              <span className="text-[11px] text-[#8490A0] mr-1">Sample Indian registry lookups:</span>
             <button
               type="button"
               onClick={() => loadPreset('L27100MH1907PLC000260')}
-              className="px-2 py-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[11px] text-[#1C1F26] hover:bg-[#F4F1EA] cursor-pointer"
+              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
             >
               Tata Steel (CIN)
             </button>
             <button
               type="button"
               onClick={() => loadPreset('07AAAAA0000A1Z5')}
-              className="px-2 py-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[11px] text-[#1C1F26] hover:bg-[#F4F1EA] cursor-pointer"
+              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
             >
               Sharma Fasteners (Proprietor GSTIN - No CIN)
             </button>
             <button
               type="button"
               onClick={() => loadPreset('AAA-1234')}
-              className="px-2 py-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[11px] text-[#1C1F26] hover:bg-[#F4F1EA] cursor-pointer"
+              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
             >
               Apex Digital (LLPIN)
             </button>
             <button
               type="button"
               onClick={() => loadPreset('Apex Infra')}
-              className="px-2 py-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[11px] text-[#1C1F26] hover:bg-[#F4F1EA] cursor-pointer"
+              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
             >
               Apex Infra (Multi-Match Ambiguity)
             </button>
@@ -269,7 +269,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
             <div className="flex items-center justify-between">
               <label className="block text-xs font-semibold text-[#1C1F26]">Company details</label>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-[#8A91A0]">Detected Format:</span>
+                <span className="text-[10px] text-[#8490A0]">Detected Format:</span>
                 <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-[#1C1F26] border border-slate-200">
                   {detection.kind}
                 </span>
@@ -277,17 +277,17 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <input value={searchInput.legalName} onChange={(e) => setSearchInput({ ...searchInput, legalName: e.target.value })} placeholder="Legal company name (search by name first)" className="px-3 py-2 text-xs bg-[#FAF8F5] border border-[#D5CEC2] rounded" />
-              <input value={searchInput.cin} onChange={(e) => setSearchInput({ ...searchInput, cin: e.target.value })} placeholder="CIN (optional)" className="px-3 py-2 text-xs font-mono bg-[#FAF8F5] border border-[#D5CEC2] rounded" />
-              <input value={searchInput.gstin} onChange={(e) => setSearchInput({ ...searchInput, gstin: e.target.value })} placeholder="GSTIN (optional)" className="px-3 py-2 text-xs font-mono bg-[#FAF8F5] border border-[#D5CEC2] rounded" />
+              <input value={searchInput.legalName} onChange={(e) => setSearchInput({ ...searchInput, legalName: e.target.value })} placeholder="Legal company name (search by name first)" className="px-3 py-2 text-xs bg-[#F5F7F8] border border-[#D7DFE3] rounded" />
+              <input value={searchInput.cin} onChange={(e) => setSearchInput({ ...searchInput, cin: e.target.value })} placeholder="CIN (optional)" className="px-3 py-2 text-xs font-mono bg-[#F5F7F8] border border-[#D7DFE3] rounded" />
+              <input value={searchInput.gstin} onChange={(e) => setSearchInput({ ...searchInput, gstin: e.target.value })} placeholder="GSTIN (optional)" className="px-3 py-2 text-xs font-mono bg-[#F5F7F8] border border-[#D7DFE3] rounded" />
               <div className="flex gap-2">
-                <input value={searchInput.websiteUrl} onChange={(e) => { setSearchInput({ ...searchInput, websiteUrl: e.target.value }); setWebsiteScanMessage(null); }} placeholder="Company website URL" className="min-w-0 flex-1 px-3 py-2 text-xs bg-[#FAF8F5] border border-[#D5CEC2] rounded" />
+                <input value={searchInput.websiteUrl} onChange={(e) => { setSearchInput({ ...searchInput, websiteUrl: e.target.value }); setWebsiteScanMessage(null); }} placeholder="Company website URL" className="min-w-0 flex-1 px-3 py-2 text-xs bg-[#F5F7F8] border border-[#D7DFE3] rounded" />
                 <Button variant="outline" size="sm" isLoading={isScanningWebsite} onClick={handleScanWebsite}>
                   Scan website
                 </Button>
               </div>
             </div>
-            {websiteScanMessage && <p className="rounded border border-[#EAE6DF] bg-[#FCFBF9] p-2 text-[11px] text-[#5F6572]">Website scan: {websiteScanMessage}</p>}
+            {websiteScanMessage && <p className="rounded border border-[#E4E9EB] bg-[#F8FAFB] p-2 text-[11px] text-[#687385]">Website scan: {websiteScanMessage}</p>}
             <div className="flex gap-2">
               <Button
                 variant="primary"
@@ -300,10 +300,10 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
               </Button>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-[#5F6572] pt-0.5">
+            <div className="flex items-center justify-between text-[11px] text-[#687385] pt-0.5">
               <span>{queryInput ? detection.helperMessage : 'This step checks Indian corporate and tax registries only. You can enter a company name without a CIN or GSTIN.'}</span>
               {cacheStats && (
-                <span className="text-[10px] text-[#8A91A0] font-mono">
+                <span className="text-[10px] text-[#8490A0] font-mono">
                   Registry Cache: {cacheStats.hits} Hits · {cacheStats.size} Items (24h TTL)
                 </span>
               )}
@@ -315,7 +315,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
 
           {/* Feedback narrative */}
           {resolutionMessage && (
-            <div className="p-2.5 rounded bg-[#FCFBF9] border border-[#EAE6DF] text-[11px] text-[#5F6572] flex items-center justify-between">
+            <div className="p-2.5 rounded bg-[#F8FAFB] border border-[#E4E9EB] text-[11px] text-[#687385] flex items-center justify-between">
               <span>{resolutionMessage}</span>
               {resolvedProfile && (
                 <span className="font-semibold text-emerald-700">
@@ -326,8 +326,8 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
           )}
 
           {/* Footer Actions: Run Test Suite */}
-          <div className="pt-2 border-t border-[#EAE6DF] flex items-center justify-between text-[11px]">
-            <span className="text-[#8A91A0]">
+          <div className="pt-2 border-t border-[#E4E9EB] flex items-center justify-between text-[11px]">
+            <span className="text-[#8490A0]">
               IndiaCos lookup only: a failed match is not proof that a company does not exist. Full investigations use the sources shown in the report.
             </span>
             <Button
@@ -354,7 +354,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
           }
         >
           <div className="space-y-2 text-xs">
-            <div className="max-h-40 overflow-y-auto space-y-1 font-mono text-[10px] text-[#5F6572] bg-[#FCFBF9] p-2.5 rounded border border-[#EAE6DF]">
+            <div className="max-h-40 overflow-y-auto space-y-1 font-mono text-[10px] text-[#687385] bg-[#F8FAFB] p-2.5 rounded border border-[#E4E9EB]">
               {unitTestReport.details.map((d: string, i: number) => (
                 <div key={i} className={d.includes('[FAIL]') ? 'text-red-700 font-bold' : ''}>
                   {d}

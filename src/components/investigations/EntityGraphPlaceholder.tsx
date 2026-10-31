@@ -51,7 +51,7 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
       <Card
         header="Layer 2 Entity Tracing & Corporate Relationship Graph"
         headerAction={
-          <span className="text-[11px] text-[#5F6572]">
+          <span className="text-[11px] text-[#687385]">
             Evidence-Backed Registry Tracing (Depth 1)
           </span>
         }
@@ -61,7 +61,7 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
           title="Entity relationship graph awaiting investigation data"
           description="When an investigation is executed, lawful Ministry of Corporate Affairs linkages (directors by DIN, registered office addresses, and linked GSTINs) will be mapped here as review leads."
         />
-        <div className="mt-4 p-3 rounded bg-[#FCFBF9] border border-[#EAE6DF] text-xs text-[#5F6572] flex items-start gap-2.5">
+        <div className="mt-4 p-3 rounded bg-[#F8FAFB] border border-[#E4E9EB] text-xs text-[#687385] flex items-start gap-2.5">
           <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
           <div className="text-[11px] leading-relaxed">
             <strong className="text-[#1C1F26]">Enterprise Compliance Policy: </strong>
@@ -128,13 +128,13 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
         header="Entity Tracing & Director Linkage Graph"
         headerAction={
           <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 text-[#5F6572]">
+            <div className="flex items-center gap-1.5 text-[#687385]">
               <Filter className="w-3.5 h-3.5" />
               <span>Filter:</span>
               <select
                 value={filterStrength}
                 onChange={(e) => setFilterStrength(e.target.value as any)}
-                className="px-2 py-1 bg-white border border-[#D5CEC2] rounded text-xs text-[#1C1F26] focus:outline-none focus:border-[#1C1F26] cursor-pointer"
+                className="px-2 py-1 bg-white border border-[#D7DFE3] rounded text-xs text-[#1C1F26] focus:outline-none focus:border-[#1C1F26] cursor-pointer"
               >
                 <option value="ALL">All Strengths ({edges.length})</option>
                 <option value="strong_identifier">Strong Identifiers (CIN/DIN)</option>
@@ -142,7 +142,7 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
                 <option value="same_name_candidate">Same Name Candidates</option>
               </select>
             </div>
-            <span className="text-[11px] font-mono text-[#8A91A0]">
+            <span className="text-[11px] font-mono text-[#8490A0]">
               Max Depth: 1
             </span>
           </div>
@@ -150,8 +150,8 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
         noPadding
       >
         {/* Visual Graph Layout Area */}
-        <div className="p-5 bg-[#FAF8F5]/60 border-b border-[#EAE6DF] min-h-64 flex flex-col justify-center">
-          <div className="flex items-center justify-between text-[11px] text-[#8A91A0] mb-3 pb-2 border-b border-[#EAE6DF]/60">
+        <div className="p-5 bg-[#F5F7F8]/60 border-b border-[#E4E9EB] min-h-64 flex flex-col justify-center">
+          <div className="flex items-center justify-between text-[11px] text-[#8490A0] mb-3 pb-2 border-b border-[#E4E9EB]/60">
             <span>Visual Graph Canvas (Direct Depth-1 Network)</span>
             <span>Click any node to inspect provenance</span>
           </div>
@@ -168,10 +168,10 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
                   onClick={() => setSelectedNode(node)}
                   className={`p-3 rounded-lg border transition-all cursor-pointer shadow-xs max-w-xs ${
                     isPrimary
-                      ? 'bg-[#1C1F26] text-white border-[#1C1F26] ring-2 ring-emerald-500/40'
+                      ? 'bg-[#087F61] text-white border-[#1C1F26] ring-2 ring-emerald-500/40'
                       : isDirector
                       ? 'bg-amber-50/80 text-amber-950 border-amber-300'
-                      : 'bg-white text-[#1C1F26] border-[#EAE6DF] hover:border-[#1C1F26]'
+                      : 'bg-white text-[#1C1F26] border-[#E4E9EB] hover:border-[#1C1F26]'
                   } ${isSelected ? 'ring-2 ring-offset-2 ring-[#1C1F26]' : ''}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
@@ -240,21 +240,21 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
         )}
 
         {/* Structured Relationship Ledger */}
-        <div className="divide-y divide-[#EAE6DF]">
+        <div className="divide-y divide-[#E4E9EB]">
           {filteredEdges.map((edge) => (
-            <div key={edge.id} className="p-4 space-y-2 hover:bg-[#FAF8F5]/60 transition-colors">
+            <div key={edge.id} className="p-4 space-y-2 hover:bg-[#F5F7F8]/60 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-bold text-[#1C1F26]">{edge.label}</span>
                   {getStrengthBadge(edge.strength)}
                 </div>
 
-                <span className="text-[10px] font-mono text-[#8A91A0]">
+                <span className="text-[10px] font-mono text-[#8490A0]">
                   Type: {edge.relationshipType}
                 </span>
               </div>
 
-              <div className="text-[11px] text-[#5F6572] flex items-center gap-4 flex-wrap">
+              <div className="text-[11px] text-[#687385] flex items-center gap-4 flex-wrap">
                 <span>Provenance: <strong>{edge.provenance}</strong></span>
                 {edge.sourceUrls.length > 0 && (
                   <a
@@ -269,7 +269,7 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
                 )}
               </div>
 
-              <p className="text-[10px] text-[#8A91A0] italic">
+              <p className="text-[10px] text-[#8490A0] italic">
                 {edge.disclaimer}
               </p>
             </div>
@@ -278,13 +278,13 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
           {/* Fallback to relatedLeads if edges not yet populated */}
           {edges.length === 0 &&
             relatedLeads.map((lead) => (
-              <div key={lead.id} className="p-4 space-y-1.5 hover:bg-[#FAF8F5]/60 transition-colors">
+              <div key={lead.id} className="p-4 space-y-1.5 hover:bg-[#F5F7F8]/60 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Building className="w-3.5 h-3.5 text-[#5F6572]" />
+                    <Building className="w-3.5 h-3.5 text-[#687385]" />
                     <span className="text-xs font-semibold text-[#1C1F26]">{lead.legalName}</span>
                     {lead.cin && (
-                      <span className="text-[10px] font-mono px-1 py-0.5 bg-[#FAF8F5] border border-[#EAE6DF] text-[#5F6572] rounded">
+                      <span className="text-[10px] font-mono px-1 py-0.5 bg-[#F5F7F8] border border-[#E4E9EB] text-[#687385] rounded">
                         CIN: {lead.cin}
                       </span>
                     )}
@@ -294,22 +294,22 @@ export const EntityGraphPlaceholder: React.FC<EntityGraphProps> = ({
                   </span>
                 </div>
 
-                <div className="text-[11px] text-[#5F6572] flex items-center gap-4">
+                <div className="text-[11px] text-[#687385] flex items-center gap-4">
                   {lead.sharedDirectorName && (
                     <span className="flex items-center gap-1">
-                      <UserCheck className="w-3 h-3 text-[#8A91A0]" />
+                      <UserCheck className="w-3 h-3 text-[#8490A0]" />
                       Common Director: {lead.sharedDirectorName} {lead.sharedDin ? `(DIN ${lead.sharedDin})` : ''}
                     </span>
                   )}
                   {lead.sharedAddress && (
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#8A91A0]" />
+                      <MapPin className="w-3 h-3 text-[#8490A0]" />
                       Shared Reg. Address
                     </span>
                   )}
                 </div>
 
-                <p className="text-[10px] text-[#8A91A0] italic">{lead.leadDisclaimer}</p>
+                <p className="text-[10px] text-[#8490A0] italic">{lead.leadDisclaimer}</p>
               </div>
             ))}
         </div>

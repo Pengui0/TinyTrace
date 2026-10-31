@@ -57,7 +57,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
           <h4 className="text-sm font-bold text-[#1C1F26]">
             Compiling Cross-Validated Evidence Across 4 Dimensions...
           </h4>
-          <p className="text-xs text-[#5F6572] max-w-md mx-auto">
+          <p className="text-xs text-[#687385] max-w-md mx-auto">
             Resolving MCA21 filings, GST returns, e-court dockets, and public debarment rosters concurrently.
           </p>
         </div>
@@ -151,7 +151,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
     <Card
       header="Findings & Cross-Validated Evidence Ledger"
       headerAction={
-        <div className="flex items-center gap-3 text-[11px] text-[#5F6572]">
+        <div className="flex items-center gap-3 text-[11px] text-[#687385]">
           <span>{findings.length} Finding{findings.length === 1 ? '' : 's'} Evaluated</span>
           {isPartial && (
             <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-semibold border border-amber-300">
@@ -163,7 +163,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
             onClick={() => setIsLedgerExpanded((expanded) => !expanded)}
             aria-expanded={isLedgerExpanded}
             aria-label={`${isLedgerExpanded ? 'Collapse' : 'Expand'} findings and evidence ledger`}
-            className="inline-flex items-center gap-1 rounded border border-[#D5CEC2] px-2.5 py-1 font-semibold text-[#1C1F26] hover:bg-[#FAF8F5] focus:outline-none focus:ring-2 focus:ring-[#8A91A0]"
+            className="inline-flex items-center gap-1 rounded border border-[#D7DFE3] px-2.5 py-1 font-semibold text-[#1C1F26] hover:bg-[#F5F7F8] focus:outline-none focus:ring-2 focus:ring-[#8490A0]"
           >
             {isLedgerExpanded ? 'Collapse' : 'Expand'}
             {isLedgerExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -182,13 +182,13 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
           return (
             <div
               key={f.id || idx}
-              className="p-4 space-y-3 rounded-md border border-[#EAE6DF] bg-white shadow-2xs hover:bg-[#FAF8F5]/30 transition-colors"
+              className="p-4 space-y-3 rounded-md border border-[#E4E9EB] bg-white shadow-2xs hover:bg-[#F5F7F8]/30 transition-colors"
             >
               {/* Finding Title Row */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-bold text-[#1C1F26]">{f.title}</span>
-                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#5F6572]">
+                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#687385]">
                     {f.category}
                   </span>
                   {getLegalStatusBadge(legalStatus)}
@@ -207,7 +207,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
 
               {/* Compliance & Review Officer Note */}
               {f.notesForOfficer && (
-                <div className="p-2.5 bg-[#FAF8F5] border-l-2 border-[#1C1F26] rounded-r text-[11px] text-[#5F6572] leading-relaxed">
+                <div className="p-2.5 bg-[#F5F7F8] border-l-2 border-[#1C1F26] rounded-r text-[11px] text-[#687385] leading-relaxed">
                   <span className="font-semibold text-[#1C1F26]">Compliance Rationale: </span>
                   {f.notesForOfficer}
                 </div>
@@ -225,7 +225,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
                     {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                   </button>
 
-                  <span className="text-[#8A91A0]">
+                  <span className="text-[#8490A0]">
                     Match Strength: <strong className="text-[#1C1F26]">{f.identityMatchStrength}</strong>
                   </span>
                 </div>
@@ -239,7 +239,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
                       return (
                         <div
                           key={sIdx}
-                          className="p-3 bg-[#FCFBF9] border border-[#EAE6DF] rounded text-xs space-y-2 shadow-2xs"
+                          className="p-3 bg-[#F8FAFB] border border-[#E4E9EB] rounded text-xs space-y-2 shadow-2xs"
                         >
                           {/* Source Header */}
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
@@ -247,7 +247,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
                               <span className="font-semibold text-[#1C1F26]">
                                 {src.sourceTitle || src.sourceName}
                               </span>
-                              <span className="text-[10px] font-mono text-[#8A91A0]">
+                              <span className="text-[10px] font-mono text-[#8490A0]">
                                 ({src.publisher || src.sourceDomain})
                               </span>
                               {isWire && (
@@ -257,7 +257,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
                               )}
                             </div>
 
-                            <div className="flex items-center gap-3 text-[10px] text-[#8A91A0]">
+                            <div className="flex items-center gap-3 text-[10px] text-[#8490A0]">
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
                                 {src.sourceFetchError ? 'Attempted ' : 'Retrieved '}{new Date(src.retrievedAt).toLocaleString()}
@@ -274,7 +274,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
                                   <ExternalLink className="w-2.5 h-2.5" />
                                 </a>
                               )}
-                              {!src.url && <span className="text-[#8A91A0]">No direct source URL supplied.</span>}
+                              {!src.url && <span className="text-[#8490A0]">No direct source URL supplied.</span>}
                               {src.searchResultUrl && (
                                 <a href={src.searchResultUrl} target="_blank" rel="noopener noreferrer" className="text-amber-800 hover:underline flex items-center gap-1 font-medium">
                                   <span>Search result URL (source not fetched)</span>
@@ -290,31 +290,31 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
                               Source content was not retrieved: {src.sourceFetchError}. Identity and finding remain unverified.
                             </div>
                           ) : src.snippet ? (
-                            <blockquote className="text-[11px] text-[#5F6572] italic bg-white p-2.5 rounded border border-[#EAE6DF]/70 leading-relaxed break-words">
+                            <blockquote className="text-[11px] text-[#687385] italic bg-white p-2.5 rounded border border-[#E4E9EB]/70 leading-relaxed break-words">
                               &ldquo;{src.snippet.slice(0, 500)}&rdquo;
                             </blockquote>
                           ) : null}
 
                           {src.identityMatchNote && (
-                            <div className="text-[10px] text-[#5F6572]">Identity match: {src.identityMatchNote}</div>
+                            <div className="text-[10px] text-[#687385]">Identity match: {src.identityMatchNote}</div>
                           )}
                           {src.searchQuery && (
-                            <details className="text-[10px] text-[#5F6572]">
+                            <details className="text-[10px] text-[#687385]">
                               <summary className="cursor-pointer font-semibold">Search query and source details</summary>
                               <p className="pt-1 break-words">{src.searchQuery}</p>
                             </details>
                           )}
                           {src.expandedText && src.expandedText.length > src.snippet.length && (
-                            <details className="text-[10px] text-[#5F6572]">
+                            <details className="text-[10px] text-[#687385]">
                               <summary className="cursor-pointer font-semibold">Inspect more fetched text</summary>
                               <p className="pt-1 leading-relaxed">{src.expandedText.slice(0, 4000)}</p>
                             </details>
                           )}
 
                           {/* Provenance & Confidence Rationale */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] text-[#8A91A0] pt-0.5">
-                            <span>Provenance: <strong className="text-[#5F6572]">{src.provenance}</strong></span>
-                            <span>Match Basis: <strong className="text-[#5F6572]">{src.matchConfidence}</strong></span>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] text-[#8490A0] pt-0.5">
+                            <span>Provenance: <strong className="text-[#687385]">{src.provenance}</strong></span>
+                            <span>Match Basis: <strong className="text-[#687385]">{src.matchConfidence}</strong></span>
                           </div>
 
                           {/* Explicit Confidence Rationale from Layer 3 Cross-Validation */}

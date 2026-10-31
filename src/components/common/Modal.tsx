@@ -43,7 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#1C1F26]/40 transition-opacity"
+        className="fixed inset-0 bg-[#171C25]/45 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -51,21 +51,21 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Dialog positioner */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div
-          className={`relative w-full ${maxWidthClasses[maxWidth]} bg-white rounded-md border border-[#D5CEC2] shadow-xl overflow-hidden focus:outline-none`}
+          className={`relative w-full ${maxWidthClasses[maxWidth]} bg-white rounded-2xl border border-[#D7DFE3] shadow-[0_24px_70px_rgba(23,28,37,0.2)] overflow-hidden focus:outline-none`}
           role="dialog"
           aria-modal="true"
         >
           {/* Header */}
-          <div className="flex items-start justify-between px-5 py-4 border-b border-[#EAE6DF] bg-[#FCFBF9]">
+          <div className="flex items-start justify-between px-5 py-4 border-b border-[#E4E9EB] bg-[#F8FAFB]">
             <div>
               <h3 className="text-base font-semibold text-[#1C1F26]">{title}</h3>
               {description && (
-                <p className="mt-0.5 text-xs text-[#5F6572]">{description}</p>
+                <p className="mt-0.5 text-xs text-[#687385]">{description}</p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="text-[#5F6572] hover:text-[#1C1F26] p-1 rounded hover:bg-[#F4F1EA] transition-colors"
+              className="text-[#687385] hover:text-[#1C1F26] p-1 rounded hover:bg-[#EEF2F3] transition-colors"
               aria-label="Close dialog"
             >
               <X className="w-4 h-4" />
@@ -77,7 +77,7 @@ export const Modal: React.FC<ModalProps> = ({
 
           {/* Footer */}
           {footer && (
-            <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-[#EAE6DF] bg-[#FCFBF9]">
+            <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-[#E4E9EB] bg-[#F8FAFB]">
               {footer}
             </div>
           )}

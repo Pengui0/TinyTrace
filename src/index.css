@@ -2,31 +2,55 @@
 
 @layer base {
   :root {
-    --canvas-bg: #FAF8F5;
+    --canvas-bg: #F5F7F8;
     --card-bg: #FFFFFF;
-    --border-subtle: #EAE6DF;
-    --border-strong: #D5CEC2;
-    --text-primary: #1C1F26;
-    --text-muted: #5F6572;
-    --text-subtle: #8A91A0;
-    --state-verified: #15803D;
+    --surface-secondary: #F8FAFB;
+    --border-subtle: #E4E9EB;
+    --border-strong: #D7DFE3;
+    --text-primary: #171C25;
+    --text-muted: #687385;
+    --text-subtle: #8490A0;
+    --brand-emerald: #087F61;
+    --brand-emerald-strong: #066C53;
+    --brand-emerald-soft: #E7F5F0;
+    --state-verified: #087F61;
     --state-caution: #B45309;
-    --state-risk: #B91C1C;
+    --state-risk: #DC5555;
     --state-pending: #64748B;
   }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { min-width: 320px; background: var(--canvas-bg); }
 
   body {
     background-color: var(--canvas-bg);
     color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  button, input, select, textarea { font: inherit; }
+
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid #10A37F;
+    outline-offset: 2px;
   }
 }
 
 /* Tabular figures for numbers, identifiers, timestamps */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+.sidebar-navigation {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sidebar-navigation::-webkit-scrollbar {
+  display: none;
 }
 
 /* Subtle enterprise scrollbar */
@@ -38,9 +62,13 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D5CEC2;
+  background: #D7DFE3;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8B0A2;
+  background: #AAB7BC;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button, a, [role="tab"] { transition-duration: 160ms; }
 }

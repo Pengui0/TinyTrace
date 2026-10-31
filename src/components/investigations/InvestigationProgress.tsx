@@ -157,8 +157,8 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
       case 'queued':
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#8A91A0] bg-[#FAF8F5] border border-[#EAE6DF] px-2 py-0.5 rounded-full">
-            <Clock className="w-2.5 h-2.5 text-[#8A91A0]" />
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#8490A0] bg-[#F5F7F8] border border-[#E4E9EB] px-2 py-0.5 rounded-full">
+            <Clock className="w-2.5 h-2.5 text-[#8490A0]" />
             Queued
           </span>
         );
@@ -166,9 +166,9 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
   };
 
   return (
-    <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-lg p-4 space-y-4">
+    <div className="bg-[#F5F7F8] border border-[#E4E9EB] rounded-lg p-4 space-y-4">
       {/* Header with real task execution metrics */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#EAE6DF]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E4E9EB]">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-bold text-[#1C1F26] uppercase tracking-wider flex items-center gap-1.5">
             <Cpu className="w-3.5 h-3.5 text-[#1C1F26]" />
@@ -207,14 +207,14 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-3 text-[11px] text-[#5F6572]">
+        <div className="flex items-center gap-3 text-[11px] text-[#687385]">
           {isActive && (
-            <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-[#EAE6DF]">
+            <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-[#E4E9EB]">
               Elapsed: {Math.floor(activeElapsedMs / 1000)}s · Overall remaining: {remainingSeconds}s · Agent limit: {Math.ceil(limits.agentTimeoutMs / 1000)}s · Max attempts: {limits.maxAttempts}
             </span>
           )}
           {!isActive && totalDurationMs !== undefined && (
-            <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-[#EAE6DF]">
+            <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-[#E4E9EB]">
               Total Latency: {totalDurationMs}ms
             </span>
           )}
@@ -260,16 +260,16 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
                   ? 'bg-rose-50/40 border-rose-200'
                   : isUnavailable
                   ? 'bg-slate-50/70 border-slate-200'
-                  : 'bg-[#F4F1EA]/50 border-[#EAE6DF] text-[#8A91A0]'
+                  : 'bg-[#EEF2F3]/50 border-[#E4E9EB] text-[#8490A0]'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex flex-wrap items-start justify-between gap-1">
                   <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                    <div className="p-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26]">
+                    <div className="p-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26]">
                       <IconComponent className="w-3.5 h-3.5" />
                     </div>
-                    <span className="min-w-0 text-[10px] font-mono text-[#8A91A0] uppercase">
+                    <span className="min-w-0 text-[10px] font-mono text-[#8490A0] uppercase">
                       {dim.category}
                     </span>
                   </div>
@@ -282,30 +282,30 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
                   <h4 className="text-xs font-bold text-[#1C1F26] leading-tight">
                     {dim.name}
                   </h4>
-                  <p className="text-[10px] text-[#5F6572] mt-0.5 break-words">
+                  <p className="text-[10px] text-[#687385] mt-0.5 break-words">
                     Provider: {result?.provider || dim.defaultProvider}
                   </p>
                 </div>
               </div>
 
               {/* Task metrics & findings count */}
-              <div className="pt-2.5 mt-2 border-t border-[#EAE6DF]/70 text-[10px] space-y-0.5">
+              <div className="pt-2.5 mt-2 border-t border-[#E4E9EB]/70 text-[10px] space-y-0.5">
                 {result ? (
                   <>
-                    <div className="flex items-center justify-between text-[#5F6572]">
+                    <div className="flex items-center justify-between text-[#687385]">
                       <span>Checked Sources:</span>
                       <strong className="text-[#1C1F26] font-mono">{checkedSourceCount}</strong>
                     </div>
                     {result.attemptCount !== undefined && (
-                      <div className="flex items-center justify-between text-[#5F6572]">
+                      <div className="flex items-center justify-between text-[#687385]">
                         <span>Attempts:</span>
-                        <span className="font-mono text-[9px] text-[#8A91A0]">{result.attemptCount}/{limits.maxAttempts}</span>
+                        <span className="font-mono text-[9px] text-[#8490A0]">{result.attemptCount}/{limits.maxAttempts}</span>
                       </div>
                     )}
                     {result.durationMs !== null && (
-                      <div className="flex items-center justify-between text-[#5F6572]">
+                      <div className="flex items-center justify-between text-[#687385]">
                         <span>Duration:</span>
-                        <span className="font-mono text-[9px] text-[#8A91A0]">{result.durationMs}ms / {limits.agentTimeoutMs}ms</span>
+                        <span className="font-mono text-[9px] text-[#8490A0]">{result.durationMs}ms / {limits.agentTimeoutMs}ms</span>
                       </div>
                     )}
                     {resultFindings.length > 0 ? (
@@ -313,19 +313,19 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
                         {resultFindings.length} signal{resultFindings.length === 1 ? '' : 's'} recorded
                       </div>
                     ) : (
-                      <div className="text-[9px] text-[#8A91A0] italic">
+                      <div className="text-[9px] text-[#8490A0] italic">
                         {taskState === 'completed' && checkedSourceCount > 0
                           ? 'No signal in checked sources'
                           : 'No validated evidence'}
                       </div>
                     )}
                     {sourceNames.length > 0 && (
-                      <div className="pt-1 text-[9px] leading-relaxed text-[#5F6572]">
+                      <div className="pt-1 text-[9px] leading-relaxed text-[#687385]">
                         <span className="font-semibold">Sources:</span> {sourceNames.join(' · ')}
                       </div>
                     )}
                     {detailLines.length > 0 && (
-                      <div className={`mt-1 rounded border p-2 text-[9px] leading-relaxed ${isUnavailable || isFailed ? 'border-amber-200 bg-amber-50 text-amber-950' : 'border-[#EAE6DF] bg-white text-[#5F6572]'}`}>
+                      <div className={`mt-1 rounded border p-2 text-[9px] leading-relaxed ${isUnavailable || isFailed ? 'border-amber-200 bg-amber-50 text-amber-950' : 'border-[#E4E9EB] bg-white text-[#687385]'}`}>
                         <span className="font-semibold">Coverage detail:</span>
                         <ul className="mt-0.5 list-disc space-y-0.5 pl-3">
                           {detailLines.map((line, index) => <li key={`${dim.key}-detail-${index}`}>{line}</li>)}
@@ -334,7 +334,7 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
                     )}
                   </>
                 ) : (
-                  <div className="text-[10px] text-[#8A91A0]">
+                  <div className="text-[10px] text-[#8490A0]">
                     {isActive ? 'Awaiting task result...' : 'Standby for run'}
                   </div>
                 )}

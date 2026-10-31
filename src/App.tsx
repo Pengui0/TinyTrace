@@ -297,9 +297,9 @@ function DashboardApp() {
   } : stats;
 
   return (
-    <div className="h-screen flex overflow-hidden bg-[#FAF8F5] text-[#1C1F26]">
+    <div className="h-screen flex overflow-hidden bg-[#F5F7F8] text-[#1C1F26]">
       {/* Desktop Sidebar */}
-      <div className={`hidden md:block h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-0' : 'w-64'}`}>
+      <div className={`hidden md:block h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-0' : 'w-[286px]'}`}>
         <Sidebar
           currentTab={currentTab}
           onSelectTab={handleNavigation}
@@ -330,7 +330,7 @@ function DashboardApp() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div
-            className="fixed inset-0 bg-[#1C1F26]/40"
+            className="fixed inset-0 bg-[#171C25]/45 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <div className="relative z-10">
@@ -389,7 +389,7 @@ function DashboardApp() {
 
         {/* Main Content View */}
         {storageWarning && <div role="alert" className="px-5 py-2 text-xs bg-amber-100 text-amber-950 border-b border-amber-300 flex justify-between">{storageWarning}<button onClick={() => setCurrentTab('settings')} className="underline font-semibold">Open backup options</button></div>}
-        <main className="flex-1 p-5 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <main className="mx-auto w-full max-w-[1380px] flex-1 space-y-6 px-4 py-5 sm:px-6 md:py-7 xl:px-8">
           {/* Guided Demo Walkthrough Banner when Demo Mode is active */}
           {isDemoMode && currentTab === 'overview' && (
             <DemoScenarioWalkthrough

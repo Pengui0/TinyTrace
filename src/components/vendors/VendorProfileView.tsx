@@ -170,7 +170,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-xs text-[#5F6572]">
+      <div className="p-8 text-center text-xs text-[#687385]">
         Loading verified vendor profile and historical audit ledger...
       </div>
     );
@@ -179,7 +179,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
   if (!profile) {
     return (
       <EmptyState
-        icon={<Building2 className="w-6 h-6 text-[#5F6572]" />}
+        icon={<Building2 className="w-6 h-6 text-[#687385]" />}
         title="Vendor Profile Not Found"
         description="No historical due diligence investigations recorded for this vendor."
       />
@@ -189,7 +189,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header Profile Card */}
-      <div className="bg-white border border-[#D5CEC2] rounded-lg p-5 shadow-xs space-y-4">
+      <div className="bg-white border border-[#D7DFE3] rounded-lg p-5 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -198,7 +198,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
                 Verified Vendor
               </span>
             </div>
-            <p className="mt-1 text-xs text-[#5F6572]">
+            <p className="mt-1 text-xs text-[#687385]">
               Canonical Identifier: <span className="font-mono font-semibold text-[#1C1F26]">{profile.canonicalIdentifier}</span>
             </p>
           </div>
@@ -206,7 +206,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
           {/* Risk Score & Trend Badge */}
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <span className="text-[10px] font-semibold text-[#5F6572] uppercase block">
+              <span className="text-[10px] font-semibold text-[#687385] uppercase block">
                 Latest Risk Score
               </span>
               <span className="text-2xl font-bold text-[#1C1F26]">
@@ -214,8 +214,8 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
               </span>
             </div>
 
-            <div className="p-2.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-center min-w-[100px]">
-              <span className="text-[10px] font-semibold text-[#5F6572] uppercase block">
+            <div className="p-2.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-center min-w-[100px]">
+              <span className="text-[10px] font-semibold text-[#687385] uppercase block">
                 Risk Trend
               </span>
               <div className="mt-0.5 flex items-center justify-center gap-1 text-xs font-bold">
@@ -246,23 +246,23 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
         </div>
 
         {/* Quick Meta Row */}
-        <div className="pt-3 border-t border-[#EAE6DF] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="pt-3 border-t border-[#E4E9EB] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div>
-            <span className="text-[#8A91A0] block text-[11px]">Total Reports</span>
+            <span className="text-[#8490A0] block text-[11px]">Total Reports</span>
             <span className="font-semibold text-[#1C1F26]">{profile.totalReports}</span>
           </div>
           <div>
-            <span className="text-[#8A91A0] block text-[11px]">Last Checked</span>
+            <span className="text-[#8490A0] block text-[11px]">Last Checked</span>
             <span className="font-semibold text-[#1C1F26]">
               {profile.lastCheckedAt ? new Date(profile.lastCheckedAt).toLocaleDateString() : 'Never'}
             </span>
           </div>
           <div>
-            <span className="text-[#8A91A0] block text-[11px]">Latest Priority</span>
+            <span className="text-[#8490A0] block text-[11px]">Latest Priority</span>
             <span className="font-semibold text-[#1C1F26]">{profile.latestRiskPriority.replace(/_/g, ' ')}</span>
           </div>
           <div>
-            <span className="text-[#8A91A0] block text-[11px]">Registry Status</span>
+            <span className="text-[#8490A0] block text-[11px]">Registry Status</span>
             <span className="font-semibold text-emerald-700">Verified Active</span>
           </div>
         </div>
@@ -270,7 +270,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
 
       {/* Compare Floating Bar if 2 selected */}
       {selectedForCompare.length === 2 && onCompareInvestigations && (
-        <div className="p-3 bg-[#1C1F26] text-white rounded-lg flex items-center justify-between text-xs shadow-md">
+        <div className="p-3 bg-[#087F61] text-white rounded-lg flex items-center justify-between text-xs shadow-md">
           <div className="flex items-center gap-2">
             <GitCompareArrows className="w-4 h-4 text-emerald-400" />
             <span>2 investigation reports selected for comparative delta analysis</span>
@@ -289,7 +289,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
       <Card
         header={`Due Diligence Report History (${profile.reportHistory.length})`}
         headerAction={
-          <span className="text-[11px] text-[#5F6572]">
+          <span className="text-[11px] text-[#687385]">
             Select any 2 reports to compare signal delta
           </span>
         }
@@ -301,7 +301,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
             description="Execute a fresh investigation on this vendor to populate report history."
           />
         ) : (
-          <div className="divide-y divide-[#EAE6DF]">
+          <div className="divide-y divide-[#E4E9EB]">
             {profile.reportHistory.map((report) => {
               const isSelected = selectedForCompare.includes(report.id);
               const isExportingPdf = exportingId === `pdf_${report.id}`;
@@ -312,7 +312,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
                   key={report.id}
                   onClick={() => onSelectInvestigation(report.id)}
                   className={`py-3 px-3 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors ${
-                    isSelected ? 'bg-blue-50/80 border border-blue-200' : 'hover:bg-[#FAF8F5]'
+                    isSelected ? 'bg-blue-50/80 border border-blue-200' : 'hover:bg-[#F5F7F8]'
                   }`}
                 >
                   <div className="space-y-1">
@@ -322,13 +322,13 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
                         checked={isSelected}
                         onChange={(e) => handleToggleCompare(report.id, e as any)}
                         onClick={(e) => e.stopPropagation()}
-                        className="rounded border-[#D5CEC2] text-[#1C1F26] cursor-pointer"
+                        className="rounded border-[#D7DFE3] text-[#1C1F26] cursor-pointer"
                         title="Select for comparison"
                       />
                       <span className="font-bold text-xs text-[#1C1F26]">
                         Report #{report.id}
                       </span>
-                      <span className="text-[11px] font-mono text-[#8A91A0]">
+                      <span className="text-[11px] font-mono text-[#8490A0]">
                         {new Date(report.date).toLocaleString()}
                       </span>
                       <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
@@ -336,7 +336,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3 text-[11px] text-[#5F6572]">
+                    <div className="flex items-center gap-3 text-[11px] text-[#687385]">
                       <span>Priority: <strong className="text-[#1C1F26]">{report.reviewPriority.replace(/_/g, ' ')}</strong></span>
                       <span>·</span>
                       <span>Risk Score: <strong className="text-[#1C1F26]">{report.riskScore !== null ? `${report.riskScore} / 100` : 'Not calculated'}</strong></span>
@@ -351,7 +351,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
                       type="button"
                       onClick={(e) => handleExportPdf(report.id, e)}
                       disabled={isExportingPdf}
-                      className="px-2.5 py-1.5 bg-white border border-[#D5CEC2] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#FAF8F5] cursor-pointer flex items-center gap-1 shadow-xs"
+                      className="px-2.5 py-1.5 bg-white border border-[#D7DFE3] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#F5F7F8] cursor-pointer flex items-center gap-1 shadow-xs"
                       title="Download PDF report with methodology, sources, and disclaimer"
                     >
                       <Download className={`w-3 h-3 ${isExportingPdf ? 'animate-spin' : ''}`} />
@@ -362,7 +362,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
                       type="button"
                       onClick={(e) => handleExportCsv(report.id, e)}
                       disabled={isExportingCsv}
-                      className="px-2.5 py-1.5 bg-white border border-[#D5CEC2] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#FAF8F5] cursor-pointer flex items-center gap-1 shadow-xs"
+                      className="px-2.5 py-1.5 bg-white border border-[#D7DFE3] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#F5F7F8] cursor-pointer flex items-center gap-1 shadow-xs"
                       title="Download CSV evidence register with RFC 4180 escaping"
                     >
                       <Download className={`w-3 h-3 ${isExportingCsv ? 'animate-spin' : ''}`} />

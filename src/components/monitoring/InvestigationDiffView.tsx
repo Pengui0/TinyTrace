@@ -207,30 +207,30 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
   return (
     <div className="space-y-5">
       {/* Header with Re-Run Action */}
-      <div className="grid grid-cols-1 items-center gap-4 border-b border-[#EAE6DF] pb-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+      <div className="grid grid-cols-1 items-center gap-4 border-b border-[#E4E9EB] pb-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <div className="min-w-0">
           <h1 className="flex items-center gap-2 text-lg font-bold leading-tight text-[#1C1F26] sm:text-xl">
             <GitCompareArrows className="h-5 w-5 shrink-0 text-[#1C1F26]" />
             <span>Monitoring &amp; report changes</span>
           </h1>
-          <p className="mt-1 max-w-xl text-xs leading-relaxed text-[#5F6572]">
+          <p className="mt-1 max-w-xl text-xs leading-relaxed text-[#687385]">
             Re-run checks manually and compare reports to see what changed.
           </p>
         </div>
 
         {allInvestigations.length > 0 && (
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end">
-            <label className="min-w-0 flex-1 space-y-1 text-[11px] font-semibold text-[#5F6572]">
+            <label className="min-w-0 flex-1 space-y-1 text-[11px] font-semibold text-[#687385]">
               <span>Select a report to re-run</span>
               <select
                 aria-label="Investigation to re-run"
                 value={rerunTargetId}
                 onChange={(event) => setRerunTargetId(event.target.value)}
-                className="block min-h-10 w-full min-w-0 rounded-lg border border-[#D5CEC2] bg-white px-3 py-2 text-sm text-[#1C1F26] shadow-sm focus:border-[#8A91A0] focus:outline-none focus:ring-2 focus:ring-[#EAE6DF]"
+                className="block min-h-10 w-full min-w-0 rounded-lg border border-[#D7DFE3] bg-white px-3 py-2 text-sm text-[#1C1F26] shadow-sm focus:border-[#8490A0] focus:outline-none focus:ring-2 focus:ring-[#E4E9EB]"
               >
                 {allInvestigations.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.targetName} � {new Date(item.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    {item.targetName} � {new Date(item.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                   </option>
                 ))}
               </select>
@@ -242,7 +242,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
               className={`min-h-10 shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors ${
                 isReRunning || !rerunTarget
                   ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                  : 'bg-[#1C1F26] text-white hover:bg-[#2D323E]'
+                  : 'bg-[#087F61] text-white hover:bg-[#066C53]'
               }`}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isReRunning ? 'animate-spin' : ''}`} />
@@ -277,12 +277,12 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
             <span className="font-semibold text-[#1C1F26] block">
               Desired Target Frequency
             </span>
-            <p className="text-[11px] text-[#5F6572]">
+            <p className="text-[11px] text-[#687385]">
               Saved as a preference for future automation. Checks currently run manually.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 rounded-xl bg-[#F4F1EA] p-1.5">
+          <div className="flex flex-wrap items-center gap-2 rounded-xl bg-[#EEF2F3] p-1.5">
             {(['MANUAL_ONLY', 'DAILY', 'WEEKLY', 'MONTHLY'] as MonitoringFrequencyPreference[]).map((pref) => (
               <button
                 key={pref}
@@ -291,8 +291,8 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                 disabled={isSavingPref}
                 className={`min-h-10 min-w-[88px] px-4 py-2 rounded-lg text-xs font-semibold border cursor-pointer transition-all ${
                   monitoringConfig?.preference === pref
-                  ? 'bg-[#1C1F26] text-white border-[#1C1F26] shadow-sm'
-                    : 'bg-white text-[#5F6572] border-transparent hover:border-[#D5CEC2] hover:text-[#1C1F26]'
+                  ? 'bg-[#087F61] text-white border-[#1C1F26] shadow-sm'
+                    : 'bg-white text-[#687385] border-transparent hover:border-[#D7DFE3] hover:text-[#1C1F26]'
                 }`}
               >
                 {pref.replace('_', ' ')}
@@ -314,7 +314,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                 value={selectedBaselineId}
                 onChange={(e) => setSelectedBaselineId(e.target.value)}
                 aria-label="Baseline investigation run"
-                className="w-full min-h-12 px-4 py-3 text-sm bg-white border border-[#D5CEC2] rounded-lg text-[#1C1F26] shadow-sm focus:outline-none focus:border-[#1C1F26] focus:ring-2 focus:ring-[#EAE6DF]"
+                className="w-full min-h-12 px-4 py-3 text-sm bg-white border border-[#D7DFE3] rounded-lg text-[#1C1F26] shadow-sm focus:outline-none focus:border-[#1C1F26] focus:ring-2 focus:ring-[#E4E9EB]"
               >
                 <option value="">Select baseline run...</option>
                 {allInvestigations.map((inv) => (
@@ -333,7 +333,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                 value={selectedLatestId}
                 onChange={(e) => setSelectedLatestId(e.target.value)}
                 aria-label="Latest investigation run"
-                className="w-full min-h-12 px-4 py-3 text-sm bg-white border border-[#D5CEC2] rounded-lg text-[#1C1F26] shadow-sm focus:outline-none focus:border-[#1C1F26] focus:ring-2 focus:ring-[#EAE6DF]"
+                className="w-full min-h-12 px-4 py-3 text-sm bg-white border border-[#D7DFE3] rounded-lg text-[#1C1F26] shadow-sm focus:outline-none focus:border-[#1C1F26] focus:ring-2 focus:ring-[#E4E9EB]"
               >
                 <option value="">Select comparison run...</option>
                 {allInvestigations.map((inv) => (
@@ -352,7 +352,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
               disabled={isComparing || Boolean(comparisonSelectionError)}
               aria-busy={isComparing}
               title={comparisonSelectionError || undefined}
-              className="min-h-11 min-w-[190px] px-5 py-2.5 bg-[#1C1F26] text-white rounded-lg text-sm font-semibold hover:bg-[#2D323E] shadow-sm cursor-pointer flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+              className="min-h-11 min-w-[190px] px-5 py-2.5 bg-[#087F61] text-white rounded-lg text-sm font-semibold hover:bg-[#066C53] shadow-sm cursor-pointer flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
             >
               <GitCompareArrows className={`w-3.5 h-3.5 ${isComparing ? 'animate-pulse' : ''}`} />
               {isComparing ? 'Computing delta…' : 'Compute Signal Delta'}
@@ -421,13 +421,13 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
           </div>
 
           {/* Overall Narrative Summary */}
-          <div className="p-3 bg-white border border-[#D5CEC2] rounded-lg text-xs space-y-1">
+          <div className="p-3 bg-white border border-[#D7DFE3] rounded-lg text-xs space-y-1">
             <span className="font-bold text-[#1C1F26]">Comparison complete:</span>
-            <p className="text-[11px] text-[#5F6572]">
+            <p className="text-[11px] text-[#687385]">
               {baselineInvestigation?.targetName || comparisonReport.vendorName} · {new Date(comparisonReport.previousRunDate).toLocaleString()} → {latestInvestigation?.targetName || comparisonReport.vendorName} · {new Date(comparisonReport.latestRunDate).toLocaleString()}
             </p>
             <span className="font-bold text-[#1C1F26]">Delta Assessment:</span>
-            <p className="text-[#5F6572] leading-relaxed">{comparisonReport.summary}</p>
+            <p className="text-[#687385] leading-relaxed">{comparisonReport.summary}</p>
           </div>
 
           {/* Section 1: New Signals */}
@@ -440,7 +440,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                 </span>
               }
             >
-              <div className="divide-y divide-[#EAE6DF]">
+              <div className="divide-y divide-[#E4E9EB]">
                 {comparisonReport.newSignals.map((sig) => (
                   <div key={sig.id} className="py-3 space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
@@ -454,7 +454,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                         {sig.statusBadge}
                       </span>
                     </div>
-                    <p className="text-xs text-[#5F6572]">{sig.explanation}</p>
+                    <p className="text-xs text-[#687385]">{sig.explanation}</p>
                     {sig.currentSignal?.evidence[0]?.url && (
                       <a
                         href={sig.currentSignal.evidence[0].url}
@@ -481,7 +481,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                 </span>
               }
             >
-              <div className="divide-y divide-[#EAE6DF]">
+              <div className="divide-y divide-[#E4E9EB]">
                 {comparisonReport.changedSignals.map((sig) => {
                   const isExpanded = expandedDiffId === sig.id;
                   const isResolved = sig.diffType === 'RESOLVED_BY_SOURCE';
@@ -504,38 +504,38 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setExpandedDiffId(isExpanded ? null : sig.id)}
-                          className="text-[11px] font-semibold text-[#5F6572] hover:text-[#1C1F26] flex items-center gap-1 cursor-pointer"
+                          className="text-[11px] font-semibold text-[#687385] hover:text-[#1C1F26] flex items-center gap-1 cursor-pointer"
                         >
                           {isExpanded ? 'Hide Field Diff' : 'View Field Diff'}
                           {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                         </button>
                       </div>
 
-                      <p className="text-xs text-[#5F6572]">{sig.explanation}</p>
+                      <p className="text-xs text-[#687385]">{sig.explanation}</p>
 
                       {/* Field-by-Field Diff Comparison */}
                       {isExpanded && (
-                        <div className="bg-[#FAF8F5] p-3 rounded border border-[#EAE6DF] space-y-2 text-xs">
+                        <div className="bg-[#F5F7F8] p-3 rounded border border-[#E4E9EB] space-y-2 text-xs">
                           <span className="text-[11px] font-bold text-[#1C1F26] block">
                             Field-by-Field Attribute Diff:
                           </span>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {sig.changes.map((change, idx) => (
-                              <div key={idx} className="bg-white p-2 rounded border border-[#D5CEC2]">
-                                <span className="font-semibold text-[#5F6572] uppercase text-[10px] block">
+                              <div key={idx} className="bg-white p-2 rounded border border-[#D7DFE3]">
+                                <span className="font-semibold text-[#687385] uppercase text-[10px] block">
                                   {change.field}
                                 </span>
                                 <div className="mt-1 flex items-center gap-2 text-xs">
                                   <span className="line-through text-red-600 font-mono">
                                     {String(change.previousValue)}
                                   </span>
-                                  <ArrowRight className="w-3 h-3 text-[#8A91A0]" />
+                                  <ArrowRight className="w-3 h-3 text-[#8490A0]" />
                                   <span className="text-emerald-700 font-bold font-mono">
                                     {String(change.currentValue)}
                                   </span>
                                 </div>
                                 {change.currentEvidenceDate && (
-                                  <span className="text-[10px] text-[#8A91A0] block mt-1">
+                                  <span className="text-[10px] text-[#8490A0] block mt-1">
                                     Evidence Date: {new Date(change.currentEvidenceDate).toLocaleDateString()}
                                   </span>
                                 )}
@@ -561,7 +561,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                 </span>
               }
             >
-              <div className="divide-y divide-[#EAE6DF]">
+              <div className="divide-y divide-[#E4E9EB]">
                 {comparisonReport.notObservedSignals.map((sig) => (
                   <div key={sig.id} className="py-3 space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
@@ -570,7 +570,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
                         {sig.statusBadge}
                       </span>
                     </div>
-                    <p className="text-xs text-[#5F6572] leading-relaxed">
+                    <p className="text-xs text-[#687385] leading-relaxed">
                       {sig.explanation}
                     </p>
                   </div>
@@ -590,7 +590,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
         </div>
       ) : (
         <EmptyState
-          icon={<GitCompareArrows className="w-6 h-6 text-[#5F6572]" />}
+          icon={<GitCompareArrows className="w-6 h-6 text-[#687385]" />}
           title="No Comparison Computed Yet"
           description="Click 'Re-run Investigation' above or select two past investigation runs to inspect verified changes, procedural resolutions, and newly surfaced signals."
         />

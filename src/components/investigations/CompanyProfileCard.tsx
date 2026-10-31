@@ -68,13 +68,13 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
     >
       <div className="space-y-4 text-xs">
         {/* Title & Core Identifiers */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-[#EAE6DF]">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-[#E4E9EB]">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-bold text-[#1C1F26]">
                 {profile.canonicalName}
               </h2>
-              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#5F6572]">
+              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#687385]">
                 {profile.entityType}
               </span>
               <Badge
@@ -90,7 +90,7 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
             </div>
 
             {profile.tradeName && (
-              <p className="mt-0.5 text-xs text-[#5F6572]">
+              <p className="mt-0.5 text-xs text-[#687385]">
                 Trade Name: <strong>{profile.tradeName}</strong>
               </p>
             )}
@@ -105,14 +105,14 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
               className="flex items-center gap-1 text-[11px] text-[#1C1F26] hover:underline shrink-0"
             >
               <span>Verify Official Registry Source</span>
-              <ExternalLink className="w-3 h-3 text-[#8A91A0]" />
+              <ExternalLink className="w-3 h-3 text-[#8490A0]" />
             </a>
           )}
         </div>
 
         {/* Identity & Ambiguity Guidance Banner */}
         {profile.ambiguityNotes && (
-          <div className="p-2.5 rounded bg-[#FCFBF9] border-l-2 border-[#1C1F26] border-y border-r border-[#EAE6DF] text-[11px] text-[#5F6572] leading-relaxed">
+          <div className="p-2.5 rounded bg-[#F8FAFB] border-l-2 border-[#1C1F26] border-y border-r border-[#E4E9EB] text-[11px] text-[#687385] leading-relaxed">
             <strong className="text-[#1C1F26]">Identity Verification Note: </strong>
             {profile.ambiguityNotes}
           </div>
@@ -122,8 +122,8 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {/* CIN or LLPIN or GSTIN */}
           {profile.cin && (
-            <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+            <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 Corporate ID (CIN)
               </span>
               <span className="font-mono text-xs font-bold text-[#1C1F26] block mt-0.5">
@@ -133,8 +133,8 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
           )}
 
           {profile.llpin && (
-            <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+            <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 LLP Identification (LLPIN)
               </span>
               <span className="font-mono text-xs font-bold text-[#1C1F26] block mt-0.5">
@@ -144,8 +144,8 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
           )}
 
           {profile.gstins.length > 0 && (
-            <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+            <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 Goods & Services Tax (GSTIN)
               </span>
               <span className="font-mono text-xs font-bold text-[#1C1F26] block mt-0.5 truncate">
@@ -155,8 +155,8 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
           )}
 
           {profile.pan && (
-            <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+            <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 Income Tax PAN
               </span>
               <span className="font-mono text-xs font-bold text-[#1C1F26] block mt-0.5">
@@ -166,20 +166,20 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
           )}
 
           {profile.incorporationDate && (
-            <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+            <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 {isProprietorship ? 'Registration Date' : 'Incorporation Date'}
               </span>
               <div className="flex items-center gap-1 text-xs text-[#1C1F26] mt-0.5 font-medium">
-                <Calendar className="w-3.5 h-3.5 text-[#8A91A0]" />
+                <Calendar className="w-3.5 h-3.5 text-[#8490A0]" />
                 <span>{profile.incorporationDate}</span>
               </div>
             </div>
           )}
 
           {profile.businessCategory && (
-            <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded sm:col-span-2">
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+            <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded sm:col-span-2">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 Business Category / Constitution
               </span>
               <span className="text-xs text-[#1C1F26] block mt-0.5 font-medium">
@@ -191,10 +191,10 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
 
         {/* Registered Office Address if returned */}
         {profile.registeredOffice && (
-          <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-[#5F6572] shrink-0 mt-0.5" />
+          <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded flex items-start gap-2">
+            <MapPin className="w-4 h-4 text-[#687385] shrink-0 mt-0.5" />
             <div>
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 {isProprietorship ? 'Principal Place of Business' : 'RoC Registered Office Address'}
               </span>
               <p className="text-xs text-[#1C1F26] mt-0.5 leading-relaxed">
@@ -206,21 +206,21 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
 
         {/* Directors List if accessible */}
         {profile.directors && profile.directors.length > 0 && (
-          <div className="space-y-2 pt-2 border-t border-[#EAE6DF]">
+          <div className="space-y-2 pt-2 border-t border-[#E4E9EB]">
             <span className="text-xs font-bold text-[#1C1F26] flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-[#5F6572]" />
+              <UserCheck className="w-3.5 h-3.5 text-[#687385]" />
               <span>Registered Directors / Partners ({profile.directors.length})</span>
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {profile.directors.map((d, i) => (
-                <div key={i} className="p-2.5 bg-[#FCFBF9] border border-[#EAE6DF] rounded flex flex-col justify-between">
+                <div key={i} className="p-2.5 bg-[#F8FAFB] border border-[#E4E9EB] rounded flex flex-col justify-between">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-xs text-[#1C1F26]">{d.name}</span>
-                    <span className="font-mono text-[10px] text-[#5F6572]">DIN: {d.din}</span>
+                    <span className="font-mono text-[10px] text-[#687385]">DIN: {d.din}</span>
                   </div>
                   {d.designation && (
-                    <span className="text-[10px] text-[#8A91A0] mt-0.5">
+                    <span className="text-[10px] text-[#8490A0] mt-0.5">
                       {d.designation} {d.appointmentDate ? `· Appointed: ${d.appointmentDate}` : ''}
                     </span>
                   )}
@@ -232,18 +232,18 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
 
         {/* Registered Charges & Filings if accessible */}
         {profile.charges && profile.charges.length > 0 && (
-          <div className="space-y-2 pt-2 border-t border-[#EAE6DF]">
+          <div className="space-y-2 pt-2 border-t border-[#E4E9EB]">
             <span className="text-xs font-bold text-[#1C1F26] flex items-center gap-1.5">
-              <FileCheck className="w-3.5 h-3.5 text-[#5F6572]" />
+              <FileCheck className="w-3.5 h-3.5 text-[#687385]" />
               <span>Registered Charges & Filings ({profile.charges.length})</span>
             </span>
 
-            <div className="divide-y divide-[#EAE6DF] border border-[#EAE6DF] rounded bg-white">
+            <div className="divide-y divide-[#E4E9EB] border border-[#E4E9EB] rounded bg-white">
               {profile.charges.map((c, i) => (
                 <div key={i} className="p-2.5 flex items-center justify-between text-xs">
                   <div>
                     <span className="font-semibold text-[#1C1F26]">{c.holderName}</span>
-                    <div className="text-[10px] text-[#8A91A0]">
+                    <div className="text-[10px] text-[#8490A0]">
                       Charge ID: {c.chargeId} {c.creationDate ? `· Created: ${c.creationDate}` : ''}
                     </div>
                   </div>
@@ -264,7 +264,7 @@ export const CompanyProfileCard: React.FC<CompanyProfileCardProps> = ({
         )}
 
         {/* Timestamp & Registry Provenance Footer */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-2 border-t border-[#EAE6DF] text-[10px] text-[#8A91A0]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-2 border-t border-[#E4E9EB] text-[10px] text-[#8490A0]">
           <div>
             <span>Retrieved via IndiaCos Registry Engine · Fetched: {new Date(profile.lastFetchedAt).toLocaleString()}</span>
           </div>

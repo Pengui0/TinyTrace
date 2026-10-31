@@ -22,8 +22,8 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
         </Button>
       }
     >
-      <div className="space-y-4 text-xs text-[#5F6572] max-h-[60vh] overflow-y-auto pr-1">
-        <div className="p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded space-y-1">
+      <div className="space-y-4 text-xs text-[#687385] max-h-[60vh] overflow-y-auto pr-1">
+        <div className="p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded space-y-1">
           <span className="font-bold text-[#1C1F26] block">Core Diligence Promise</span>
           <p className="leading-relaxed">
             &ldquo;We don't just find risk signals. We trace who is behind them, prove every claim across independent sources, and clearly separate verified evidence from findings that need human review.&rdquo;

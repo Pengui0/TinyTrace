@@ -60,17 +60,17 @@ export const InvestigationSearchFilter: React.FC<InvestigationSearchFilterProps>
   const activeCount = Object.values(filters).filter((v) => v.trim().length > 0).length;
 
   return (
-    <div className="bg-white border border-[#D5CEC2] rounded-lg p-3.5 shadow-xs space-y-3">
+    <div className="bg-white border border-[#D7DFE3] rounded-lg p-3.5 shadow-xs space-y-3">
       {/* Primary Search Bar Row */}
       <div className="flex flex-col sm:flex-row gap-2.5">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#8A91A0] absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-[#8490A0] absolute left-3 top-2.5" />
           <input
             type="text"
             placeholder="Search investigations by vendor name, officer..."
             value={filters.vendor}
             onChange={(e) => handleInputChange('vendor', e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] placeholder-[#8A91A0] focus:bg-white focus:outline-none focus:border-[#1C1F26]"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] placeholder-[#8490A0] focus:bg-white focus:outline-none focus:border-[#1C1F26]"
           />
         </div>
 
@@ -80,7 +80,7 @@ export const InvestigationSearchFilter: React.FC<InvestigationSearchFilterProps>
             placeholder="CIN / GSTIN / PAN..."
             value={filters.identifier}
             onChange={(e) => handleInputChange('identifier', e.target.value)}
-            className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] placeholder-[#8A91A0] focus:bg-white focus:outline-none focus:border-[#1C1F26]"
+            className="w-full px-3 py-2 text-xs bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] placeholder-[#8490A0] focus:bg-white focus:outline-none focus:border-[#1C1F26]"
           />
         </div>
 
@@ -89,8 +89,8 @@ export const InvestigationSearchFilter: React.FC<InvestigationSearchFilterProps>
           onClick={() => setIsExpanded(!isExpanded)}
           className={`px-3 py-2 rounded text-xs font-semibold border flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
             activeCount > 0 || isExpanded
-              ? 'bg-[#1C1F26] text-white border-[#1C1F26]'
-              : 'bg-[#FAF8F5] text-[#5F6572] border-[#D5CEC2] hover:bg-white'
+              ? 'bg-[#087F61] text-white border-[#1C1F26]'
+              : 'bg-[#F5F7F8] text-[#687385] border-[#D7DFE3] hover:bg-white'
           }`}
         >
           <Filter className="w-3.5 h-3.5" />
@@ -111,15 +111,15 @@ export const InvestigationSearchFilter: React.FC<InvestigationSearchFilterProps>
 
       {/* Expanded Multi-Attribute Filters Drawer */}
       {isExpanded && (
-        <div className="pt-3 border-t border-[#EAE6DF] grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+        <div className="pt-3 border-t border-[#E4E9EB] grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
           <div>
-            <label className="block text-[11px] font-semibold text-[#5F6572] mb-1">
+            <label className="block text-[11px] font-semibold text-[#687385] mb-1">
               Investigation Status
             </label>
             <select
               value={filters.status}
               onChange={(e) => handleInputChange('status', e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
+              className="w-full px-2.5 py-1.5 bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
             >
               <option value="">All Statuses</option>
               <option value="COMPLETED">Completed</option>
@@ -129,13 +129,13 @@ export const InvestigationSearchFilter: React.FC<InvestigationSearchFilterProps>
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[#5F6572] mb-1">
+            <label className="block text-[11px] font-semibold text-[#687385] mb-1">
               Review Priority
             </label>
             <select
               value={filters.reviewPriority}
               onChange={(e) => handleInputChange('reviewPriority', e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
+              className="w-full px-2.5 py-1.5 bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
             >
               <option value="">All Priorities</option>
               <option value="ELEVATED_REVIEW_PRIORITY">Elevated Review</option>
@@ -146,13 +146,13 @@ export const InvestigationSearchFilter: React.FC<InvestigationSearchFilterProps>
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[#5F6572] mb-1">
+            <label className="block text-[11px] font-semibold text-[#687385] mb-1">
               Risk Dimension
             </label>
             <select
               value={filters.dimension}
               onChange={(e) => handleInputChange('dimension', e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
+              className="w-full px-2.5 py-1.5 bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
             >
               <option value="">All Dimensions</option>
               <option value="company_registry">Company Registry / MCA</option>
@@ -164,21 +164,21 @@ export const InvestigationSearchFilter: React.FC<InvestigationSearchFilterProps>
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[#5F6572] mb-1">
+            <label className="block text-[11px] font-semibold text-[#687385] mb-1">
               Date Range (From)
             </label>
             <input
               type="date"
               value={filters.dateFrom}
               onChange={(e) => handleInputChange('dateFrom', e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
+              className="w-full px-2.5 py-1.5 bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] focus:bg-white focus:outline-none"
             />
           </div>
         </div>
       )}
 
       {/* Result Tally Banner */}
-      <div className="flex items-center justify-between text-[11px] text-[#5F6572] pt-1">
+      <div className="flex items-center justify-between text-[11px] text-[#687385] pt-1">
         <span>Showing {totalResults} matching report(s)</span>
         {activeCount > 0 && (
           <span className="font-medium text-[#1C1F26]">

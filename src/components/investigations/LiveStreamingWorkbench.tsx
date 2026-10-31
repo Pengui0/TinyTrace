@@ -435,9 +435,9 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
   const reportFailed = Boolean(completedReport?.dimensions && completedReport.status === 'failed' && !hasPartialCoverage);
 
   return (
-    <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-lg p-5 space-y-5">
+    <div className="bg-[#F5F7F8] border border-[#E4E9EB] rounded-lg p-5 space-y-5">
       {/* Workbench Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#EAE6DF]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E4E9EB]">
         <div>
           <div className="flex items-center gap-2">
             <Radio className={`w-4 h-4 ${isRunning ? 'text-amber-600 animate-pulse' : 'text-[#1C1F26]'}`} />
@@ -445,7 +445,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
               {isDemoMode ? 'Demo Investigation Event Workbench' : 'Live Search & Evidence Workbench'}
             </h2>
           </div>
-          <p className="text-xs text-[#5F6572] mt-0.5">
+          <p className="text-xs text-[#687385] mt-0.5">
             {isDemoMode
               ? 'Deterministic synthetic event stream for demonstration. No live browser session or upstream audit is claimed.'
               : 'VendorTrace runs bounded registry, court, procurement, and adverse-media checks. Missing or inaccessible evidence never verifies a clean record.'}
@@ -469,7 +469,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
               onClick={() => handleStartLiveRun(isDemoMode)}
               disabled={!targetName.trim()}
               title={!targetName.trim() ? 'Enter a company or vendor name before launching.' : undefined}
-              className="px-3.5 py-1.5 bg-[#1C1F26] hover:bg-[#2D323E] disabled:bg-[#A8A8A8] disabled:cursor-not-allowed text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 bg-[#087F61] hover:bg-[#066C53] disabled:bg-[#A8A8A8] disabled:cursor-not-allowed text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
             >
               <Play className="w-3 h-3 fill-current" />
               <span>{isDemoMode ? 'Run Demo Agent Simulation' : 'Launch Live Agent Stream'}</span>
@@ -477,13 +477,13 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
           )}
 
           {isRunning && (
-            <div className="px-2.5 py-1 bg-white border border-[#EAE6DF] rounded font-mono text-xs text-[#1C1F26] flex items-center gap-1.5 shadow-xs">
+            <div className="px-2.5 py-1 bg-white border border-[#E4E9EB] rounded font-mono text-xs text-[#1C1F26] flex items-center gap-1.5 shadow-xs">
               <Clock className="w-3 h-3 text-amber-600 animate-spin" />
               <span>{formattedTime}s</span>
             </div>
           )}
           {runStatus !== 'IDLE' && (
-            <div className="text-[10px] font-mono text-[#5F6572] bg-white border border-[#EAE6DF] rounded px-2 py-1" role="status">
+            <div className="text-[10px] font-mono text-[#687385] bg-white border border-[#E4E9EB] rounded px-2 py-1" role="status">
               {runStatus} · {attemptCount}/2 attempts
               {isRunning && ` · ${remainingAgentSeconds}s agent time left`}
             </div>
@@ -523,12 +523,12 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                   ? 'bg-slate-50 border-slate-200'
                   : ws.status === 'partial'
                   ? 'bg-amber-50 border-amber-200'
-                  : 'bg-[#F4F1EA]/50 border-[#EAE6DF]'
+                  : 'bg-[#EEF2F3]/50 border-[#E4E9EB]'
               }`}
             >
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <div className="p-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26]">
+                  <div className="p-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26]">
                     <Icon className="w-3.5 h-3.5" />
                   </div>
                   {isDone ? (
@@ -552,7 +552,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                   ) : ws.status === 'partial' ? (
                     <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-300">Partial</span>
                   ) : (
-                    <span className="text-[10px] text-[#8A91A0] font-mono">{!isRunning && !lastCompletedRun && !activeError ? 'Idle' : 'Queued'}</span>
+                    <span className="text-[10px] text-[#8490A0] font-mono">{!isRunning && !lastCompletedRun && !activeError ? 'Idle' : 'Queued'}</span>
                   )}
                 </div>
 
@@ -560,52 +560,52 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                   <h4 className="text-xs font-bold text-[#1C1F26] leading-tight">
                     {ws.name}
                   </h4>
-                  <span className="text-[10px] text-[#8A91A0] block mt-0.5">
+                  <span className="text-[10px] text-[#8490A0] block mt-0.5">
                     {isDemoMode ? 'Synthetic demo simulation' : ws.provider}
                   </span>
                 </div>
               </div>
 
-              <div className="pt-2 mt-2 border-t border-[#EAE6DF]/70 text-[11px] text-[#5F6572] break-words italic">
+              <div className="pt-2 mt-2 border-t border-[#E4E9EB]/70 text-[11px] text-[#687385] break-words italic">
                 &ldquo;{ws.message}&rdquo;
               </div>
               {dimensionDetails.length > 0 && (
-                <div className="mt-2 border-t border-[#EAE6DF] pt-2 text-[10px] not-italic">
+                <div className="mt-2 border-t border-[#E4E9EB] pt-2 text-[10px] not-italic">
                   <button type="button" onClick={() => setSelectedSourceDetails({ workstreamId: ws.id, workstreamName: ws.name })} className="font-semibold text-[#1C1F26] hover:text-emerald-800 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
                     View checked sources and coverage details
                   </button>
                   {selectedSourceDetails?.workstreamId === ws.id && (
-                  <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1C1F26]/55 p-4 backdrop-blur-[2px]" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedSourceDetails(null); }}>
-                    <section role="dialog" aria-modal="true" aria-labelledby="workstream-details-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[#D5CEC2] bg-white text-xs shadow-2xl">
-                      <header className="flex items-start justify-between gap-4 border-b border-[#EAE6DF] px-5 py-4">
+                  <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#171C25]/55 p-4 backdrop-blur-[2px]" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedSourceDetails(null); }}>
+                    <section role="dialog" aria-modal="true" aria-labelledby="workstream-details-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[#D7DFE3] bg-white text-xs shadow-2xl">
+                      <header className="flex items-start justify-between gap-4 border-b border-[#E4E9EB] px-5 py-4">
                         <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8A91A0]">Checked sources & coverage</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8490A0]">Checked sources & coverage</p>
                           <h2 id="workstream-details-title" className="mt-1 text-base font-bold text-[#1C1F26]">{selectedSourceDetails.workstreamName}</h2>
-                          <p className="mt-1 text-xs text-[#5F6572]">{ws.provider}</p>
+                          <p className="mt-1 text-xs text-[#687385]">{ws.provider}</p>
                         </div>
-                        <button type="button" autoFocus onClick={() => setSelectedSourceDetails(null)} aria-label="Close source details" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#EAE6DF] text-[#5F6572] hover:bg-[#FAF8F5] hover:text-[#1C1F26] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+                        <button type="button" autoFocus onClick={() => setSelectedSourceDetails(null)} aria-label="Close source details" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#E4E9EB] text-[#687385] hover:bg-[#F5F7F8] hover:text-[#1C1F26] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
                           <X className="h-4 w-4" />
                         </button>
                       </header>
                       <div className="max-h-[calc(88vh-76px)] space-y-3 overflow-y-auto p-5">
                     {dimensionDetails.map(({ key, result }: any) => (
-                      <div key={key} className="space-y-1.5 rounded border border-[#EAE6DF] bg-white p-2.5">
+                      <div key={key} className="space-y-1.5 rounded border border-[#E4E9EB] bg-white p-2.5">
                         <div className="flex flex-wrap items-center justify-between gap-1">
                           <strong className="text-[#1C1F26]">{result.title || key.replace(/_/g, ' ')}</strong>
-                          <span className="rounded bg-[#F4F1EA] px-1.5 py-0.5 font-mono text-[9px] text-[#5F6572]">{result.status}</span>
+                          <span className="rounded bg-[#EEF2F3] px-1.5 py-0.5 font-mono text-[9px] text-[#687385]">{result.status}</span>
                         </div>
-                        <div className="text-[#5F6572]">Provider: {result.provider || ws.provider} · Checked sources: {result.sourceCount ?? result.sourcesChecked?.length ?? 0}{result.attemptCount !== undefined ? ` · Attempts: ${result.attemptCount}` : ''}{result.durationMs != null ? ` · ${result.durationMs}ms` : ''}</div>
-                        {result.sourcesChecked?.length > 0 && <div className="text-[#5F6572]"><strong>Sources checked:</strong> {result.sourcesChecked.join(' · ')}</div>}
+                        <div className="text-[#687385]">Provider: {result.provider || ws.provider} · Checked sources: {result.sourceCount ?? result.sourcesChecked?.length ?? 0}{result.attemptCount !== undefined ? ` · Attempts: ${result.attemptCount}` : ''}{result.durationMs != null ? ` · ${result.durationMs}ms` : ''}</div>
+                        {result.sourcesChecked?.length > 0 && <div className="text-[#687385]"><strong>Sources checked:</strong> {result.sourcesChecked.join(' · ')}</div>}
                         {result.errorMessage && <div className="rounded bg-amber-50 px-2 py-1.5 text-amber-950"><strong>Why coverage is limited:</strong> {result.errorMessage}</div>}
                         {result.coverageGaps?.length > 0 && (
                           <ul className="list-disc space-y-0.5 pl-4 text-amber-900">{result.coverageGaps.map((gap: string, index: number) => <li key={`${key}-gap-${index}`}>{gap}</li>)}</ul>
                         )}
                         {result.findings?.length > 0 ? result.findings.map((finding: any, findingIndex: number) => (
-                          <div key={`${key}-finding-${findingIndex}`} className="border-t border-[#EAE6DF] pt-1.5">
+                          <div key={`${key}-finding-${findingIndex}`} className="border-t border-[#E4E9EB] pt-1.5">
                             <div className="font-semibold text-[#1C1F26]">{finding.title}</div>
-                            <p className="mt-0.5 text-[#5F6572]">{finding.neutralSummary}</p>
+                            <p className="mt-0.5 text-[#687385]">{finding.neutralSummary}</p>
                             {(finding.evidence || []).map((evidence: any, evidenceIndex: number) => (
-                              <div key={`${key}-evidence-${evidenceIndex}`} className="mt-1 text-[#5F6572]">
+                              <div key={`${key}-evidence-${evidenceIndex}`} className="mt-1 text-[#687385]">
                                 <div><strong>{evidence.sourceTitle || evidence.sourceName}</strong>{evidence.publisher ? ` · ${evidence.publisher}` : ''}</div>
                                 {evidence.url ? <a href={evidence.url} target="_blank" rel="noopener noreferrer" className="break-all text-blue-700 hover:underline">{evidence.url}</a> : <div className="text-amber-800">No direct source URL supplied.</div>}
                                 {evidence.snippet && <p className="mt-0.5">Excerpt: {evidence.snippet}</p>}
@@ -613,7 +613,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                               </div>
                             ))}
                           </div>
-                        )) : <p className="text-[#8A91A0]">No validated finding was returned for this dimension.</p>}
+                        )) : <p className="text-[#8490A0]">No validated finding was returned for this dimension.</p>}
                       </div>
                     ))}
                       </div>
@@ -646,7 +646,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
             </a>
           </div>
 
-          <div className="relative w-full aspect-video sm:h-80 bg-black rounded-lg overflow-hidden border border-[#D5CEC2] shadow-inner">
+          <div className="relative w-full aspect-video sm:h-80 bg-black rounded-lg overflow-hidden border border-[#D7DFE3] shadow-inner">
             <iframe
               src={streamingUrl}
               title="TinyFish Live Browser Automation Stream"
@@ -657,7 +657,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
         </div>
       ) : streamingUrl ? (
         // Safe fallback link if URL is provided but cannot be embedded
-        <div className="p-3 bg-white border border-[#EAE6DF] rounded-lg text-xs flex items-center justify-between">
+        <div className="p-3 bg-white border border-[#E4E9EB] rounded-lg text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-emerald-600" />
             <span className="font-semibold text-[#1C1F26]">
@@ -668,7 +668,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
             href={streamingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 bg-[#1C1F26] text-white rounded text-xs font-medium hover:bg-[#2D323E] flex items-center gap-1.5"
+            className="px-3 py-1.5 bg-[#087F61] text-white rounded text-xs font-medium hover:bg-[#066C53] flex items-center gap-1.5"
           >
             <span>Open live run</span>
             <ExternalLink className="w-3 h-3" />
@@ -691,7 +691,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                   ? `LAYER 1 ONLY · ${reportFailed ? 'FAILED' : hasPartialCoverage ? 'PARTIAL COVERAGE' : 'COMPLETE'} · ${completedReport.summary?.verdict || 'REVIEW'}`
                   : lastCompletedRun.result?.evidenceSearchOutcome || 'Provider Run Completed'}
               </span>
-              <span className="text-[10px] font-mono text-[#8A91A0]">
+              <span className="text-[10px] font-mono text-[#8490A0]">
                 Finished at {lastCompletedRun.completedAt} ({lastCompletedRun.elapsedMs}ms)
               </span>
             </div>
@@ -707,7 +707,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
               </a>
             )}
           </div>
-          <p className="text-[11px] text-[#5F6572]">
+          <p className="text-[11px] text-[#687385]">
             {completedReport?.dimensions
               ? !hasPartialCoverage && !reportFailed
                 ? 'All configured workstreams completed. Review the evidence and coverage notes before making a decision.'
@@ -721,16 +721,16 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
               : 'Synthetic provider result; no live source evidence is claimed.'}
           </p>
           {(lastCompletedRun.result?.findings || []).flatMap((finding: any) => finding.evidence || []).slice(0, 3).map((evidence: any, index: number) => (
-            <div key={`${evidence.url || evidence.sourceName}-${index}`} className="border-t border-[#EAE6DF] pt-2 text-[11px] space-y-1">
+            <div key={`${evidence.url || evidence.sourceName}-${index}`} className="border-t border-[#E4E9EB] pt-2 text-[11px] space-y-1">
               <div className="font-semibold text-[#1C1F26]">{evidence.sourceTitle || evidence.underlyingSource || evidence.sourceName}</div>
               {evidence.url
                 ? <a href={evidence.url} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline break-all">Direct source: {evidence.url}</a>
                 : <div className="text-amber-800">No direct source URL supplied.</div>}
               {evidence.searchResultUrl && <a href={evidence.searchResultUrl} target="_blank" rel="noopener noreferrer" className="text-amber-800 hover:underline break-all">Search result URL (source not fetched): {evidence.searchResultUrl}</a>}
               {evidence.sourceFetchError && <div className="text-amber-900 bg-amber-50 border border-amber-200 rounded p-2">Source fetch failed: {evidence.sourceFetchError}. Identity and finding remain unverified.</div>}
-              {evidence.searchQuery && <div className="text-[#5F6572]"><span className="font-semibold">Query:</span> {evidence.searchQuery}</div>}
-              {evidence.snippet && <div className="text-[#5F6572]">Excerpt: {evidence.snippet}</div>}
-              <div className="text-[#8A91A0]">{evidence.sourceFetchError ? 'Attempted' : 'Retrieved'} {evidence.capturedAt} · {evidence.identityMatchNote}</div>
+              {evidence.searchQuery && <div className="text-[#687385]"><span className="font-semibold">Query:</span> {evidence.searchQuery}</div>}
+              {evidence.snippet && <div className="text-[#687385]">Excerpt: {evidence.snippet}</div>}
+              <div className="text-[#8490A0]">{evidence.sourceFetchError ? 'Attempted' : 'Retrieved'} {evidence.capturedAt} · {evidence.identityMatchNote}</div>
             </div>
           ))}
         </div>
@@ -758,15 +758,15 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
 
       {/* Stream Events Ledger */}
       {streamEvents.length > 0 && (
-        <div className="space-y-1.5 pt-2 border-t border-[#EAE6DF]">
-          <span className="text-[10px] font-bold text-[#8A91A0] uppercase tracking-wider block">
+        <div className="space-y-1.5 pt-2 border-t border-[#E4E9EB]">
+          <span className="text-[10px] font-bold text-[#8490A0] uppercase tracking-wider block">
             {isDemoMode ? 'Demo Event Log' : 'Search Workflow Events'} ({streamEvents.length})
           </span>
-          <div className="space-y-1 max-h-32 overflow-y-auto font-mono text-[10px] bg-white p-2.5 rounded border border-[#EAE6DF]">
+          <div className="space-y-1 max-h-32 overflow-y-auto font-mono text-[10px] bg-white p-2.5 rounded border border-[#E4E9EB]">
             {streamEvents.map((ev, i) => (
-              <div key={i} className="flex items-center gap-2 text-[#5F6572]">
-                <span className="text-[#8A91A0]">{new Date(ev.timestamp).toLocaleTimeString()}</span>
-                <span className="font-bold text-[#1C1F26] px-1 rounded bg-[#FAF8F5] border border-[#EAE6DF]">
+              <div key={i} className="flex items-center gap-2 text-[#687385]">
+                <span className="text-[#8490A0]">{new Date(ev.timestamp).toLocaleTimeString()}</span>
+                <span className="font-bold text-[#1C1F26] px-1 rounded bg-[#F5F7F8] border border-[#E4E9EB]">
                   {ev.type}
                 </span>
                 <span className="truncate">{ev.message || ev.purpose || `Run ID: ${ev.runId}`}</span>

@@ -214,13 +214,13 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
       )}
 
       {/* 2. Vendor Identity Header & Match Status */}
-      <div className="bg-white border border-[#EAE6DF] rounded-lg p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white border border-[#E4E9EB] rounded-lg p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-lg font-bold text-[#1C1F26] tracking-tight">
               {investigation.targetName}
             </h2>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26] font-medium">
+            <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26] font-medium">
               {investigation.identifierType}: {investigation.identifierValue || 'Not Provided'}
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800">
@@ -228,7 +228,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-[#5F6572] flex-wrap">
+          <div className="flex items-center gap-3 text-xs text-[#687385] flex-wrap">
             <span>Report ID: <span className="font-mono text-[#1C1F26] font-medium">{investigation.id}</span></span>
             <span>·</span>
             <span>Completed: <span className="text-[#1C1F26]">{new Date(investigation.createdAt).toLocaleString()}</span></span>
@@ -251,7 +251,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
               type="button"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className="px-2.5 py-1.5 bg-white border border-[#D5CEC2] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#FAF8F5] cursor-pointer flex items-center gap-1.5 shadow-xs"
+              className="px-2.5 py-1.5 bg-white border border-[#D7DFE3] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#F5F7F8] cursor-pointer flex items-center gap-1.5 shadow-xs"
               title="Download formal due diligence PDF report"
             >
               <Download className={`w-3.5 h-3.5 ${isExportingPdf ? 'animate-spin' : ''}`} />
@@ -261,7 +261,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
               type="button"
               onClick={handleExportCsv}
               disabled={isExportingCsv}
-              className="px-2.5 py-1.5 bg-white border border-[#D5CEC2] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#FAF8F5] cursor-pointer flex items-center gap-1.5 shadow-xs"
+              className="px-2.5 py-1.5 bg-white border border-[#D7DFE3] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-[#F5F7F8] cursor-pointer flex items-center gap-1.5 shadow-xs"
               title="Download RFC 4180 CSV evidence register"
             >
               <Download className={`w-3.5 h-3.5 ${isExportingCsv ? 'animate-spin' : ''}`} />
@@ -273,13 +273,13 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
 
       {/* 3. Overall Review Priority with Score Explanation & Factor Contributions */}
       {assessment?.scoreBreakdown ? (
-        <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-lg p-4 space-y-3">
+        <div className="bg-[#F5F7F8] border border-[#E4E9EB] rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-[#1C1F26] uppercase tracking-wide">
                 Explainable Risk Index & Rule Explanation
               </span>
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white border border-[#EAE6DF] text-[#1C1F26]">
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white border border-[#E4E9EB] text-[#1C1F26]">
                 Score: {assessment.scoreBreakdown.totalScore} / 100
               </span>
             </div>
@@ -299,56 +299,56 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
 
           {/* Expandable Factor Contribution Table */}
           {isScoreExpanded && (
-            <div className="pt-3 border-t border-[#EAE6DF] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-              <div className="p-3 bg-white border border-[#EAE6DF] rounded space-y-1">
-                <div className="flex items-center justify-between text-[#5F6572]">
+            <div className="pt-3 border-t border-[#E4E9EB] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              <div className="p-3 bg-white border border-[#E4E9EB] rounded space-y-1">
+                <div className="flex items-center justify-between text-[#687385]">
                   <span className="font-semibold">Severity Weight</span>
                   <span className="font-mono text-[#1C1F26] font-bold">{assessment.scoreBreakdown.severityPoints}/40 pts</span>
                 </div>
-                <p className="text-[11px] text-[#5F6572] leading-snug">{assessment.scoreBreakdown.severityRationale}</p>
+                <p className="text-[11px] text-[#687385] leading-snug">{assessment.scoreBreakdown.severityRationale}</p>
               </div>
 
-              <div className="p-3 bg-white border border-[#EAE6DF] rounded space-y-1">
-                <div className="flex items-center justify-between text-[#5F6572]">
+              <div className="p-3 bg-white border border-[#E4E9EB] rounded space-y-1">
+                <div className="flex items-center justify-between text-[#687385]">
                   <span className="font-semibold">Evidence Confidence</span>
                   <span className="font-mono text-[#1C1F26] font-bold">{assessment.scoreBreakdown.confidencePoints}/30 pts</span>
                 </div>
-                <p className="text-[11px] text-[#5F6572] leading-snug">{assessment.scoreBreakdown.confidenceRationale}</p>
+                <p className="text-[11px] text-[#687385] leading-snug">{assessment.scoreBreakdown.confidenceRationale}</p>
               </div>
 
-              <div className="p-3 bg-white border border-[#EAE6DF] rounded space-y-1">
-                <div className="flex items-center justify-between text-[#5F6572]">
+              <div className="p-3 bg-white border border-[#E4E9EB] rounded space-y-1">
+                <div className="flex items-center justify-between text-[#687385]">
                   <span className="font-semibold">Signal Recency</span>
                   <span className="font-mono text-[#1C1F26] font-bold">{assessment.scoreBreakdown.recencyPoints}/15 pts</span>
                 </div>
-                <p className="text-[11px] text-[#5F6572] leading-snug">{assessment.scoreBreakdown.recencyRationale}</p>
+                <p className="text-[11px] text-[#687385] leading-snug">{assessment.scoreBreakdown.recencyRationale}</p>
               </div>
 
-              <div className="p-3 bg-white border border-[#EAE6DF] rounded space-y-1">
-                <div className="flex items-center justify-between text-[#5F6572]">
+              <div className="p-3 bg-white border border-[#E4E9EB] rounded space-y-1">
+                <div className="flex items-center justify-between text-[#687385]">
                   <span className="font-semibold">Identity Match Quality</span>
                   <span className="font-mono text-[#1C1F26] font-bold">{assessment.scoreBreakdown.identityMatchPoints}/15 pts</span>
                 </div>
-                <p className="text-[11px] text-[#5F6572] leading-snug">{assessment.scoreBreakdown.identityMatchRationale}</p>
+                <p className="text-[11px] text-[#687385] leading-snug">{assessment.scoreBreakdown.identityMatchRationale}</p>
               </div>
             </div>
           )}
         </div>
       ) : (
-        <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-lg p-4 text-xs text-[#5F6572]">
+        <div className="bg-[#F5F7F8] border border-[#E4E9EB] rounded-lg p-4 text-xs text-[#687385]">
           Explainable Risk Score: {assessmentValues.riskScore === null ? 'Not Calculated' : `${assessmentValues.riskScore} / 100`}
         </div>
       )}
 
       {/* 4. Executive Brief Summary with Exact Evidence Citations */}
       {assessment?.briefSummary && (
-        <div className="p-4 bg-white border border-[#EAE6DF] rounded-lg shadow-xs space-y-2">
+        <div className="p-4 bg-white border border-[#E4E9EB] rounded-lg shadow-xs space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-[#1C1F26] uppercase tracking-wide flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-[#1C1F26]" />
               Executive Diligence Summary (With Evidence Citations)
             </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#5F6572]">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#687385]">
               {assessment.briefSummary.generatedBy === 'GEMINI_ASSISTED' ? 'Citation Summary' : 'Deterministic Rule Summary'}
             </span>
           </div>
@@ -357,10 +357,10 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
             {assessment.briefSummary.text}
           </p>
 
-          <div className="flex items-center gap-1.5 flex-wrap pt-1 text-[10px] text-[#5F6572]">
+          <div className="flex items-center gap-1.5 flex-wrap pt-1 text-[10px] text-[#687385]">
             <span>Cited Evidence Ledger:</span>
             {assessment.briefSummary.citedEvidenceIds.map((id, idx) => (
-              <span key={idx} className="font-mono px-1.5 py-0.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26] font-medium">
+              <span key={idx} className="font-mono px-1.5 py-0.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26] font-medium">
                 [{id}]
               </span>
             ))}
@@ -371,26 +371,26 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
       {/* 5. Four Core Dimension Cards */}
       {dimensionCards && (
         <div className="space-y-3">
-          <h3 className="text-xs font-bold text-[#8A91A0] uppercase tracking-wider">
+          <h3 className="text-xs font-bold text-[#8490A0] uppercase tracking-wider">
             Four Core Risk Dimension Cards
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Card 1: Registry / GST */}
-            <div className="p-4 bg-white border border-[#EAE6DF] rounded-lg shadow-xs space-y-2.5">
+            <div className="p-4 bg-white border border-[#E4E9EB] rounded-lg shadow-xs space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26]">
+                  <div className="p-1.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26]">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#1C1F26]">{dimensionCards.registry_gst.title}</h4>
-                    <span className="text-[10px] text-[#8A91A0] font-mono">Count: {dimensionCards.registry_gst.count} finding(s)</span>
+                    <span className="text-[10px] text-[#8490A0] font-mono">Count: {dimensionCards.registry_gst.count} finding(s)</span>
                   </div>
                 </div>
                 {getDimensionStatusBadge(dimensionCards.registry_gst.status)}
               </div>
-              <p className="text-xs text-[#5F6572] leading-relaxed">
+              <p className="text-xs text-[#687385] leading-relaxed">
                 {dimensionCards.registry_gst.neutralSummary}
               </p>
               {dimensionCards.registry_gst.coverageGaps.length > 0 && (
@@ -401,20 +401,20 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
             </div>
 
             {/* Card 2: Court / Litigation */}
-            <div className="p-4 bg-white border border-[#EAE6DF] rounded-lg shadow-xs space-y-2.5">
+            <div className="p-4 bg-white border border-[#E4E9EB] rounded-lg shadow-xs space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26]">
+                  <div className="p-1.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26]">
                     <Scale className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#1C1F26]">{dimensionCards.court_litigation.title}</h4>
-                    <span className="text-[10px] text-[#8A91A0] font-mono">Count: {dimensionCards.court_litigation.count} finding(s)</span>
+                    <span className="text-[10px] text-[#8490A0] font-mono">Count: {dimensionCards.court_litigation.count} finding(s)</span>
                   </div>
                 </div>
                 {getDimensionStatusBadge(dimensionCards.court_litigation.status)}
               </div>
-              <p className="text-xs text-[#5F6572] leading-relaxed">
+              <p className="text-xs text-[#687385] leading-relaxed">
                 {dimensionCards.court_litigation.neutralSummary}
               </p>
               {dimensionCards.court_litigation.coverageGaps.length > 0 && (
@@ -425,20 +425,20 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
             </div>
 
             {/* Card 3: Blacklist / Debarment */}
-            <div className="p-4 bg-white border border-[#EAE6DF] rounded-lg shadow-xs space-y-2.5">
+            <div className="p-4 bg-white border border-[#E4E9EB] rounded-lg shadow-xs space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26]">
+                  <div className="p-1.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26]">
                     <ShieldAlert className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#1C1F26]">{dimensionCards.blacklist_debarment.title}</h4>
-                    <span className="text-[10px] text-[#8A91A0] font-mono">Count: {dimensionCards.blacklist_debarment.count} finding(s)</span>
+                    <span className="text-[10px] text-[#8490A0] font-mono">Count: {dimensionCards.blacklist_debarment.count} finding(s)</span>
                   </div>
                 </div>
                 {getDimensionStatusBadge(dimensionCards.blacklist_debarment.status)}
               </div>
-              <p className="text-xs text-[#5F6572] leading-relaxed">
+              <p className="text-xs text-[#687385] leading-relaxed">
                 {dimensionCards.blacklist_debarment.neutralSummary}
               </p>
               {dimensionCards.blacklist_debarment.coverageGaps.length > 0 && (
@@ -449,20 +449,20 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
             </div>
 
             {/* Card 4: Negative News & Media */}
-            <div className="p-4 bg-white border border-[#EAE6DF] rounded-lg shadow-xs space-y-2.5">
+            <div className="p-4 bg-white border border-[#E4E9EB] rounded-lg shadow-xs space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[#1C1F26]">
+                  <div className="p-1.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[#1C1F26]">
                     <Newspaper className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#1C1F26]">{dimensionCards.negative_news.title}</h4>
-                    <span className="text-[10px] text-[#8A91A0] font-mono">Count: {dimensionCards.negative_news.count} finding(s)</span>
+                    <span className="text-[10px] text-[#8490A0] font-mono">Count: {dimensionCards.negative_news.count} finding(s)</span>
                   </div>
                 </div>
                 {getDimensionStatusBadge(dimensionCards.negative_news.status)}
               </div>
-              <p className="text-xs text-[#5F6572] leading-relaxed">
+              <p className="text-xs text-[#687385] leading-relaxed">
                 {dimensionCards.negative_news.neutralSummary}
               </p>
               {dimensionCards.negative_news.coverageGaps.length > 0 && (
@@ -496,19 +496,19 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
           </div>
 
           {isReviewQueueExpanded && (
-            <div className="divide-y divide-[#EAE6DF]">
+            <div className="divide-y divide-[#E4E9EB]">
               {assessment.humanReviewQueue.map((item) => (
-                <div key={item.id} className="p-3.5 space-y-1.5 text-xs hover:bg-[#FAF8F5]/50">
+                <div key={item.id} className="p-3.5 space-y-1.5 text-xs hover:bg-[#F5F7F8]/50">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-[#1C1F26]">{item.title}</span>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
                       {item.confidence.replace(/_/g, ' ')}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#5F6572] leading-relaxed">
+                  <p className="text-[11px] text-[#687385] leading-relaxed">
                     {item.neutralSummary}
                   </p>
-                  <div className="p-2 bg-[#FCFBF9] border border-[#EAE6DF] rounded text-[11px] text-[#1C1F26] font-medium">
+                  <div className="p-2 bg-[#F8FAFB] border border-[#E4E9EB] rounded text-[11px] text-[#1C1F26] font-medium">
                     Review Reason: <span className="text-amber-900 font-normal">{item.humanReviewReason || 'Single source claim requires officer verification.'}</span>
                   </div>
                 </div>
@@ -519,7 +519,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
       )}
 
       {/* 7. Evaluated Sources Checklist */}
-      <div className="p-3.5 bg-[#FCFBF9] border border-[#EAE6DF] rounded text-xs">
+      <div className="p-3.5 bg-[#F8FAFB] border border-[#E4E9EB] rounded text-xs">
         <span className="font-semibold text-[#1C1F26] block mb-2">
           Checked Independent Audit Sources ({sourcesChecked.length})
         </span>
@@ -527,7 +527,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
           {sourcesChecked.map((src, idx) => (
             <span
               key={idx}
-              className="px-2 py-1 bg-white border border-[#EAE6DF] rounded text-[11px] text-[#5F6572] flex items-center gap-1.5"
+              className="px-2 py-1 bg-white border border-[#E4E9EB] rounded text-[11px] text-[#687385] flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
               <span>{src}</span>

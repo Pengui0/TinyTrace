@@ -56,7 +56,7 @@ const PrimaryVendorCustomNode = ({ data }: { data: any }) => (
       {data.name}
     </div>
     {data.cin && (
-      <div className="mt-1 font-mono text-[10px] text-[#5F6572]">
+      <div className="mt-1 font-mono text-[10px] text-[#687385]">
         CIN: {data.cin}
       </div>
     )}
@@ -98,8 +98,8 @@ const RelatedCompanyCustomNode = ({ data }: { data: any }) => {
       <Handle type="target" position={Position.Top} className="w-2.5 h-2.5 bg-slate-400 border-2 border-white" />
       <Handle type="source" position={Position.Bottom} className="w-2.5 h-2.5 bg-slate-400 border-2 border-white" />
       <div className="flex items-center justify-between gap-1 mb-1">
-        <span className="text-[10px] font-semibold text-[#5F6572] flex items-center gap-1">
-          <Building className="w-3 h-3 text-[#5F6572]" />
+        <span className="text-[10px] font-semibold text-[#687385] flex items-center gap-1">
+          <Building className="w-3 h-3 text-[#687385]" />
           Related Entity
         </span>
         <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${badgeColor}`}>
@@ -110,7 +110,7 @@ const RelatedCompanyCustomNode = ({ data }: { data: any }) => {
         {data.name}
       </div>
       {data.cin && (
-        <div className="mt-1 font-mono text-[10px] text-[#8A91A0]">
+        <div className="mt-1 font-mono text-[10px] text-[#8490A0]">
           CIN: {data.cin}
         </div>
       )}
@@ -250,7 +250,7 @@ const FlowInner: React.FC<{
   }, [initialNodes, fitView]);
 
   return (
-    <div className="w-full bg-[#FAF8F5] border border-[#EAE6DF] rounded-lg relative overflow-hidden" style={{ height: canvasHeight }}>
+    <div className="w-full bg-[#F5F7F8] border border-[#E4E9EB] rounded-lg relative overflow-hidden" style={{ height: canvasHeight }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -270,17 +270,17 @@ const FlowInner: React.FC<{
         defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="#CBD5E1" />
-        <Controls showInteractive={false} className="bg-white border border-[#D5CEC2] rounded shadow-sm text-xs" />
+        <Controls showInteractive={false} className="bg-white border border-[#D7DFE3] rounded shadow-sm text-xs" />
       </ReactFlow>
 
       {/* Quick Reset Layout Button */}
       <button
         type="button"
         onClick={() => fitView({ duration: 400 })}
-        className="absolute top-3 right-3 px-2.5 py-1.5 bg-white/90 backdrop-blur-sm border border-[#D5CEC2] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-white shadow-sm flex items-center gap-1.5 cursor-pointer z-10"
+        className="absolute top-3 right-3 px-2.5 py-1.5 bg-white/90 backdrop-blur-sm border border-[#D7DFE3] rounded text-[11px] font-semibold text-[#1C1F26] hover:bg-white shadow-sm flex items-center gap-1.5 cursor-pointer z-10"
         title="Reset layout and fit graph to viewport"
       >
-        <RotateCcw className="w-3 h-3 text-[#5F6572]" />
+        <RotateCcw className="w-3 h-3 text-[#687385]" />
         Fit View
       </button>
     </div>
@@ -330,12 +330,12 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
         headerAction={
           <div className="flex items-center gap-2">
             {/* View Mode Toggle: Graph vs Accessible Table */}
-            <div className="flex items-center bg-[#FAF8F5] p-0.5 rounded border border-[#D5CEC2] text-xs">
+            <div className="flex items-center bg-[#F5F7F8] p-0.5 rounded border border-[#D7DFE3] text-xs">
               <button
                 type="button"
                 onClick={() => setViewMode('graph')}
                 className={`px-2.5 py-1 rounded flex items-center gap-1.5 font-medium transition-colors cursor-pointer ${
-                  viewMode === 'graph' ? 'bg-white shadow-xs text-[#1C1F26]' : 'text-[#5F6572] hover:text-[#1C1F26]'
+                  viewMode === 'graph' ? 'bg-white shadow-xs text-[#1C1F26]' : 'text-[#687385] hover:text-[#1C1F26]'
                 }`}
               >
                 <Network className="w-3.5 h-3.5" />
@@ -345,7 +345,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
                 type="button"
                 onClick={() => setViewMode('table')}
                 className={`px-2.5 py-1 rounded flex items-center gap-1.5 font-medium transition-colors cursor-pointer ${
-                  viewMode === 'table' ? 'bg-white shadow-xs text-[#1C1F26]' : 'text-[#5F6572] hover:text-[#1C1F26]'
+                  viewMode === 'table' ? 'bg-white shadow-xs text-[#1C1F26]' : 'text-[#687385] hover:text-[#1C1F26]'
                 }`}
               >
                 <TableIcon className="w-3.5 h-3.5" />
@@ -357,30 +357,30 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
         }
       >
         {/* Network Metrics & Complexity Limiter */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#EAE6DF] text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E4E9EB] text-xs">
           <div className="flex items-center gap-3">
             <span className="font-semibold text-[#1C1F26]">
               Discovered Entities: {activeGraph.stats?.totalRelatedEntities ?? activeGraph.nodes.length}
             </span>
-            <span className="text-[#8A91A0]">·</span>
-            <span className="text-[#5F6572]">
+            <span className="text-[#8490A0]">·</span>
+            <span className="text-[#687385]">
               Anchors Audited: {activeGraph.anchorsUsed?.length || 0}
             </span>
-            <span className="text-[#8A91A0]">·</span>
-            <span className="text-[#5F6572]">
+            <span className="text-[#8490A0]">·</span>
+            <span className="text-[#687385]">
               Depth: {activeGraph.nodes.length ? (activeGraph.stats?.depth || 1) : '—'}
             </span>
           </div>
 
           {isDenseGraph && (
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-[#5F6572]">
+              <span className="text-[11px] text-[#687385]">
                 Showing {Math.min(maxNodesLimit, totalGraphNodes)} of {totalGraphNodes} nodes
               </span>
               <button
                 type="button"
                 onClick={() => setMaxNodesLimit(maxNodesLimit === 10 ? 50 : 10)}
-                className="px-2 py-1 text-[11px] font-semibold bg-white border border-[#D5CEC2] rounded text-[#1C1F26] hover:bg-[#FAF8F5] cursor-pointer"
+                className="px-2 py-1 text-[11px] font-semibold bg-white border border-[#D7DFE3] rounded text-[#1C1F26] hover:bg-[#F5F7F8] cursor-pointer"
               >
                 {maxNodesLimit === 10 ? 'Show More Nodes' : 'Show Compact (10)'}
               </button>
@@ -412,7 +412,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
             </ReactFlowProvider>
 
             {/* Legend & Guidance */}
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#5F6572] bg-[#FAF8F5] p-2.5 rounded border border-[#EAE6DF]">
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#687385] bg-[#F5F7F8] p-2.5 rounded border border-[#E4E9EB]">
               <div className="flex items-center gap-4 flex-wrap">
                 <span className="font-semibold text-[#1C1F26]">Visual Key:</span>
                 <span className="flex items-center gap-1.5">
@@ -431,7 +431,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" /> Related Entity (Own Risk Finding)
                 </span>
               </div>
-              <span className="italic text-[#8A91A0]">Drag nodes to arrange the graph. Click a node or link for relationship details; scroll to zoom and drag the canvas to pan.</span>
+              <span className="italic text-[#8490A0]">Drag nodes to arrange the graph. Click a node or link for relationship details; scroll to zoom and drag the canvas to pan.</span>
             </div>
           </div>
         ) : (
@@ -439,7 +439,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
           <div className="pt-3 overflow-x-auto">
             <table className="w-full text-xs text-left border-collapse">
               <thead>
-                <tr className="bg-[#FAF8F5] border-b border-[#D5CEC2] text-[#5F6572] font-semibold">
+                <tr className="bg-[#F5F7F8] border-b border-[#D7DFE3] text-[#687385] font-semibold">
                   <th className="py-2.5 px-3">Target Entity</th>
                   <th className="py-2.5 px-3">Type</th>
                   <th className="py-2.5 px-3">Verified Relationship</th>
@@ -449,18 +449,18 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
                   <th className="py-2.5 px-3">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EAE6DF]">
-                {activeGraph.edges.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-xs text-[#8A91A0]">The investigation returned no documented relationship links.</td></tr>}
+              <tbody className="divide-y divide-[#E4E9EB]">
+                {activeGraph.edges.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-xs text-[#8490A0]">The investigation returned no documented relationship links.</td></tr>}
                 {activeGraph.edges.map((edge) => {
                   const targetNode = activeGraph.nodes.find((n) => n.id === edge.target);
                   const isStrong = edge.strength === 'strong_identifier' || edge.strength === 'registry_link';
 
                   return (
-                    <tr key={edge.id} className="hover:bg-[#FAF8F5]/80">
+                    <tr key={edge.id} className="hover:bg-[#F5F7F8]/80">
                       <td className="py-2.5 px-3 font-semibold text-[#1C1F26]">
                         {targetNode?.name || edge.target}
                         {targetNode?.cin && (
-                          <div className="font-mono text-[10px] text-[#8A91A0]">CIN: {targetNode.cin}</div>
+                          <div className="font-mono text-[10px] text-[#8490A0]">CIN: {targetNode.cin}</div>
                         )}
                         {targetNode?.din && (
                           <div className="font-mono text-[10px] text-purple-700">DIN: {targetNode.din}</div>
@@ -485,10 +485,10 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
                           {edge.strength}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-mono text-[#5F6572]">
+                      <td className="py-2.5 px-3 font-mono text-[#687385]">
                         {edge.evidenceIds.length} ID(s)
                       </td>
-                      <td className="py-2.5 px-3 text-[#5F6572]">
+                      <td className="py-2.5 px-3 text-[#687385]">
                         {edge.provenance}
                       </td>
                       <td className="py-2.5 px-3">
@@ -502,7 +502,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
                             Verify <ExternalLink className="w-3 h-3" />
                           </a>
                         ) : (
-                          <span className="text-[#8A91A0]">Registry Internal</span>
+                          <span className="text-[#8490A0]">Registry Internal</span>
                         )}
                       </td>
                     </tr>
@@ -516,11 +516,11 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
 
       {/* Selected Node Details Drawer */}
       {selectedNode && (
-        <div className="p-4 bg-white border border-[#D5CEC2] rounded-lg shadow-sm space-y-3 relative">
+        <div className="p-4 bg-white border border-[#D7DFE3] rounded-lg shadow-sm space-y-3 relative">
           <button
             type="button"
             onClick={() => setSelectedNode(null)}
-            className="absolute top-3 right-3 text-[#8A91A0] hover:text-[#1C1F26] cursor-pointer"
+            className="absolute top-3 right-3 text-[#8490A0] hover:text-[#1C1F26] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -530,24 +530,24 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
             </span>
             <h4 className="text-sm font-bold text-[#1C1F26]">{selectedNode.name}</h4>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-[#FAF8F5] p-3 rounded border border-[#EAE6DF]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-[#F5F7F8] p-3 rounded border border-[#E4E9EB]">
             <div>
-              <span className="text-[#5F6572] block text-[11px]">Match Confidence</span>
+              <span className="text-[#687385] block text-[11px]">Match Confidence</span>
               <span className="font-semibold text-[#1C1F26]">{selectedNode.matchConfidence}</span>
             </div>
             <div>
-              <span className="text-[#5F6572] block text-[11px]">Identifier</span>
+              <span className="text-[#687385] block text-[11px]">Identifier</span>
               <span className="font-mono text-[#1C1F26]">
                 {selectedNode.cin ? `CIN ${selectedNode.cin}` : selectedNode.din ? `DIN ${selectedNode.din}` : 'None recorded'}
               </span>
             </div>
             <div>
-              <span className="text-[#5F6572] block text-[11px]">Provenance</span>
+              <span className="text-[#687385] block text-[11px]">Provenance</span>
               <span className="font-medium text-[#1C1F26]">{selectedNode.provenance}</span>
             </div>
           </div>
           {selectedNode.lightweightReviewNote && (
-            <p className="text-xs text-[#5F6572] italic">
+            <p className="text-xs text-[#687385] italic">
               Note: {selectedNode.lightweightReviewNote}
             </p>
           )}
@@ -560,7 +560,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
             if (connectedEdges.length === 0) return null;
 
             return (
-              <div className="pt-2 border-t border-[#EAE6DF] space-y-2">
+              <div className="pt-2 border-t border-[#E4E9EB] space-y-2">
                 <span className="text-[11px] font-bold text-[#1C1F26] uppercase tracking-wide block">
                   Evidentiary Tracing Links & Source Records ({connectedEdges.length})
                 </span>
@@ -576,7 +576,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
                     return (
                       <div
                         key={edge.id}
-                        className="p-2.5 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-xs space-y-1.5"
+                        className="p-2.5 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-xs space-y-1.5"
                       >
                         <div className="flex items-center justify-between flex-wrap gap-1">
                           <span className="font-semibold text-[#1C1F26]">
@@ -593,7 +593,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-2 text-[11px] text-[#5F6572] flex-wrap">
+                        <div className="flex items-center gap-2 text-[11px] text-[#687385] flex-wrap">
                           <span>
                             Evidence ID:{' '}
                             <strong className="font-mono text-[#1C1F26]">
@@ -606,7 +606,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
 
                         {edge.sourceUrls && edge.sourceUrls.length > 0 && (
                           <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                            <span className="text-[10px] text-[#8A91A0]">Verified Source URLs:</span>
+                            <span className="text-[10px] text-[#8490A0]">Verified Source URLs:</span>
                             {edge.sourceUrls.map((url, i) => (
                               <a
                                 key={i}
@@ -641,7 +641,7 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
           <button
             type="button"
             onClick={() => setSelectedEdge(null)}
-            className="absolute top-3 right-3 text-[#8A91A0] hover:text-[#1C1F26] cursor-pointer"
+            className="absolute top-3 right-3 text-[#8490A0] hover:text-[#1C1F26] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -651,23 +651,23 @@ export const RelatedEntityNetworkGraph: React.FC<RelatedEntityNetworkGraphProps>
             </span>
             <h4 className="text-sm font-bold text-[#1C1F26]">{selectedEdge.label}</h4>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-[#FAF8F5] p-3 rounded border border-[#EAE6DF]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-[#F5F7F8] p-3 rounded border border-[#E4E9EB]">
             <div>
-              <span className="text-[#5F6572] block text-[11px]">Relationship Type</span>
+              <span className="text-[#687385] block text-[11px]">Relationship Type</span>
               <span className="font-semibold text-[#1C1F26]">{selectedEdge.relationshipType}</span>
             </div>
             <div>
-              <span className="text-[#5F6572] block text-[11px]">Match Strength</span>
+              <span className="text-[#687385] block text-[11px]">Match Strength</span>
               <span className="font-semibold text-blue-700">{selectedEdge.strength}</span>
             </div>
             <div>
-              <span className="text-[#5F6572] block text-[11px]">Evidence Reference IDs</span>
+              <span className="text-[#687385] block text-[11px]">Evidence Reference IDs</span>
               <span className="font-mono text-[#1C1F26]">{selectedEdge.evidenceIds.join(', ')}</span>
             </div>
           </div>
           {selectedEdge.sourceUrls.length > 0 && (
             <div className="space-y-1">
-              <span className="text-[11px] font-semibold text-[#5F6572]">Verified Upstream Source URLs:</span>
+              <span className="text-[11px] font-semibold text-[#687385]">Verified Upstream Source URLs:</span>
               <div className="space-y-1">
                 {selectedEdge.sourceUrls.map((url, i) => (
                   <a

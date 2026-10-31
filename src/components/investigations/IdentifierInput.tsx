@@ -76,36 +76,36 @@ export const IdentifierInput: React.FC<IdentifierInputProps> = ({
   };
 
   return (
-    <div className="bg-white border border-[#EAE6DF] rounded p-5 space-y-4">
+    <div className="bg-white border border-[#E4E9EB] rounded p-5 space-y-4">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <h2 className="text-sm font-bold text-[#1C1F26] uppercase tracking-wider">
             Initiate Vendor Due Diligence Run
           </h2>
-          <p className="text-xs text-[#5F6572] mt-0.5">
+          <p className="text-xs text-[#687385] mt-0.5">
             Query verified Indian registries across MCA21, GSTN, litigation databases, and adverse news.
           </p>
         </div>
 
-        <label className="flex items-center gap-2 text-[11px] text-[#5F6572]">
+        <label className="flex items-center gap-2 text-[11px] text-[#687385]">
           <input type="checkbox" checked={freshRun} onChange={(event) => setFreshRun(event.target.checked)} />
           Fetch fresh evidence (bypass cached provider results)
         </label>
 
         {/* Quick test scenarios */}
-        <div className="hidden lg:flex items-center gap-1.5 text-xs text-[#5F6572]">
-          <span className="text-[11px] text-[#8A91A0]">Test Presets:</span>
+        <div className="hidden lg:flex items-center gap-1.5 text-xs text-[#687385]">
+          <span className="text-[11px] text-[#8490A0]">Test Presets:</span>
           <button
             type="button"
             onClick={() => handleQuickLoad('Tata Steel Limited', 'CIN', 'L27100MH1907PLC000260')}
-            className="px-2 py-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[11px] text-[#1C1F26] hover:bg-[#F4F1EA] cursor-pointer"
+            className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
           >
             Tata Steel (CIN)
           </button>
           <button
             type="button"
             onClick={() => handleQuickLoad('Larsen & Toubro Ltd', 'GSTIN', '27AAACL0140P1ZM')}
-            className="px-2 py-1 rounded bg-[#FAF8F5] border border-[#EAE6DF] text-[11px] text-[#1C1F26] hover:bg-[#F4F1EA] cursor-pointer"
+            className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
           >
             L&T (GSTIN)
           </button>
@@ -125,7 +125,7 @@ export const IdentifierInput: React.FC<IdentifierInputProps> = ({
               onChange={(e) => setTargetName(e.target.value)}
               placeholder="e.g. Bharat Heavy Electricals Limited"
               required
-              className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] focus:bg-white focus:outline-none focus:border-[#1C1F26] transition-colors"
+              className="w-full px-3 py-2 text-xs bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] focus:bg-white focus:outline-none focus:border-[#1C1F26] transition-colors"
             />
           </div>
 
@@ -137,7 +137,7 @@ export const IdentifierInput: React.FC<IdentifierInputProps> = ({
             <select
               value={identifierType}
               onChange={(e) => setIdentifierType(e.target.value as IdentifierType)}
-              className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] focus:bg-white focus:outline-none focus:border-[#1C1F26] transition-colors cursor-pointer"
+              className="w-full px-3 py-2 text-xs bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] focus:bg-white focus:outline-none focus:border-[#1C1F26] transition-colors cursor-pointer"
             >
               <option value="CIN">CIN (MCA21 Corporate ID)</option>
               <option value="GSTIN">GSTIN (15-digit GST Code)</option>
@@ -158,7 +158,7 @@ export const IdentifierInput: React.FC<IdentifierInputProps> = ({
                 value={identifierValue}
                 onChange={(e) => setIdentifierValue(e.target.value)}
                 placeholder={currentGuide.placeholder}
-                className="min-w-0 flex-1 px-3 py-2 text-xs font-mono uppercase bg-[#FAF8F5] border border-[#D5CEC2] rounded text-[#1C1F26] focus:bg-white focus:outline-none focus:border-[#1C1F26] transition-colors"
+                className="min-w-0 flex-1 px-3 py-2 text-xs font-mono uppercase bg-[#F5F7F8] border border-[#D7DFE3] rounded text-[#1C1F26] focus:bg-white focus:outline-none focus:border-[#1C1F26] transition-colors"
               />
               <Button
                 type="submit"
@@ -176,12 +176,12 @@ export const IdentifierInput: React.FC<IdentifierInputProps> = ({
         </div>
 
         {/* Format Guidance */}
-        <div className="flex flex-col gap-1 text-[11px] text-[#5F6572] pt-1 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-1 text-[11px] text-[#687385] pt-1 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-[#8A91A0]" />
+            <HelpCircle className="w-3.5 h-3.5 text-[#8490A0]" />
             <span>{currentGuide.hint}</span>
           </div>
-          <span className="text-[#8A91A0] text-[10px]">
+          <span className="text-[#8490A0] text-[10px]">
             Strict Rule: Verified identifiers reduce false positive risk matching by 94%.
           </span>
         </div>

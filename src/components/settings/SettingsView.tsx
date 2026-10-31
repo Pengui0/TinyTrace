@@ -80,12 +80,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#EAE6DF]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E4E9EB]">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-[#1C1F26]">
             Workspace Settings & System Governance
           </h1>
-          <p className="mt-1 text-xs text-[#5F6572]">
+          <p className="mt-1 text-xs text-[#687385]">
             API integration configuration, secret isolation, repository durability, and due-diligence rules.
           </p>
         </div>
@@ -122,7 +122,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
       {activeTab === 'persistence' && (
         <div className="space-y-4">
           <Card header="Browser Workspace Backup">
-            <div className="space-y-3 text-xs text-[#5F6572]">
+            <div className="space-y-3 text-xs text-[#687385]">
               <p>Investigation reports and evidence are saved in this browser profile using localStorage. This data is specific to this browser and device; clearing browser site data can erase it. Provider credentials and API keys are never stored here.</p>
               <p>{savedCount} investigation report(s) currently saved in this browser.</p>
               <div className="flex flex-wrap gap-2">
@@ -150,12 +150,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
             }
           >
             <div className="space-y-3 text-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
                 <div className="flex items-center gap-2.5">
-                  <Database className="w-4 h-4 text-[#5F6572]" />
+                  <Database className="w-4 h-4 text-[#687385]" />
                   <div>
                     <span className="font-semibold text-[#1C1F26]">Active Repository Adapter:</span>
-                    <span className="font-mono text-[11px] text-[#5F6572] ml-1.5">
+                    <span className="font-mono text-[11px] text-[#687385] ml-1.5">
                       {storageStatus?.activeAdapterName || 'DevInMemoryRepositoryAdapter'}
                     </span>
                   </div>
@@ -179,8 +179,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
               </div>
 
               {testReport && (
-                <div className="mt-4 p-4 bg-white border border-[#D5CEC2] rounded space-y-3">
-                  <div className="flex items-center justify-between border-b border-[#EAE6DF] pb-2">
+                <div className="mt-4 p-4 bg-white border border-[#D7DFE3] rounded space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#E4E9EB] pb-2">
                     <span className="font-bold text-[#1C1F26]">
                       Repository CRUD Persistence Verification Report
                     </span>
@@ -189,7 +189,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
                     </Badge>
                   </div>
 
-                  <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-[#5F6572] bg-[#FCFBF9] p-2.5 rounded border border-[#EAE6DF]">
+                  <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-[#687385] bg-[#F8FAFB] p-2.5 rounded border border-[#E4E9EB]">
                     {testReport.details.map((d, i) => (
                       <div key={i} className={d.includes('[FAIL]') ? 'text-red-700 font-bold' : ''}>
                         {d}
@@ -206,7 +206,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
       {/* Tab 3: Diligence Invariants */}
       {activeTab === 'rules' && (
         <Card header="Enforced Diligence Invariants & Ethics">
-          <div className="space-y-3 text-xs text-[#5F6572]">
+          <div className="space-y-3 text-xs text-[#687385]">
             <div className="flex items-start gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
               <div>

@@ -47,20 +47,20 @@ export const InvestigationLayerSummary: React.FC<InvestigationLayerSummaryProps>
   ];
 
   return (
-    <section className="rounded-lg border border-[#EAE6DF] bg-white p-4">
+    <section className="rounded-xl border border-[#E4E9EB] bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center gap-2">
-        <CircleDashed className="h-4 w-4 text-[#5F6572]" />
+        <CircleDashed className="h-4 w-4 text-[#687385]" />
         <h3 className="text-xs font-bold uppercase tracking-wide text-[#1C1F26]">Investigation pipeline coverage</h3>
-        <span className="text-[10px] text-[#8A91A0]">Four layers have different execution scopes</span>
+        <span className="text-[10px] text-[#8490A0]">Four layers have different execution scopes</span>
       </div>
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
         {cards.map((card, index) => (
-          <div key={card.label} className="rounded border border-[#EAE6DF] bg-[#FCFBF9] p-3">
-            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#5F6572]">
+          <div key={card.label} className="rounded-lg border border-[#E4E9EB] bg-[#F8FAFB] p-3">
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#687385]">
               {card.icon}<span>{card.label}</span>
             </div>
             <div className="mt-2 text-xs font-bold text-[#1C1F26]">{card.state}</div>
-            <p className="mt-1 text-[10px] leading-relaxed text-[#5F6572]">{card.detail}</p>
+            <p className="mt-1 text-[10px] leading-relaxed text-[#687385]">{card.detail}</p>
             {index === 3 && onOpenMonitoring && (
               <button type="button" onClick={onOpenMonitoring} className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-[#1C1F26] hover:underline">
                 Open Monitoring <ArrowRight className="h-3 w-3" />

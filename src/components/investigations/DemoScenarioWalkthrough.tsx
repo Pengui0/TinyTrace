@@ -92,14 +92,14 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
               GUIDED HACKATHON DEMO WALKTHROUGH
             </span>
-            <span className="text-xs font-semibold text-[#5F6572]">
+            <span className="text-xs font-semibold text-[#687385]">
               Offline-Safe Deterministic Scenario
             </span>
           </div>
           <h3 className="text-base font-bold text-[#1C1F26] mt-1">
             VendorTrace End-to-End Enterprise Due Diligence Scenario
           </h3>
-          <p className="text-xs text-[#5F6572] mt-0.5">
+          <p className="text-xs text-[#687385] mt-0.5">
             Follow this 6-step scripted scenario during live demonstration. Every fact and link is 100% synthetic, verified, and preloaded locally.
           </p>
         </div>
@@ -107,7 +107,7 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
         <button
           type="button"
           onClick={onSwitchToLive}
-          className="px-3 py-1.5 bg-[#FAF8F5] border border-[#D5CEC2] rounded text-xs font-semibold text-[#1C1F26] hover:bg-white cursor-pointer shrink-0"
+          className="px-3 py-1.5 bg-[#F5F7F8] border border-[#D7DFE3] rounded text-xs font-semibold text-[#1C1F26] hover:bg-white cursor-pointer shrink-0"
         >
           Switch to Live Investigation
         </button>
@@ -131,8 +131,8 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
                 isCurrent
                   ? 'bg-amber-50/90 border-amber-500 shadow-xs ring-1 ring-amber-400'
                   : isPassed
-                  ? 'bg-[#FAF8F5] border-emerald-300 text-emerald-900'
-                  : 'bg-white border-[#EAE6DF] text-[#5F6572] hover:bg-[#FAF8F5]'
+                  ? 'bg-[#F5F7F8] border-emerald-300 text-emerald-900'
+                  : 'bg-white border-[#E4E9EB] text-[#687385] hover:bg-[#F5F7F8]'
               }`}
             >
               <div className="flex items-center justify-between text-[10px] font-bold mb-1">
@@ -151,7 +151,7 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
       {(() => {
         const curr = steps.find((s) => s.step === activeStep)!;
         return (
-          <div className="p-4 bg-[#FAF8F5] border border-amber-200 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="p-4 bg-[#F5F7F8] border border-amber-200 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-start gap-3 min-w-0">
               <div className="p-2 rounded bg-white border border-amber-200 mt-0.5">
                 {curr.icon}
@@ -161,7 +161,7 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
                   {curr.badge} — Presentation Talking Point
                 </span>
                 <h4 className="text-sm font-bold text-[#1C1F26]">{curr.title}</h4>
-                <p className="text-xs text-[#5F6572] mt-0.5 max-w-2xl leading-relaxed">
+                <p className="text-xs text-[#687385] mt-0.5 max-w-2xl leading-relaxed">
                   {curr.summary}
                 </p>
               </div>
@@ -173,7 +173,7 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
                 onLoadScenarioStep(curr.step);
                 if (activeStep < 6) setActiveStep(activeStep + 1);
               }}
-              className="max-w-full px-4 py-2 bg-[#1C1F26] text-white rounded text-xs font-semibold hover:bg-[#2D323E] cursor-pointer flex items-center gap-1.5 shadow-xs"
+              className="max-w-full px-4 py-2 bg-[#087F61] text-white rounded text-xs font-semibold hover:bg-[#066C53] cursor-pointer flex items-center gap-1.5 shadow-xs"
             >
               <span>{curr.actionLabel}</span>
               <ArrowRight className="w-3.5 h-3.5" />

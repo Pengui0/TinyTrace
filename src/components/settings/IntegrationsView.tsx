@@ -238,7 +238,7 @@ export const IntegrationsView: React.FC = () => {
             href={instr?.docsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[11px] text-[#5F6572] hover:text-[#1C1F26] hover:underline"
+            className="flex items-center gap-1 text-[11px] text-[#687385] hover:text-[#1C1F26] hover:underline"
           >
             <span>Official Docs</span>
             <ExternalLink className="w-3 h-3" />
@@ -248,41 +248,41 @@ export const IntegrationsView: React.FC = () => {
       >
         <div className="space-y-3 text-xs">
           {/* Key Status & Upstream Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
             <div>
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 Server Environment Key
               </span>
               <span className="font-mono text-xs font-semibold text-[#1C1F26]">
                 {instr?.environmentKey}
               </span>
-              <div className="mt-1 flex items-center gap-1 text-[11px] text-[#5F6572]">
-                <Key className="w-3 h-3 text-[#8A91A0]" />
+              <div className="mt-1 flex items-center gap-1 text-[11px] text-[#687385]">
+                <Key className="w-3 h-3 text-[#8490A0]" />
                 <span>{info?.maskedKeySnippet || 'Not configured'}</span>
               </div>
             </div>
 
             <div>
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 Auth Protocol
               </span>
               <span className="font-mono text-[11px] text-[#1C1F26]">
                 {authHeaderNote}
               </span>
-              <div className="mt-1 text-[10px] text-[#8A91A0]">
+              <div className="mt-1 text-[10px] text-[#8490A0]">
                 Strict server-side isolation
               </div>
             </div>
 
             <div>
-              <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+              <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                 Latency / Request ID
               </span>
               <div className="flex items-center gap-1 font-mono text-[11px] text-[#1C1F26]">
-                <Clock className="w-3 h-3 text-[#8A91A0]" />
+                <Clock className="w-3 h-3 text-[#8490A0]" />
                 <span>{typeof info?.latencyMs === 'number' ? `${info.latencyMs}ms` : '—'}</span>
               </div>
-              <div className="text-[10px] font-mono text-[#8A91A0] truncate">
+              <div className="text-[10px] font-mono text-[#8490A0] truncate">
                 {info?.upstreamRequestId ? `req: ${info.upstreamRequestId}` : 'No recent probe'}
               </div>
             </div>
@@ -299,14 +299,14 @@ export const IntegrationsView: React.FC = () => {
                   : info.status === 'DEMO_DATA'
                   ? 'bg-slate-50 text-slate-800 border border-slate-200'
                   : info.status === 'NOT_CONFIGURED'
-                  ? 'bg-[#FCFBF9] text-[#5F6572] border border-[#EAE6DF]'
+                  ? 'bg-[#F8FAFB] text-[#687385] border border-[#E4E9EB]'
                   : 'bg-amber-50 text-amber-900 border border-amber-200'
               }`}
             >
               {info.status === 'LIVE' ? (
                 <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
               ) : info.status === 'NOT_CONFIGURED' ? (
-                <AlertCircle className="w-4 h-4 text-[#8A91A0] shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 text-[#8490A0] shrink-0 mt-0.5" />
               ) : (
                 <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
               )}
@@ -334,18 +334,18 @@ export const IntegrationsView: React.FC = () => {
 
           {/* Setup Instructions if missing */}
           {!info?.configured && instr && (
-            <div className="p-3 bg-[#FCFBF9] border border-[#EAE6DF] rounded space-y-2">
+            <div className="p-3 bg-[#F8FAFB] border border-[#E4E9EB] rounded space-y-2">
               <div className="flex items-center gap-1.5 font-semibold text-[#1C1F26]">
-                <Lock className="w-3.5 h-3.5 text-[#8A91A0]" />
+                <Lock className="w-3.5 h-3.5 text-[#8490A0]" />
                 <span>How to Configure {instr.environmentKey}</span>
               </div>
-              <p className="text-[11px] text-[#5F6572] leading-relaxed">
+              <p className="text-[11px] text-[#687385] leading-relaxed">
                 {instr.summary}
               </p>
               <div className="p-2 bg-amber-50/70 border border-amber-200/80 rounded text-[11px] text-amber-900">
                 <strong>Security:</strong> Configure keys in your server environment or deployment secrets manager, never in ordinary web text fields. Keys are strictly inaccessible from the browser.
               </div>
-              <ol className="list-decimal list-inside space-y-1 text-[11px] text-[#5F6572] pl-1">
+              <ol className="list-decimal list-inside space-y-1 text-[11px] text-[#687385] pl-1">
                 {instr.steps.map((st, i) => (
                   <li key={i}>{st}</li>
                 ))}
@@ -354,8 +354,8 @@ export const IntegrationsView: React.FC = () => {
           )}
 
           {/* Action Row */}
-          <div className="flex items-center justify-between pt-2 border-t border-[#EAE6DF]">
-            <div className="text-[11px] text-[#8A91A0]">
+          <div className="flex items-center justify-between pt-2 border-t border-[#E4E9EB]">
+            <div className="text-[11px] text-[#8490A0]">
               Bounded retries: Transient 5xx only · Never retries 401 or 402
             </div>
             <div className="flex items-center gap-2">
@@ -388,12 +388,12 @@ export const IntegrationsView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-2 border-b border-[#EAE6DF]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-2 border-b border-[#E4E9EB]">
         <div>
           <h2 className="text-base font-bold text-[#1C1F26]">
             Server-Only Integration Configuration Layer
           </h2>
-          <p className="text-xs text-[#5F6572] mt-0.5">
+          <p className="text-xs text-[#687385] mt-0.5">
             Manages secure upstream communication with IndiaCos (MCA21/GSTN) and TinyFish (Adverse Web Media). Verification results and test preferences are saved in this browser workspace; API keys remain server-side.
           </p>
         </div>
@@ -409,12 +409,12 @@ export const IntegrationsView: React.FC = () => {
       </div>
 
       {/* Security Invariant Notice */}
-      <div className="p-3 bg-[#FCFBF9] border border-[#EAE6DF] rounded text-xs space-y-1.5">
+      <div className="p-3 bg-[#F8FAFB] border border-[#E4E9EB] rounded text-xs space-y-1.5">
         <div className="flex items-center gap-2 font-semibold text-[#1C1F26]">
           <ShieldCheck className="w-4 h-4 text-emerald-700" />
           <span>Server-Side Secret Isolation Guarantee</span>
         </div>
-        <p className="text-[11px] text-[#5F6572] leading-relaxed">
+        <p className="text-[11px] text-[#687385] leading-relaxed">
           <code>TINYFISH_API_KEY</code> and <code>INDIACOS_API_KEY</code> are accessed exclusively in server-side provider modules. The application enforces sane timeouts (7s), bounded retries for transient 502/503/504 errors, zero retries for 401/402 errors, and strict secret redaction.
         </p>
       </div>
@@ -430,10 +430,10 @@ export const IntegrationsView: React.FC = () => {
           }
         >
           <div className="space-y-2 text-xs">
-            <p className="text-[11px] text-[#5F6572]">
+            <p className="text-[11px] text-[#687385]">
               Verified paths: Configured, Missing-Key, Auth Failure (401), Billing/Wallet (402), Rate Limit (429), Timeout, Transient 5xx Retry, and Secret Redaction.
             </p>
-            <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-[#5F6572] bg-[#FCFBF9] p-2.5 rounded border border-[#EAE6DF]">
+            <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-[#687385] bg-[#F8FAFB] p-2.5 rounded border border-[#E4E9EB]">
               {testSuiteReport.details.map((d: string, i: number) => (
                 <div key={i} className={d.includes('[FAIL]') ? 'text-red-700 font-bold' : ''}>
                   {d}
@@ -456,7 +456,7 @@ export const IntegrationsView: React.FC = () => {
           <div className="flex items-center gap-2">
             <Globe className="w-4 h-4 text-[#1C1F26]" />
             <span>TinyFish Web Agent Baseline Extraction Proof</span>
-            <span className="font-mono text-[10px] bg-[#EAE6DF] px-1.5 py-0.5 rounded text-[#5F6572]">
+            <span className="font-mono text-[10px] bg-[#E4E9EB] px-1.5 py-0.5 rounded text-[#687385]">
               POST /api/integrations/tinyfish/test
             </span>
           </div>
@@ -475,14 +475,14 @@ export const IntegrationsView: React.FC = () => {
         className="space-y-4"
       >
         <div className="space-y-3 text-xs">
-          <p className="text-[11px] text-[#5F6572] leading-relaxed">
+          <p className="text-[11px] text-[#687385] leading-relaxed">
             Extracts web data using TinyFish&apos;s REST automation endpoint. Validates that the returned data is an object conforming to <code>output_schema</code> (must contain non-empty string <code>title</code>). Demonstrates strict anti-false-success checks: status <code>COMPLETED</code> without a conforming result is rejected as <code>INVALID_RESPONSE</code>.
           </p>
 
           {/* Test Parameters Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-[#FAF8F5] border border-[#EAE6DF] rounded">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
             <div>
-              <label className="text-[10px] uppercase font-semibold text-[#8A91A0] block mb-1">
+              <label className="text-[10px] uppercase font-semibold text-[#8490A0] block mb-1">
                 Target Public Web URL
               </label>
               <div className="flex items-center gap-2">
@@ -494,22 +494,22 @@ export const IntegrationsView: React.FC = () => {
                     setTfTestResult(null);
                   }}
                   placeholder="https://mca.gov.in"
-                  className="w-full text-xs font-mono bg-white border border-[#D5CEC2] rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1C1F26]"
+                  className="w-full text-xs font-mono bg-white border border-[#D7DFE3] rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1C1F26]"
                 />
               </div>
-              <span className="text-[10px] text-[#8A91A0] mt-1 block">
+              <span className="text-[10px] text-[#8490A0] mt-1 block">
                 Enter any public company or organization website. Private/local network addresses are blocked for safety.
               </span>
             </div>
 
             <div>
-              <label className="text-[10px] uppercase font-semibold text-[#8A91A0] block mb-1">
+              <label className="text-[10px] uppercase font-semibold text-[#8490A0] block mb-1">
                 Offline Mock Scenario (For Testing Edge Cases)
               </label>
               <select
                 value={tfMockScenario}
                 onChange={(e) => setTfMockScenario(e.target.value as any)}
-                className="w-full text-xs font-mono bg-white border border-[#D5CEC2] rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1C1F26]"
+                className="w-full text-xs font-mono bg-white border border-[#D7DFE3] rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1C1F26]"
               >
                 <option value="SUCCESS">Clean Success (Conforming Schema Extracted)</option>
                 <option value="NULL_RESULT">Anti-False-Success: Completed with Null Result</option>
@@ -520,15 +520,15 @@ export const IntegrationsView: React.FC = () => {
                 <option value="TIMEOUT">Timeout Exceeded (&gt;10s window)</option>
                 <option value="UPSTREAM_500">HTTP 500 Upstream Internal Error</option>
               </select>
-              <span className="text-[10px] text-[#8A91A0] mt-1 block">
+              <span className="text-[10px] text-[#8490A0] mt-1 block">
                 Simulates specific provider conditions without network calls.
               </span>
             </div>
           </div>
 
           {/* Action Row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[#EAE6DF]">
-            <div className="text-[11px] text-[#8A91A0]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[#E4E9EB]">
+            <div className="text-[11px] text-[#8490A0]">
               Strict 10s timeout · X-API-Key auth · No keys in browser
             </div>
             <div className="flex items-center gap-2">
@@ -561,8 +561,8 @@ export const IntegrationsView: React.FC = () => {
             </div>
           )}
           {tfTestResult && (
-            <div className="mt-3 p-3.5 bg-white border border-[#D5CEC2] rounded space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE6DF] pb-2">
+            <div className="mt-3 p-3.5 bg-white border border-[#D7DFE3] rounded space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E4E9EB] pb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-[#1C1F26]">Extraction Result:</span>
                   {tfTestResult.status === 'SUCCESS' && (
@@ -594,7 +594,7 @@ export const IntegrationsView: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-[11px] font-mono text-[#5F6572]">
+                <div className="flex items-center gap-2 text-[11px] font-mono text-[#687385]">
                   <span>{tfTestResult.isMock ? 'OFFLINE MOCK' : 'LIVE NETWORK'}</span>
                   <span>·</span>
                   <span>{tfTestResult.elapsedMs}ms</span>
@@ -608,7 +608,7 @@ export const IntegrationsView: React.FC = () => {
               </div>
 
               {/* Diagnostic Message */}
-              <div className="text-[11px] text-[#5F6572] leading-relaxed bg-[#FAF8F5] p-2.5 rounded border border-[#EAE6DF]">
+              <div className="text-[11px] text-[#687385] leading-relaxed bg-[#F5F7F8] p-2.5 rounded border border-[#E4E9EB]">
                 <strong className="text-[#1C1F26] block mb-0.5">Diagnostic:</strong>
                 {tfTestResult.diagnosticMessage}
               </div>
@@ -620,8 +620,8 @@ export const IntegrationsView: React.FC = () => {
                     Conforming Schema Output:
                   </span>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
-                    <div className="p-2 bg-[#FCFBF9] border border-[#EAE6DF] rounded">
-                      <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+                    <div className="p-2 bg-[#F8FAFB] border border-[#E4E9EB] rounded">
+                      <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                         Page Title (Required)
                       </span>
                       <span className="font-semibold text-[#1C1F26] block mt-0.5">
@@ -629,8 +629,8 @@ export const IntegrationsView: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="p-2 bg-[#FCFBF9] border border-[#EAE6DF] rounded">
-                      <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+                    <div className="p-2 bg-[#F8FAFB] border border-[#E4E9EB] rounded">
+                      <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                         Primary Heading
                       </span>
                       <span className="text-[#1C1F26] block mt-0.5">
@@ -639,8 +639,8 @@ export const IntegrationsView: React.FC = () => {
                     </div>
 
                     {tfTestResult.result.summary && (
-                      <div className="p-2 bg-[#FCFBF9] border border-[#EAE6DF] rounded md:col-span-2">
-                        <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block">
+                      <div className="p-2 bg-[#F8FAFB] border border-[#E4E9EB] rounded md:col-span-2">
+                        <span className="text-[10px] uppercase font-semibold text-[#8490A0] block">
                           Summary
                         </span>
                         <span className="text-[#1C1F26] block mt-0.5">
@@ -651,10 +651,10 @@ export const IntegrationsView: React.FC = () => {
                   </div>
 
                   <div>
-                    <span className="text-[10px] uppercase font-semibold text-[#8A91A0] block mb-1">
+                    <span className="text-[10px] uppercase font-semibold text-[#8490A0] block mb-1">
                       Raw Response JSON
                     </span>
-                    <pre className="p-2 bg-[#1C1F26] text-[#FAF8F5] rounded text-[10px] font-mono overflow-x-auto">
+                    <pre className="p-2 bg-[#087F61] text-[#F5F7F8] rounded text-[10px] font-mono overflow-x-auto">
                       {JSON.stringify(tfTestResult.result, null, 2)}
                     </pre>
                   </div>
@@ -676,10 +676,10 @@ export const IntegrationsView: React.FC = () => {
           }
         >
           <div className="space-y-2 text-xs">
-            <p className="text-[11px] text-[#5F6572]">
+            <p className="text-[11px] text-[#687385]">
               Verified invariants: Top-level object schema enforcement, non-empty title string rule, Anti-false-success on COMPLETED status with null result, HTTP 401 auth mapping, HTTP 402 billing mapping, HTTP 429 rate limit, 10s timeout, upstream 500 error, graceful unconfigured handling, and complete secret redaction.
             </p>
-            <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-[#5F6572] bg-[#FCFBF9] p-2.5 rounded border border-[#EAE6DF]">
+            <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-[#687385] bg-[#F8FAFB] p-2.5 rounded border border-[#E4E9EB]">
               {tfSuiteReport.details.map((d: string, i: number) => (
                 <div key={i} className={d.includes('[FAIL]') ? 'text-red-700 font-bold' : ''}>
                   {d}

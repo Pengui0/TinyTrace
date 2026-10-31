@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IdentifierType, Investigation } from '../../types/vendor.js';
 import { IdentifierInput } from './IdentifierInput.js';
 import { InvestigationProgress } from './InvestigationProgress.js';
@@ -93,15 +93,15 @@ export const InvestigationView: React.FC<InvestigationViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Page Title & Breadcrumb Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#EAE6DF]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E4E9EB]">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8A91A0]">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8490A0]">
             {currentInvestigation ? 'Investigation report' : 'New investigation'}
           </p>
           <h1 className="text-xl font-bold tracking-tight text-[#1C1F26]">
             {currentInvestigation?.targetName || 'Vendor due diligence'}
           </h1>
-          <p className="mt-1 text-xs text-[#5F6572]">
+          <p className="mt-1 text-xs text-[#687385]">
             {currentInvestigation
               ? `${currentInvestigation.identifierType}: ${currentInvestigation.identifierValue || 'Name-only'} · Report ${currentInvestigation.id}`
               : 'Start by resolving the legal entity. Review identity details before running source checks.'}
@@ -175,7 +175,7 @@ export const InvestigationView: React.FC<InvestigationViewProps> = ({
                 onClick={() => handleLaunchFromProfile(activeProfile)}
                 disabled={activeProfile.gstins.length > 1 && !selectedGSTIN}
                 title={activeProfile.gstins.length > 1 && !selectedGSTIN ? 'Select the verified GSTIN to include in bounded tax checks.' : undefined}
-                className="px-4 py-2 bg-[#1C1F26] text-white rounded text-xs font-semibold hover:bg-[#2D323E] cursor-pointer shrink-0"
+                className="px-4 py-2 bg-[#087F61] text-white rounded text-xs font-semibold hover:bg-[#066C53] cursor-pointer shrink-0"
               >
                 Launch Investigation
               </button>
@@ -183,8 +183,8 @@ export const InvestigationView: React.FC<InvestigationViewProps> = ({
           )}
 
           {/* Quick Manual Input Shell */}
-          <div className="pt-4 border-t border-[#EAE6DF]">
-            <h3 className="text-xs font-bold text-[#8A91A0] uppercase tracking-wider mb-2">
+          <div className="pt-4 border-t border-[#E4E9EB]">
+            <h3 className="text-xs font-bold text-[#8490A0] uppercase tracking-wider mb-2">
               Direct Due Diligence Execution Shell
             </h3>
             <IdentifierInput initialValues={investigationDraft} onInvestigate={launchInvestigation} isLoading={isLoading} />
@@ -234,20 +234,20 @@ export const InvestigationView: React.FC<InvestigationViewProps> = ({
       {activeTab === 'sources' && (
         <Card header="Evaluated Source Metadata & Timestamp Ledger">
           {!currentInvestigation ? (
-            <div className="text-xs text-[#8A91A0] p-4 text-center">
+            <div className="text-xs text-[#8490A0] p-4 text-center">
               Execute an investigation or resolve an entity to view registry audit stamps.
             </div>
           ) : currentInvestigation.sourcesChecked.length === 0 ? (
             <div className="p-5 text-center space-y-1">
               <p className="text-sm font-semibold text-[#1C1F26]">No source records are attached to this investigation yet.</p>
-              <p className="text-xs text-[#5F6572]">Run an investigation to populate this audit ledger. Missing source records do not indicate a clear result.</p>
+              <p className="text-xs text-[#687385]">Run an investigation to populate this audit ledger. Missing source records do not indicate a clear result.</p>
             </div>
           ) : (
-            <div className="divide-y divide-[#EAE6DF] text-xs">
+            <div className="divide-y divide-[#E4E9EB] text-xs">
               {currentInvestigation.sourcesChecked.map((src, i) => (
                 <div key={i} className="py-2.5 flex items-center justify-between">
                   <span className="font-medium text-[#1C1F26]">{src}</span>
-                  <span className="text-[11px] font-mono text-[#8A91A0]">
+                  <span className="text-[11px] font-mono text-[#8490A0]">
                     Status: Logged Â· Timestamp: {new Date(currentInvestigation.createdAt).toLocaleTimeString()}
                   </span>
                 </div>
