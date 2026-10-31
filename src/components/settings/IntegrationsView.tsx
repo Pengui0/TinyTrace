@@ -141,6 +141,8 @@ export const IntegrationsView: React.FC = () => {
   };
 
   const handleRunTinyfishTest = async (useMock: boolean) => {
+    // Never leave a persisted result from the previous URL on screen during a new run.
+    setTfTestResult(null);
     if (useMock) {
       setIsTestingTfMock(true);
     } else {
@@ -487,7 +489,10 @@ export const IntegrationsView: React.FC = () => {
                 <input
                   type="url"
                   value={tfUrl}
-                  onChange={(e) => setTfUrl(e.target.value)}
+                  onChange={(e) => {
+                    setTfUrl(e.target.value);
+                    setTfTestResult(null);
+                  }}
                   placeholder="https://mca.gov.in"
                   className="w-full text-xs font-mono bg-white border border-[#D5CEC2] rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1C1F26]"
                 />
@@ -550,6 +555,11 @@ export const IntegrationsView: React.FC = () => {
           </div>
 
           {/* Test Execution Result */}
+          {isTestingTfLive && (
+            <div role="status" className="mt-3 rounded border border-blue-200 bg-blue-50 px-3.5 py-3 text-xs text-blue-900">
+              Live extraction is running for <span className="font-mono">{tfUrl}</span>. The result below will belong to this URL.
+            </div>
+          )}
           {tfTestResult && (
             <div className="mt-3 p-3.5 bg-white border border-[#D5CEC2] rounded space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE6DF] pb-2">
