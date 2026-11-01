@@ -1,5 +1,6 @@
 import { Investigation, SourceConnector, WorkspaceStats } from '../../types/vendor.js';
 import type { Vendor } from '../../types/domain.js';
+import { getCurrentWorkspaceId } from '../persistence/workspaceContext.js';
 
 /**
  * TinyTrace In-Memory / File Persistent Store
@@ -8,8 +9,22 @@ import type { Vendor } from '../../types/domain.js';
  */
 
 class DataStore {
-  private investigations: Map<string, Investigation> = new Map();
-  private trackedVendors: Map<string, { id: string; name: string; cin: string | null; gstin: string | null; addedAt: string }> = new Map();
+  private investigationsByWorkspace = new Map<string, Map<string, Investigation>>();
+  private vendorsByWorkspace = new Map<string, Map<string, { id: string; name: string; cin: string | null; gstin: string | null; addedAt: string }>>();
+
+  private get investigations(): Map<string, Investigation> {
+    const workspaceId = getCurrentWorkspaceId();
+    let records = this.investigationsByWorkspace.get(workspaceId);
+    if (!records) { records = new Map(); this.investigationsByWorkspace.set(workspaceId, records); }
+    return records;
+  }
+
+  private get trackedVendors(): Map<string, { id: string; name: string; cin: string | null; gstin: string | null; addedAt: string }> {
+    const workspaceId = getCurrentWorkspaceId();
+    let records = this.vendorsByWorkspace.get(workspaceId);
+    if (!records) { records = new Map(); this.vendorsByWorkspace.set(workspaceId, records); }
+    return records;
+  }
 
   public getStats(): WorkspaceStats {
     const totalInv = this.investigations.size;

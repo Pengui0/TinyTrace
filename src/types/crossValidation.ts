@@ -29,8 +29,12 @@ export interface ScoreFactorBreakdown {
   confidenceRationale: string;
   recencyPoints: number; // 0-15 points
   recencyRationale: string;
-  identityMatchPoints: number; // 0-15 points
+  verificationCoveragePoints: number; // 0-15 uncertainty points for incomplete due-diligence coverage
+  verificationCoverageRationale: string;
+  /** @deprecated Compatibility field; identity match quality never contributes to risk points. */
+  identityMatchPoints: number;
   identityMatchRationale: string;
+  scorePolicyVersion?: 2;
   coveragePointsAdjustment: number; // Deductions if coverage is incomplete
   totalScore: number; // 0-100 deterministic risk index
   ruleApplied: string; // Plain-English deterministic rule explanation

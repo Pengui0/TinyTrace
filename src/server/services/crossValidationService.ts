@@ -220,9 +220,10 @@ export class CrossValidationService {
     findings: CrossValidatedFinding[];
     identityMatchQuality: IdentityMatchQuality;
     coverageStatus: CoverageStatus;
+    coverageGapCount: number;
     investigationDate: string;
   }): ScoreFactorBreakdown {
-    const { findings, identityMatchQuality, coverageStatus, investigationDate } = params;
+    const { findings, identityMatchQuality, coverageStatus, coverageGapCount, investigationDate } = params;
 
     // 1. Severity Points (0 - 40)
     let maxSeverity = 1;
@@ -297,32 +298,24 @@ export class CrossValidationService {
       recencyRationale = 'No recent or active adverse records identified (0/15 pts).';
     }
 
-    // 4. Identity Match Quality Points (0 - 15)
-    let identityMatchPoints = 0;
-    let identityMatchRationale = '';
-    switch (identityMatchQuality) {
-      case 'EXACT_IDENTIFIER':
-        identityMatchPoints = 15;
-        identityMatchRationale = 'Exact 21-char CIN or 15-char GSTIN identifier match (15/15 pts).';
-        break;
-      case 'STRONG_NAME_AND_ADDRESS':
-        identityMatchPoints = 10;
-        identityMatchRationale = 'Strong name and registered RoC office match (10/15 pts).';
-        break;
-      case 'PROBABLE':
-        identityMatchPoints = 5;
-        identityMatchRationale = 'Probable legal name match; exact tax identifier unverified (5/15 pts).';
-        break;
-      case 'WEAK':
-      case 'NO_MATCHING_ENTITY':
-      default:
-        identityMatchPoints = 0;
-        identityMatchRationale = 'Weak or unconfirmed identity match; provisional findings only (0/15 pts).';
-        break;
+    // Entity matching determines whether findings belong to this company; it is
+    // not itself evidence of risk. Incomplete source coverage adds uncertainty.
+    let verificationCoveragePoints = 0;
+    let verificationCoverageRationale = '';
+    if (coverageStatus === 'INADEQUATE') {
+      verificationCoveragePoints = 15;
+      verificationCoverageRationale = 'Core due-diligence checks are unavailable; maximum uncertainty points applied (15/15 pts).';
+    } else if (coverageStatus === 'PARTIAL') {
+      verificationCoveragePoints = Math.min(15, Math.max(5, coverageGapCount * 5));
+      verificationCoverageRationale = `Some required checks are incomplete; uncertainty points reflect coverage gaps (${verificationCoveragePoints}/15 pts).`;
+    } else {
+      verificationCoverageRationale = 'Required due-diligence checks completed; no coverage uncertainty points added (0/15 pts).';
     }
+    const identityMatchPoints = 0;
+    const identityMatchRationale = `Identity match (${identityMatchQuality.replace(/_/g, ' ').toLowerCase()}) is used to associate evidence with the entity; it does not add risk points.`;
 
     // 5. Total Score Computation
-    const rawTotal = severityPoints + confidencePoints + recencyPoints + identityMatchPoints;
+    const rawTotal = severityPoints + confidencePoints + recencyPoints + verificationCoveragePoints;
     let totalScore = Math.min(Math.max(rawTotal, 0), 100);
     let coveragePointsAdjustment = 0;
 
@@ -354,11 +347,14 @@ export class CrossValidationService {
       confidenceRationale,
       recencyPoints,
       recencyRationale,
+      verificationCoveragePoints,
+      verificationCoverageRationale,
       identityMatchPoints,
       identityMatchRationale,
       coveragePointsAdjustment,
       totalScore,
       ruleApplied,
+      scorePolicyVersion: 2,
     };
   }
 
@@ -563,6 +559,7 @@ Instructions:
       findings: crossValidatedFindings,
       identityMatchQuality,
       coverageStatus,
+      coverageGapCount: coverageGaps.length,
       investigationDate,
     });
 

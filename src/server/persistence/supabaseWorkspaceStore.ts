@@ -3,10 +3,10 @@ import type { Vendor } from '../../types/domain.js';
 import type { WorkspaceSnapshot } from '../../persistence/localStore.js';
 import type { AutomatedMonitoringJob, MonitoringNotification } from '../../types/monitoringDiff.js';
 import { removeSyntheticDemoData } from '../../utils/workspaceData.js';
-
-const WORKSPACE_ID = process.env.SUPABASE_WORKSPACE_ID?.trim() || 'default_ws';
+import { configuredDefaultWorkspaceId, getCurrentWorkspaceId } from './workspaceContext.js';
 
 type MonitorJobRow = {
+  workspace_id: string;
   monitor_id: string; company_name: string; identifier_type: string; identifier_value: string;
   baseline_report_id: string; frequency: AutomatedMonitoringJob['frequency']; enabled: boolean;
   last_checked_at: string | null; next_check_at: string; last_error: string | null;
@@ -14,6 +14,7 @@ type MonitorJobRow = {
 };
 
 const monitorJobFromRow = (row: MonitorJobRow): AutomatedMonitoringJob => ({
+  workspaceId: row.workspace_id,
   monitorId: row.monitor_id, companyName: row.company_name, identifierType: row.identifier_type,
   identifierValue: row.identifier_value, baselineReportId: row.baseline_report_id,
   frequency: row.frequency, enabled: row.enabled, lastCheckedAt: row.last_checked_at,
@@ -67,9 +68,47 @@ export class SupabaseWorkspaceStore {
     });
   }
 
+  public async authenticateAndResolveWorkspace(accessToken: string): Promise<{ user: { id: string; email: string; displayName?: string }; workspaceId: string } | null> {
+    if (!this.isConfigured()) throw new Error('Supabase authentication storage is not configured.');
+    const userResponse = await fetch(`${this.url}/auth/v1/user`, {
+      headers: { apikey: this.secretKey, Authorization: `Bearer ${accessToken}` },
+    });
+    if (userResponse.status === 401 || userResponse.status === 403) return null;
+    if (!userResponse.ok) throw new Error(`Supabase could not validate the account session (HTTP ${userResponse.status}).`);
+    const user = await userResponse.json() as { id?: string; email?: string; user_metadata?: { full_name?: string } };
+    if (!user.id || !user.email) return null;
+
+    const membershipQuery = new URLSearchParams({ owner_user_id: `eq.${user.id}`, select: 'workspace_id', limit: '1' });
+    const membershipResponse = await this.request(`tinytrace_workspace_memberships?${membershipQuery}`);
+    const memberships = await membershipResponse.json() as Array<{ workspace_id: string }>;
+    if (memberships[0]?.workspace_id) return { user: { id: user.id, email: user.email, displayName: user.user_metadata?.full_name }, workspaceId: memberships[0].workspace_id };
+
+    const createMembership = async (workspaceId: string) => {
+      try {
+        const response = await this.request('tinytrace_workspace_memberships?on_conflict=owner_user_id', {
+          method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=representation' },
+          body: JSON.stringify({ workspace_id: workspaceId, owner_user_id: user.id }),
+        });
+        return await response.json() as Array<{ workspace_id: string }>;
+      } catch (error) {
+        if (error instanceof Error && /409|duplicate key/i.test(error.message)) return [];
+        throw error;
+      }
+    };
+    let created = await createMembership(configuredDefaultWorkspaceId);
+    if (!created[0]) created = await createMembership(`user_${user.id}`);
+    if (!created[0]) {
+      const retry = await this.request(`tinytrace_workspace_memberships?${membershipQuery}`);
+      const rows = await retry.json() as Array<{ workspace_id: string }>;
+      if (!rows[0]?.workspace_id) throw new Error('TinyTrace could not initialize a private workspace for this account.');
+      return { user: { id: user.id, email: user.email, displayName: user.user_metadata?.full_name }, workspaceId: rows[0].workspace_id };
+    }
+    return { user: { id: user.id, email: user.email, displayName: user.user_metadata?.full_name }, workspaceId: created[0].workspace_id };
+  }
+
   public async loadSnapshot(): Promise<{ snapshot: WorkspaceSnapshot | null; revision: number | null; updatedAt: string | null }> {
     const query = new URLSearchParams({
-      workspace_id: `eq.${WORKSPACE_ID}`,
+      workspace_id: `eq.${getCurrentWorkspaceId()}`,
       select: 'snapshot,snapshot_version,updated_at',
       limit: '1',
     });
@@ -98,7 +137,7 @@ export class SupabaseWorkspaceStore {
       method: 'POST',
       headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify({
-        workspace_id: WORKSPACE_ID,
+        workspace_id: getCurrentWorkspaceId(),
         snapshot_version: 1,
         snapshot,
       }),
@@ -109,14 +148,14 @@ export class SupabaseWorkspaceStore {
   }
 
   public async clearSnapshot(): Promise<void> {
-    const query = new URLSearchParams({ workspace_id: `eq.${WORKSPACE_ID}` });
+    const query = new URLSearchParams({ workspace_id: `eq.${getCurrentWorkspaceId()}` });
     const response = await this.request(`tinytrace_workspace_snapshots?${query.toString()}`, {
       method: 'DELETE',
       headers: { Prefer: 'return=minimal' },
     });
     if (!response.ok) throw new Error(await this.safeError(response, 'Supabase could not clear the workspace.'));
     for (const table of ['tinytrace_monitor_jobs', 'tinytrace_monitor_notifications']) {
-      const childQuery = new URLSearchParams({ workspace_id: `eq.${WORKSPACE_ID}` });
+      const childQuery = new URLSearchParams({ workspace_id: `eq.${getCurrentWorkspaceId()}` });
       const childResponse = await this.request(`${table}?${childQuery}`, {
         method: 'DELETE',
         headers: { Prefer: 'return=minimal' },
@@ -127,7 +166,7 @@ export class SupabaseWorkspaceStore {
 
   public async listMonitorJobs(): Promise<AutomatedMonitoringJob[]> {
     await this.removeSyntheticMonitoringRows();
-    const query = new URLSearchParams({ workspace_id: `eq.${WORKSPACE_ID}`, select: '*', order: 'created_at.desc' });
+    const query = new URLSearchParams({ workspace_id: `eq.${getCurrentWorkspaceId()}`, select: '*', order: 'created_at.desc' });
     const response = await this.request(`tinytrace_monitor_jobs?${query}`);
     if (!response.ok) throw new Error(await this.safeError(response, 'Could not load automated monitors.'));
     return (await response.json() as MonitorJobRow[]).map(monitorJobFromRow);
@@ -135,7 +174,7 @@ export class SupabaseWorkspaceStore {
 
   public async listDueMonitorJobs(now: Date): Promise<AutomatedMonitoringJob[]> {
     const query = new URLSearchParams({
-      workspace_id: `eq.${WORKSPACE_ID}`, enabled: 'eq.true', next_check_at: `lte.${now.toISOString()}`,
+      enabled: 'eq.true', next_check_at: `lte.${now.toISOString()}`,
       select: '*', order: 'next_check_at.asc', limit: '20',
     });
     const response = await this.request(`tinytrace_monitor_jobs?${query}`);
@@ -148,7 +187,7 @@ export class SupabaseWorkspaceStore {
     const response = await this.request(`tinytrace_monitor_jobs?${query}`, {
       method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify({
-        monitor_id: job.monitorId, workspace_id: WORKSPACE_ID, company_name: job.companyName,
+        monitor_id: job.monitorId, workspace_id: getCurrentWorkspaceId(), company_name: job.companyName,
         identifier_type: job.identifierType, identifier_value: job.identifierValue,
         baseline_report_id: job.baselineReportId, frequency: job.frequency, enabled: job.enabled,
         last_checked_at: job.lastCheckedAt, next_check_at: job.nextCheckAt, last_error: job.lastError,
@@ -161,7 +200,7 @@ export class SupabaseWorkspaceStore {
   }
 
   public async updateMonitorJob(monitorId: string, patch: Partial<Pick<AutomatedMonitoringJob, 'enabled' | 'baselineReportId' | 'lastCheckedAt' | 'nextCheckAt' | 'lastError'>>): Promise<void> {
-    const query = new URLSearchParams({ monitor_id: `eq.${monitorId}`, workspace_id: `eq.${WORKSPACE_ID}` });
+    const query = new URLSearchParams({ monitor_id: `eq.${monitorId}`, workspace_id: `eq.${getCurrentWorkspaceId()}` });
     const body: Record<string, unknown> = {};
     if (patch.enabled !== undefined) body.enabled = patch.enabled;
     if (patch.baselineReportId !== undefined) body.baseline_report_id = patch.baselineReportId;
@@ -175,14 +214,14 @@ export class SupabaseWorkspaceStore {
   }
 
   public async deleteMonitorJob(monitorId: string): Promise<void> {
-    const query = new URLSearchParams({ monitor_id: `eq.${monitorId}`, workspace_id: `eq.${WORKSPACE_ID}` });
+    const query = new URLSearchParams({ monitor_id: `eq.${monitorId}`, workspace_id: `eq.${getCurrentWorkspaceId()}` });
     const response = await this.request(`tinytrace_monitor_jobs?${query}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
     if (!response.ok) throw new Error(await this.safeError(response, 'Could not delete automated monitor.'));
   }
 
   public async listMonitoringNotifications(unreadOnly = false): Promise<MonitoringNotification[]> {
     await this.removeSyntheticMonitoringRows();
-    const filters: Record<string, string> = { workspace_id: `eq.${WORKSPACE_ID}`, select: '*', order: 'created_at.desc', limit: '100' };
+    const filters: Record<string, string> = { workspace_id: `eq.${getCurrentWorkspaceId()}`, select: '*', order: 'created_at.desc', limit: '100' };
     if (unreadOnly) filters.read_at = 'is.null';
     const response = await this.request(`tinytrace_monitor_notifications?${new URLSearchParams(filters)}`);
     if (!response.ok) throw new Error(await this.safeError(response, 'Could not load monitoring notifications.'));
@@ -193,7 +232,7 @@ export class SupabaseWorkspaceStore {
     const response = await this.request('tinytrace_monitor_notifications?on_conflict=id', {
       method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' },
       body: JSON.stringify({
-        id: notification.id, workspace_id: WORKSPACE_ID, monitor_id: notification.monitorId,
+        id: notification.id, workspace_id: getCurrentWorkspaceId(), monitor_id: notification.monitorId,
         company_name: notification.companyName, comparison_id: notification.comparisonId,
         title: notification.title, summary: notification.summary, changes: notification.changes,
         created_at: notification.createdAt, read_at: notification.readAt,
@@ -203,7 +242,7 @@ export class SupabaseWorkspaceStore {
   }
 
   public async markMonitoringNotificationRead(id: string): Promise<void> {
-    const query = new URLSearchParams({ id: `eq.${id}`, workspace_id: `eq.${WORKSPACE_ID}` });
+    const query = new URLSearchParams({ id: `eq.${id}`, workspace_id: `eq.${getCurrentWorkspaceId()}` });
     const response = await this.request(`tinytrace_monitor_notifications?${query}`, {
       method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ read_at: new Date().toISOString() }),
     });
@@ -214,6 +253,7 @@ export class SupabaseWorkspaceStore {
     try {
       await this.loadSnapshot();
       await Promise.all([
+        this.request(`tinytrace_workspace_memberships?${new URLSearchParams({ select: 'workspace_id', limit: '1' })}`),
         this.request(`tinytrace_monitor_jobs?${new URLSearchParams({ select: 'monitor_id', limit: '1' })}`),
         this.request(`tinytrace_monitor_notifications?${new URLSearchParams({ select: 'id', limit: '1' })}`),
       ]).then(async (responses) => {
@@ -221,8 +261,9 @@ export class SupabaseWorkspaceStore {
           if (!response.ok) throw new Error(await this.safeError(response, 'A monitoring table is unavailable.'));
         }
       });
-      return { success: true, assertionsPassed: 3, assertionsFailed: 0, details: [
+      return { success: true, assertionsPassed: 4, assertionsFailed: 0, details: [
         '[PASS] Supabase workspace snapshot table is reachable.',
+        '[PASS] Supabase account workspace membership table is reachable.',
         '[PASS] Automated monitoring schedule table is reachable.',
         '[PASS] Monitoring notification table is reachable.',
       ] };
@@ -276,7 +317,7 @@ export class SupabaseWorkspaceStore {
           },
         ];
         for (const target of cleanupTargets) {
-          const filters = new URLSearchParams({ workspace_id: `eq.${WORKSPACE_ID}`, or: target.or });
+          const filters = new URLSearchParams({ workspace_id: `eq.${getCurrentWorkspaceId()}`, or: target.or });
           const response = await this.request(`${target.table}?${filters.toString()}`, {
             method: 'DELETE', headers: { Prefer: 'return=minimal' },
           });

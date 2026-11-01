@@ -42,6 +42,7 @@ import { monitoringScheduler } from './src/server/services/monitoringScheduler.j
 import type { WorkspaceSnapshot } from './src/persistence/localStore.js';
 import type { AutomatedMonitoringFrequency } from './src/types/monitoringDiff.js';
 import { getNextMonitoringCheck } from './src/utils/monitoringSchedule.js';
+import { getCurrentWorkspaceId, internalSchedulerToken, runWithWorkspace } from './src/server/persistence/workspaceContext.js';
 
 const app = express();
 const asyncHandler = (handler: (req: Request, res: Response) => Promise<unknown>) =>
@@ -109,6 +110,28 @@ app.use((req, res, next) => {
   const carriesWorkspaceSnapshot = req.path === '/api/workspace';
   const carriesSavedReport = /^\/api\/(?:reports\/[^/]+\/export\/(?:pdf|csv)|investigations\/[^/]+\/(?:rerun|trace|graph|assessment)|monitoring\/compare|investigations\/compare)$/.test(req.path);
   requestSizeLimitMiddleware(carriesWorkspaceSnapshot ? 10 * 1024 * 1024 : carriesSavedReport ? 2 * 1024 * 1024 : 51200)(req, res, next);
+});
+app.use('/api', (req, res, next) => {
+  if (req.path === '/health') { next(); return; }
+  const schedulerToken = req.header('x-tinytrace-scheduler-token');
+  const scheduledWorkspaceId = req.header('x-tinytrace-workspace-id');
+  if (schedulerToken === internalSchedulerToken && scheduledWorkspaceId && /^[\w-]{1,100}$/.test(scheduledWorkspaceId)) {
+    runWithWorkspace(scheduledWorkspaceId, next);
+    return;
+  }
+  const authorization = req.header('authorization') || '';
+  const token = authorization.match(/^Bearer\s+(.+)$/i)?.[1];
+  if (!token) { res.status(401).json({ error: 'Sign in to access your TinyTrace workspace.' }); return; }
+  void supabaseWorkspaceStore.authenticateAndResolveWorkspace(token)
+    .then((identity) => {
+      if (!identity) { res.status(401).json({ error: 'Your session is invalid or expired. Please sign in again.' }); return; }
+      (req as Request & { authenticatedUser?: { id: string; email: string } }).authenticatedUser = identity.user;
+      runWithWorkspace(identity.workspaceId, next);
+    })
+    .catch((error) => {
+      console.error('[TinyTrace Auth] Session validation failed:', error instanceof Error ? error.message : error);
+      res.status(503).json({ error: 'Account verification is temporarily unavailable. Please retry in a moment.' });
+    });
 });
 // Supabase stores the complete application workspace snapshot. The browser never
 // connects to Supabase directly and never receives the Supabase secret key.
@@ -1616,8 +1639,8 @@ const exportPdf = (req: Request, res: Response) => {
     const pdfBytes = exportService.generatePdfReport(inv);
     securityService.logAudit({
       eventType: 'REPORT_EXPORTED_PDF',
-      workspaceId: 'default_ws',
-      userId: 'local_development_user',
+      workspaceId: getCurrentWorkspaceId(),
+      userId: (req as Request & { authenticatedUser?: { id: string } }).authenticatedUser?.id || 'unknown',
       targetEntity: inv.targetName,
       details: { reportId: inv.id, byteSize: pdfBytes.length },
     });
@@ -1644,8 +1667,8 @@ const exportCsv = (req: Request, res: Response) => {
     const csvContent = exportService.generateCsvRegister(inv);
     securityService.logAudit({
       eventType: 'REPORT_EXPORTED_CSV',
-      workspaceId: 'default_ws',
-      userId: 'local_development_user',
+      workspaceId: getCurrentWorkspaceId(),
+      userId: (req as Request & { authenticatedUser?: { id: string } }).authenticatedUser?.id || 'unknown',
       targetEntity: inv.targetName,
       details: { reportId: inv.id },
     });
@@ -1732,7 +1755,7 @@ app.get('/api/vendors/:id/profile', asyncHandler(async (req: Request, res: Respo
 
 // API: Security Audit Ledger
 app.get('/api/security/audit-logs', (req: Request, res: Response) => {
-  const workspaceId = 'default_ws';
+  const workspaceId = getCurrentWorkspaceId();
   res.json({
     workspaceId,
     logs: securityService.getAuditLogs(workspaceId),
@@ -1772,16 +1795,16 @@ app.use(globalErrorSanitizer);
 
 // Frontend serving & Vite Integration
 async function startServer() {
-  if (db.getStorageMode().isDurable) {
-    const domainStorageCheck = await db.checkConnection?.();
-    if (!domainStorageCheck?.success) throw new Error(`Supabase domain repository check failed: ${domainStorageCheck?.details.join(' ') || 'adapter is unavailable'}`);
-  }
   if (process.env.NODE_ENV === 'production' && !supabaseWorkspaceStore.isConfigured()) {
     throw new Error('Production startup requires SUPABASE_URL and SUPABASE_SECRET_KEY for durable workspace storage.');
   }
-  if (process.env.NODE_ENV === 'production') {
+  if (supabaseWorkspaceStore.isConfigured()) {
     const storageCheck = await supabaseWorkspaceStore.checkConnection();
-    if (!storageCheck.success) throw new Error(`Supabase storage check failed: ${storageCheck.details.join(' ')}`);
+    if (!storageCheck.success) throw new Error(`Supabase workspace storage check failed: ${storageCheck.details.join(' ')}`);
+  }
+  if (db.getStorageMode().isDurable) {
+    const domainStorageCheck = await db.checkConnection?.();
+    if (!domainStorageCheck?.success) throw new Error(`Supabase domain repository check failed: ${domainStorageCheck?.details.join(' ') || 'adapter is unavailable'}`);
   }
 
   if (process.env.NODE_ENV !== 'production') {

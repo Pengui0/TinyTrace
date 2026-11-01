@@ -6,8 +6,8 @@ import {
   validateEvidence, validateInvestigation, validateRelationship, validateRunComparison,
   validateSignal, validateVendor,
 } from '../validation/domainValidators.js';
+import { getCurrentWorkspaceId } from '../persistence/workspaceContext.js';
 
-const WORKSPACE_ID = process.env.SUPABASE_WORKSPACE_ID?.trim() || 'default_ws';
 type RecordType = 'vendor' | 'investigation' | 'signal' | 'evidence' | 'relationship' | 'comparison';
 type Row<T> = { record_id: string; payload: T };
 
@@ -31,7 +31,7 @@ class SupabaseDomainRecords {
   }
 
   private filters(type: RecordType, extra: Record<string, string> = {}) {
-    return new URLSearchParams({ workspace_id: `eq.${WORKSPACE_ID}`, record_type: `eq.${type}`, ...extra });
+    return new URLSearchParams({ workspace_id: `eq.${getCurrentWorkspaceId()}`, record_type: `eq.${type}`, ...extra });
   }
 
   async get<T>(type: RecordType, id: string): Promise<T | null> {
@@ -51,7 +51,7 @@ class SupabaseDomainRecords {
     const query = new URLSearchParams({ on_conflict: 'workspace_id,record_type,record_id', select: 'record_id' });
     await this.request(`tinytrace_domain_records?${query}`, {
       method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify({ workspace_id: WORKSPACE_ID, record_type: type, record_id: value.id, payload: value }),
+      body: JSON.stringify({ workspace_id: getCurrentWorkspaceId(), record_type: type, record_id: value.id, payload: value }),
     });
     return value;
   }

@@ -33,6 +33,18 @@ create trigger tinytrace_workspace_snapshots_set_updated_at
   before update on public.tinytrace_workspace_snapshots
   for each row execute function public.tinytrace_set_updated_at();
 
+-- A single private workspace is assigned to each authenticated Supabase account.
+-- The first account to sign in claims the existing default workspace; later accounts
+-- receive isolated workspace IDs created by the TinyTrace server.
+create table if not exists public.tinytrace_workspace_memberships (
+  workspace_id text primary key,
+  owner_user_id uuid not null unique references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.tinytrace_workspace_memberships enable row level security;
+revoke all on table public.tinytrace_workspace_memberships from anon, authenticated;
+grant select, insert, update, delete on table public.tinytrace_workspace_memberships to service_role;
+
 -- Durable domain repositories used by investigation and evidence processing.
 create table if not exists public.tinytrace_domain_records (
   workspace_id text not null default 'default_ws',
@@ -176,5 +188,5 @@ select
   rowsecurity
 from pg_tables
 where schemaname = 'public'
-  and tablename in ('tinytrace_workspace_snapshots', 'tinytrace_domain_records', 'tinytrace_monitor_jobs', 'tinytrace_monitor_notifications')
+  and tablename in ('tinytrace_workspace_memberships', 'tinytrace_workspace_snapshots', 'tinytrace_domain_records', 'tinytrace_monitor_jobs', 'tinytrace_monitor_notifications')
 order by tablename;

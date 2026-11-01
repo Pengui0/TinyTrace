@@ -327,13 +327,14 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
 
               <div className="p-3 bg-white border border-[#E4E9EB] rounded space-y-1">
                 <div className="flex items-center justify-between text-[#687385]">
-                  <span className="font-semibold">Identity Match Quality</span>
-                  <span className="font-mono text-[#1C1F26] font-bold">{assessment.scoreBreakdown.identityMatchPoints}/15 pts</span>
+                  <span className="font-semibold">Verification Coverage</span>
+                  <span className="font-mono text-[#1C1F26] font-bold">{assessment.scoreBreakdown.verificationCoveragePoints ?? 0}/15 pts</span>
                 </div>
-                <p className="text-[11px] text-[#687385] leading-snug">{assessment.scoreBreakdown.identityMatchRationale}</p>
+                <p className="text-[11px] text-[#687385] leading-snug">{assessment.scoreBreakdown.verificationCoverageRationale || 'Legacy report: rerun the investigation to calculate coverage uncertainty points.'}</p>
               </div>
             </div>
           )}
+          <p className="text-[10px] text-[#687385]">Identity matching links evidence to the correct company; it does not add risk points. Incomplete source coverage adds uncertainty points.</p>
         </div>
       ) : (
         <div className="bg-[#F5F7F8] border border-[#E4E9EB] rounded-lg p-4 text-xs text-[#687385]">

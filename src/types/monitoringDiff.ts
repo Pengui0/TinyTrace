@@ -76,6 +76,8 @@ export interface MonitoringConfig {
 export type AutomatedMonitoringFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY';
 
 export interface AutomatedMonitoringJob {
+  /** Server-only tenant scope used by the background scheduler. */
+  workspaceId?: string;
   monitorId: string;
   companyName: string;
   identifierType: string;

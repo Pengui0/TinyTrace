@@ -1,14 +1,16 @@
 import React from 'react';
-import { Activity, Building, HelpCircle, Menu, Zap } from 'lucide-react';
+import { Activity, Building, HelpCircle, LogOut, Menu, Zap } from 'lucide-react';
 
 interface TopbarProps {
   currentWorkspace: string;
   onOpenHelp: () => void;
   onOpenMobileMenu?: () => void;
   isBackendHealthy: boolean;
+  accountLabel: string;
+  onSignOut: () => void;
 }
 
-export const Topbar: React.FC<TopbarProps> = ({ currentWorkspace, onOpenHelp, onOpenMobileMenu, isBackendHealthy }) => (
+export const Topbar: React.FC<TopbarProps> = ({ currentWorkspace, onOpenHelp, onOpenMobileMenu, isBackendHealthy, accountLabel, onSignOut }) => (
   <header className="sticky top-0 z-30 flex h-16 min-h-16 shrink-0 items-center justify-between gap-3 border-b border-[#E4E9EB]/90 bg-white/85 px-3 backdrop-blur-xl sm:px-5">
     <div className="flex h-full min-w-0 items-center gap-3">
       {onOpenMobileMenu && <button onClick={onOpenMobileMenu} className="rounded p-1.5 text-[#687385] hover:bg-[#EEF2F3] hover:text-[#1C1F26] md:hidden" aria-label="Open sidebar"><Menu className="h-5 w-5" /></button>}
@@ -25,6 +27,9 @@ export const Topbar: React.FC<TopbarProps> = ({ currentWorkspace, onOpenHelp, on
       <div className="hidden items-center gap-1.5 text-[#687385] sm:flex"><span className={`h-2 w-2 rounded-full ${isBackendHealthy ? 'animate-pulse bg-emerald-600' : 'bg-amber-600'}`} /><Activity className="h-3.5 w-3.5 sm:hidden" /><span className="font-mono text-[11px]">{isBackendHealthy ? 'Engine Online' : 'Connecting...'}</span></div>
       <div className="hidden h-4 w-px bg-[#E4E9EB] sm:block" />
       <button onClick={onOpenHelp} className="hidden cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-[#687385] transition-colors hover:bg-[#EEF2F3] hover:text-[#1C1F26] sm:flex"><HelpCircle className="h-3.5 w-3.5 text-[#8490A0]" /><span>Verification Standards</span></button>
+      <div className="hidden h-4 w-px bg-[#E4E9EB] sm:block" />
+      <span className="hidden max-w-[150px] truncate text-[11px] font-medium text-[#526176] lg:block" title={accountLabel}>{accountLabel}</span>
+      <button type="button" onClick={onSignOut} aria-label="Sign out" title="Sign out" className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E4E9EB] bg-white text-[#687385] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"><LogOut className="h-4 w-4" /></button>
     </div>
   </header>
 );

@@ -6,6 +6,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { isIP } from 'node:net';
+import { getCurrentWorkspaceId } from '../persistence/workspaceContext.js';
 
 export interface AuditEvent {
   id: string;
@@ -182,7 +183,7 @@ export function ssrfGuardMiddleware(req: Request, res: Response, next: NextFunct
     if (!validation.isValid) {
       securityService.logAudit({
         eventType: 'SECURITY_BLOCKED_SSRF',
-        workspaceId: 'default_ws',
+        workspaceId: getCurrentWorkspaceId(),
         userId: (req as Request & { authenticatedUser?: { email?: string } }).authenticatedUser?.email || 'anonymous',
         details: { targetUrl, reason: validation.reason },
         ipAddress: req.ip,

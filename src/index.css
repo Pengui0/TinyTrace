@@ -98,3 +98,21 @@
 @media (prefers-reduced-motion: no-preference) {
   button, a, [role="tab"] { transition-duration: 160ms; }
 }
+
+.auth-screen {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: radial-gradient(ellipse at 14% 16%, rgba(16, 185, 129, 0.10), transparent 34%),
+    radial-gradient(ellipse at 88% 82%, rgba(8, 127, 97, 0.09), transparent 38%), #F5F8F7;
+}
+.auth-screen::-webkit-scrollbar { display: none; }
+.auth-orb { position: absolute; border-radius: 9999px; filter: blur(1px); pointer-events: none; }
+.auth-orb-one { width: 250px; height: 250px; top: 8%; right: 8%; border: 1px solid rgba(8,127,97,.12); }
+.auth-orb-two { width: 170px; height: 170px; bottom: 10%; left: 5%; background: rgba(16,185,129,.045); }
+.auth-card-transition { animation-duration: 420ms; animation-timing-function: cubic-bezier(.2,.75,.25,1); animation-fill-mode: both; }
+.auth-card-from-right { animation-name: auth-enter-right; }
+.auth-card-from-left { animation-name: auth-enter-left; }
+@keyframes auth-enter-right { from { opacity: .2; transform: perspective(900px) rotateY(-12deg) translateX(20px); } to { opacity: 1; transform: perspective(900px) rotateY(0) translateX(0); } }
+@keyframes auth-enter-left { from { opacity: .2; transform: perspective(900px) rotateY(12deg) translateX(-20px); } to { opacity: 1; transform: perspective(900px) rotateY(0) translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .auth-card-transition { animation: none; } }

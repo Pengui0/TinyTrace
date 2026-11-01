@@ -15,6 +15,8 @@ import { getInvestigationIdentityKey, keepLatestInvestigationPerIdentity } from 
 import { openCustomVendorSearch } from './components/overview/customVendorSearch.js';
 import { clearLegacyBrowserWorkspace, emptyWorkspace, getStorageReadError, hydrateWorkspace, loadWorkspace, readLegacyWorkspaceForMigration, updateWorkspace, WorkspaceSnapshot } from './persistence/localStore.js';
 import { applyFindingReviewResults, getHumanReviewCount } from './utils/reviewPolicy.js';
+import { AuthGate } from './auth/AuthGate.js';
+import { getActiveSession, signOut } from './auth/supabaseAuth.js';
 
 const OverviewView = lazy(() => import('./components/overview/OverviewView.js').then((module) => ({ default: module.OverviewView })));
 const InvestigationView = lazy(() => import('./components/investigations/InvestigationView.js').then((module) => ({ default: module.InvestigationView })));
@@ -25,7 +27,6 @@ const MonitoringNotificationsView = lazy(() => import('./components/monitoring/M
 const SettingsView = lazy(() => import('./components/settings/SettingsView.js').then((module) => ({ default: module.SettingsView })));
 const InvestigationHistoryView = lazy(() => import('./components/investigations/InvestigationHistoryView.js').then((module) => ({ default: module.InvestigationHistoryView })));
 const LiveEvidenceView = lazy(() => import('./components/investigations/LiveEvidenceView.js').then((module) => ({ default: module.LiveEvidenceView })));
-const LandingPage = lazy(() => import('./components/landing/LandingPage.js').then((module) => ({ default: module.LandingPage })));
 
 function DashboardApp() {
   const [savedWorkspace] = useState<WorkspaceSnapshot>(() => loadWorkspace());
@@ -497,6 +498,8 @@ function DashboardApp() {
           onOpenHelp={() => setIsHelpModalOpen(true)}
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           isBackendHealthy={isBackendHealthy}
+          accountLabel={getActiveSession()?.user.displayName || getActiveSession()?.user.email || 'Account'}
+          onSignOut={() => { void signOut(); }}
         />
 
         {/* Global Notification Banner if present */}
@@ -653,9 +656,5 @@ function DashboardApp() {
 }
 
 export default function App() {
-  if (window.location.pathname === '/') {
-    return <Suspense fallback={<div className="p-8 text-sm text-[#687385]">Loading TinyTrace…</div>}><LandingPage /></Suspense>;
-  }
-
-  return <DashboardApp />;
+  return <AuthGate><DashboardApp /></AuthGate>;
 }

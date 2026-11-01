@@ -3,6 +3,7 @@ import type { WorkspaceSnapshot } from '../../persistence/localStore.js';
 import { supabaseWorkspaceStore } from '../persistence/supabaseWorkspaceStore.js';
 import { store } from '../storage/store.js';
 import { getNextMonitoringCheck } from '../../utils/monitoringSchedule.js';
+import { configuredDefaultWorkspaceId, internalSchedulerToken, runWithWorkspace } from '../persistence/workspaceContext.js';
 
 export class MonitoringScheduler {
   private running = false;
@@ -31,7 +32,11 @@ export class MonitoringScheduler {
     }
   }
 
-  private async runJob(port: number, job: Awaited<ReturnType<typeof supabaseWorkspaceStore.listMonitorJobs>>[number]): Promise<void> {
+  private runJob(port: number, job: Awaited<ReturnType<typeof supabaseWorkspaceStore.listMonitorJobs>>[number]): Promise<void> {
+    return runWithWorkspace(job.workspaceId || configuredDefaultWorkspaceId, () => this.executeJob(port, job));
+  }
+
+  private async executeJob(port: number, job: Awaited<ReturnType<typeof supabaseWorkspaceStore.listMonitorJobs>>[number]): Promise<void> {
     try {
       const stored = await supabaseWorkspaceStore.loadSnapshot();
       const snapshot = stored.snapshot;
@@ -43,7 +48,11 @@ export class MonitoringScheduler {
       supabaseWorkspaceStore.hydrateServerCache(snapshot, (investigations, vendors) => store.hydrateWorkspace(investigations, vendors));
       const response = await fetch(`http://127.0.0.1:${port}/api/investigations/${encodeURIComponent(baseline.id)}/rerun`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tinytrace-scheduler-token': internalSchedulerToken,
+          'x-tinytrace-workspace-id': job.workspaceId || configuredDefaultWorkspaceId,
+        },
         body: JSON.stringify({ useMock: false, freshRun: true }),
         signal: AbortSignal.timeout(180_000),
       });
