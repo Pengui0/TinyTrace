@@ -373,7 +373,7 @@ export const IntegrationsView: React.FC = () => {
           <span>Server-Side Secret Isolation Guarantee</span>
         </div>
         <p className="text-[11px] text-[#687385] leading-relaxed">
-          <code>TINYFISH_API_KEY</code> and <code>INDIACOS_API_KEY</code> are accessed exclusively in server-side provider modules. Connector probes use short timeouts; IndiaCos identity lookups stop waiting after 5 seconds if the registry does not respond. Requests use bounded transient retries where appropriate, zero retries for 401/402 errors, and strict secret redaction.
+          <code>TINYFISH_API_KEY</code> and <code>INDIACOS_API_KEY</code> are accessed exclusively in server-side provider modules. Connector probes use short timeouts; IndiaCos identity lookups allow up to 30 seconds for registry responses, with a 60-second end-to-end resolution deadline. Requests use bounded transient retries where appropriate, zero retries for 401/402 errors, and strict secret redaction.
         </p>
       </div>
 

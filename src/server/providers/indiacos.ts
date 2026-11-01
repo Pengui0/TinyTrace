@@ -15,8 +15,8 @@ import {
 import { executeHardenedRequest } from './httpClient.js';
 import { registryCache } from './cache.js';
 
-// Fail promptly when a live registry identity request stalls; these lookups do not retry.
-const IDENTITY_LOOKUP_TIMEOUT_MS = 5_000;
+// Registry identity lookups can take longer than probes; bound the wait without retrying billed requests.
+const IDENTITY_LOOKUP_TIMEOUT_MS = 30_000;
 const DIRECTOR_LOOKUP_TIMEOUT_MS = 12_000;
 
 

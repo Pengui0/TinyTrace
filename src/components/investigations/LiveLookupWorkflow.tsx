@@ -72,7 +72,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-        timeoutMs: 8_000,
+        timeoutMs: 60_000,
       });
 
       let data = await res.json();
@@ -90,7 +90,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
-          timeoutMs: 8_000,
+          timeoutMs: 60_000,
         });
         data = await res.json();
       }
