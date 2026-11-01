@@ -167,9 +167,10 @@ TinyTrace keeps all credentials strictly server-side. **No API keys or auth head
 | `TINYTRACE_AGENT_RETRY_BACKOFF_MS` | Optional | Base retry backoff in milliseconds (default: `300`, maximum: `2000`). |
 | `PORT` | Optional | Application listening port (default: `3000`). |
 | `NODE_ENV` | Optional | Set to `production` or `development`. |
-| `ENABLE_AUTH` | Optional | Set to `true` to require Google Workspace sign-in for every API route except readiness and auth configuration. |
+| `ENABLE_AUTH` | Optional | Set to `true` to require Google sign-in for every API route except readiness and auth configuration. |
 | `GOOGLE_CLIENT_ID` | Required when auth is enabled | Google OAuth web client ID. Google Identity Services uses it in the sign-in screen; the server validates the ID-token audience. |
-| `GOOGLE_ALLOWED_DOMAIN` | Required when auth is enabled | Exact Google Workspace domain allowed to sign in (for example, `example.com`). |
+| `GOOGLE_ALLOWED_DOMAIN` | One allowlist option required when auth is enabled | Exact Google Workspace domain allowed to sign in (for example, `example.com`). |
+| `GOOGLE_ALLOWED_EMAILS` | One allowlist option required when auth is enabled | Comma-separated exact verified Google email addresses allowed to sign in. Use this for personal Gmail accounts. |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Reserved | No Firestore repository adapter is wired in the current implementation; setting this variable alone does not enable durable storage. |
 
 ---
@@ -224,7 +225,7 @@ Visit `http://localhost:3000` in your browser.
 TinyTrace is packaged as a unified Node.js Express + Vite application that compiles into a single deployable container.
 
 > [!IMPORTANT]
-> **Controlled Deployment Protocol**: Before deployment, configure `ENABLE_AUTH=true`, `GOOGLE_CLIENT_ID`, and `GOOGLE_ALLOWED_DOMAIN`, and confirm project ID, region, secret bindings, and access controls. This build has no verified durable storage or per-customer data isolation. Keep Cloud Run private; do not enable unauthenticated public access.
+> **Controlled Deployment Protocol**: Before deployment, configure `ENABLE_AUTH=true`, `GOOGLE_CLIENT_ID`, and either `GOOGLE_ALLOWED_DOMAIN` or `GOOGLE_ALLOWED_EMAILS`, and confirm project ID, region, secret bindings, and access controls. This build has no verified durable storage or per-customer data isolation. Keep Cloud Run private; do not enable unauthenticated public access.
 
 ### Build and Test Verification Before Deployment
 ```bash
@@ -253,7 +254,7 @@ gcloud run deploy tinytrace \
   --platform managed \
   --port 3000 \
   --no-allow-unauthenticated \
-  --set-env-vars NODE_ENV=production,ENABLE_AUTH=true,GOOGLE_CLIENT_ID=YOUR_OAUTH_CLIENT_ID,GOOGLE_ALLOWED_DOMAIN=YOUR_WORKSPACE_DOMAIN \
+  --set-env-vars NODE_ENV=production,ENABLE_AUTH=true,GOOGLE_CLIENT_ID=YOUR_OAUTH_CLIENT_ID,GOOGLE_ALLOWED_EMAILS=you@example.com \
   --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest \
   --set-secrets TINYFISH_API_KEY=TINYFISH_API_KEY:latest \
   --set-secrets INDIACOS_API_KEY=INDIACOS_API_KEY:latest

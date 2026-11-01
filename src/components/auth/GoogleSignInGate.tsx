@@ -60,7 +60,7 @@ export const GoogleSignInGate: React.FC<GoogleSignInGateProps> = ({ children }) 
         setConfig(nextConfig);
         if (!nextConfig.authRequired) return;
         if (!nextConfig.configurationReady || !nextConfig.clientId) {
-          setError('Server auth is enabled but GOOGLE_CLIENT_ID or GOOGLE_ALLOWED_DOMAIN is missing.');
+          setError('Google sign-in is enabled but the OAuth client ID or account allowlist is missing.');
           return;
         }
         await loadGoogleIdentityServices();
@@ -104,13 +104,13 @@ export const GoogleSignInGate: React.FC<GoogleSignInGateProps> = ({ children }) 
         </div>
         <h1 className="text-xl font-bold text-[#1C1F26]">TinyTrace sign in</h1>
         <p className="mt-2 text-sm leading-relaxed text-[#687385]">
-          Sign in with your authorized Google Workspace account to open this shared due diligence workspace.
+          Sign in with an authorized Google account to open this shared due diligence workspace.
         </p>
         {error && <p role="alert" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
         {!config && !error && <p className="mt-5 text-sm text-[#687385]">Loading sign-in…</p>}
         {config?.authRequired && config.configurationReady && config.clientId && <div className="mt-6 flex justify-center"><div ref={buttonRef} /></div>}
         {config?.authRequired && !config.configurationReady && (
-          <p className="mt-4 text-xs text-[#687385]">Set GOOGLE_CLIENT_ID and GOOGLE_ALLOWED_DOMAIN on the server, then reload.</p>
+          <p className="mt-4 text-xs text-[#687385]">Set GOOGLE_CLIENT_ID and GOOGLE_ALLOWED_DOMAIN or GOOGLE_ALLOWED_EMAILS on the server, then reload.</p>
         )}
         {error && <button onClick={() => window.location.reload()} className="mt-4 text-sm font-semibold text-[#087F61] underline">Retry</button>}
       </section>

@@ -205,7 +205,7 @@ app.get('/api/auth/config', (_req: Request, res: Response) => {
   res.json({
     authRequired: process.env.ENABLE_AUTH === 'true',
     clientId: process.env.GOOGLE_CLIENT_ID || null,
-    configurationReady: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_ALLOWED_DOMAIN),
+    configurationReady: Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && (process.env.GOOGLE_ALLOWED_DOMAIN?.trim() || process.env.GOOGLE_ALLOWED_EMAILS?.split(',').some((email) => email.trim()))),
   });
 });
 
@@ -1661,8 +1661,8 @@ async function startServer() {
   if (process.env.NODE_ENV === 'production' && !authEnabled) {
     throw new Error('Production startup requires ENABLE_AUTH=true.');
   }
-  if (authEnabled && (!process.env.GOOGLE_CLIENT_ID?.trim() || !process.env.GOOGLE_ALLOWED_DOMAIN?.trim())) {
-    throw new Error('ENABLE_AUTH requires GOOGLE_CLIENT_ID and GOOGLE_ALLOWED_DOMAIN.');
+  if (authEnabled && (!process.env.GOOGLE_CLIENT_ID?.trim() || (!process.env.GOOGLE_ALLOWED_DOMAIN?.trim() && !process.env.GOOGLE_ALLOWED_EMAILS?.split(',').some((email) => email.trim())))) {
+    throw new Error('ENABLE_AUTH requires GOOGLE_CLIENT_ID and either GOOGLE_ALLOWED_DOMAIN or GOOGLE_ALLOWED_EMAILS.');
   }
 
   if (process.env.NODE_ENV !== 'production') {
