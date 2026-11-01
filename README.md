@@ -167,7 +167,9 @@ TinyTrace keeps all credentials strictly server-side. **No API keys or auth head
 | `TINYTRACE_AGENT_RETRY_BACKOFF_MS` | Optional | Base retry backoff in milliseconds (default: `300`, maximum: `2000`). |
 | `PORT` | Optional | Application listening port (default: `3000`). |
 | `NODE_ENV` | Optional | Set to `production` or `development`. |
-| `ENABLE_AUTH` | Optional | Set to `true` to enforce Google token authentication on API routes. |
+| `ENABLE_AUTH` | Optional | Set to `true` to require Google Workspace sign-in for every API route except readiness and auth configuration. |
+| `GOOGLE_CLIENT_ID` | Required when auth is enabled | Google OAuth web client ID. Google Identity Services uses it in the sign-in screen; the server validates the ID-token audience. |
+| `GOOGLE_ALLOWED_DOMAIN` | Required when auth is enabled | Exact Google Workspace domain allowed to sign in (for example, `example.com`). |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Reserved | No Firestore repository adapter is wired in the current implementation; setting this variable alone does not enable durable storage. |
 
 ---
@@ -180,6 +182,8 @@ The shipped implementation currently wires **`DevInMemoryRepositoryAdapter` only
 - Vendor and investigation records are stored in process memory and may reset when the server restarts.
 - `firestore.rules` is included as a rules file, but a rules file alone does not implement database persistence.
 - **No `FirestoreRepositoryAdapter` is present or registered in this build.** Setting `FIREBASE_CONFIG` or `GOOGLE_APPLICATION_CREDENTIALS` alone does not make data durable.
+- App authentication validates Google Workspace ID-token signatures, issuer, audience, expiry, verified email, and the configured hosted domain. API tokens are held in browser memory and are not persisted in local storage.
+- The repository currently stores one shared workspace and does not isolate records per customer or Workspace domain. Google sign-in limits access to the configured domain; it does not make this a multi-tenant SaaS.
 - Implement and test an actual persistent repository adapter, access rules, and tenant isolation before describing this as durable multi-user SaaS or deploying with real customer data.
 
 ---
@@ -220,7 +224,7 @@ Visit `http://localhost:3000` in your browser.
 TinyTrace is packaged as a unified Node.js Express + Vite application that compiles into a single deployable container.
 
 > [!IMPORTANT]
-> **Controlled Deployment Protocol**: Do not deploy automatically to Cloud Run without confirming project ID, region, secret bindings, and access controls. This build has no verified durable storage and application-level multi-tenant authorization is not production-cleared. Keep Cloud Run private; do not enable unauthenticated public access.
+> **Controlled Deployment Protocol**: Before deployment, configure `ENABLE_AUTH=true`, `GOOGLE_CLIENT_ID`, and `GOOGLE_ALLOWED_DOMAIN`, and confirm project ID, region, secret bindings, and access controls. This build has no verified durable storage or per-customer data isolation. Keep Cloud Run private; do not enable unauthenticated public access.
 
 ### Build and Test Verification Before Deployment
 ```bash
@@ -249,7 +253,7 @@ gcloud run deploy tinytrace \
   --platform managed \
   --port 3000 \
   --no-allow-unauthenticated \
-  --set-env-vars NODE_ENV=production \
+  --set-env-vars NODE_ENV=production,ENABLE_AUTH=true,GOOGLE_CLIENT_ID=YOUR_OAUTH_CLIENT_ID,GOOGLE_ALLOWED_DOMAIN=YOUR_WORKSPACE_DOMAIN \
   --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest \
   --set-secrets TINYFISH_API_KEY=TINYFISH_API_KEY:latest \
   --set-secrets INDIACOS_API_KEY=INDIACOS_API_KEY:latest

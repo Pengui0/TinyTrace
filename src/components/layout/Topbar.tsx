@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState } from 'react';
 import {
   Building,
@@ -10,6 +11,7 @@ import {
   Zap,
   Info,
   X,
+  LogOut,
 } from 'lucide-react';
 
 interface TopbarProps {
@@ -19,6 +21,7 @@ interface TopbarProps {
   isBackendHealthy: boolean;
   isDemoMode: boolean;
   onToggleMode: (mode: 'DEMO' | 'LIVE') => void;
+  onSignOut?: () => void;
 }
 
 export const Topbar: React.FC<TopbarProps> = ({
@@ -28,13 +31,14 @@ export const Topbar: React.FC<TopbarProps> = ({
   isBackendHealthy,
   isDemoMode,
   onToggleMode,
+  onSignOut,
 }) => {
   const [showConnectorWarningModal, setShowConnectorWarningModal] = useState<boolean>(false);
   const [connectorHealth, setConnectorHealth] = useState<any>(null);
 
   const handleSelectLiveMode = async () => {
     try {
-      const res = await fetch('/api/health/integrations');
+      const res = await apiFetch('/api/health/integrations');
       if (res.ok) {
         const data = await res.json();
         setConnectorHealth(data);
@@ -145,6 +149,17 @@ export const Topbar: React.FC<TopbarProps> = ({
             <HelpCircle className="w-3.5 h-3.5 text-[#8490A0]" />
             <span className="hidden sm:inline">Verification Standards</span>
           </button>
+          {onSignOut && (
+            <button
+              type="button"
+              onClick={onSignOut}
+              title="Sign out"
+              aria-label="Sign out"
+              className="rounded-lg p-2 text-[#687385] transition-colors hover:bg-[#EEF2F3] hover:text-[#1C1F26]"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </header>
 

@@ -24,6 +24,8 @@ import { runCustomVendorSearchTests } from './customVendorSearch.test.js';
 import { runRepositoryVerification } from './repositoryVerification.test.js';
 import { runAssessmentDisplayTests } from './assessmentDisplay.test.js';
 import { runInvestigationComparisonTests } from './investigationComparison.test.js';
+import { runGoogleAuthTests } from './googleAuth.test.js';
+import { runGroundedAIVerificationTests } from './groundedAIVerification.test.js';
 
 interface TestResult {
   assertionsPassed: number;
@@ -66,6 +68,8 @@ const suites: TestSuite[] = [
   } },
   { name: 'Assessment Score & Vendor Trend Display', fn: runAssessmentDisplayTests },
   { name: 'Investigation Comparison Input Validation', fn: runInvestigationComparisonTests },
+  { name: 'Google Workspace API Authentication', fn: runGoogleAuthTests },
+  { name: 'Grounded AI Verification Citation Rules', fn: runGroundedAIVerificationTests },
 ];
 
 async function runAll() {

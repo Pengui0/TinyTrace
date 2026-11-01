@@ -79,37 +79,7 @@ export async function runSecurityHardeningTests(): Promise<{
   assert(truncatedScrape.length <= 600, 'Raw web snippet is bounded per data retention policy');
   assert(truncatedScrape.includes('[Retained excerpt truncated per compliance policy]'), 'Notice of retention policy attached');
 
-  logs.push('=== 3. TESTING MULTI-TENANT ISOLATION & AUTHENTICATION ENFORCEMENT ===');
-
-  // Enable auth for testing strict authorization checks
-  securityService.setAuthEnabled(true);
-
-  // Unauthenticated call (missing workspace ID)
-  const unauthCheck = securityService.checkTenantAccess({
-    requestWorkspaceId: null,
-    resourceWorkspaceId: 'workspace_tata_steel',
-  });
-  assert(unauthCheck.authorized === false, 'Rejects unauthenticated request missing workspace ID');
-
-  // Cross-tenant access attempt
-  const crossTenantCheck = securityService.checkTenantAccess({
-    requestWorkspaceId: 'workspace_haldia_petro',
-    resourceWorkspaceId: 'workspace_tata_steel',
-  });
-  assert(crossTenantCheck.authorized === false, 'Blocks cross-tenant access between different workspaces');
-  assert(crossTenantCheck.reason?.includes('Cross-tenant access denied') === true, 'Explicit cross-tenant denial reason logged');
-
-  // Authorized same-tenant access
-  const authorizedCheck = securityService.checkTenantAccess({
-    requestWorkspaceId: 'workspace_tata_steel',
-    resourceWorkspaceId: 'workspace_tata_steel',
-  });
-  assert(authorizedCheck.authorized === true, 'Permits access when authorized workspace matches resource');
-
-  // Reset auth enabled back to development mode
-  securityService.setAuthEnabled(process.env.ENABLE_AUTH === 'true');
-
-  logs.push('=== 4. TESTING RATE LIMITING ===');
+  logs.push('=== 3. TESTING RATE LIMITING ===');
   const testClient = 'client_test_rate_limiter';
   let allowedCount = 0;
   for (let i = 0; i < 45; i++) {
@@ -120,7 +90,7 @@ export async function runSecurityHardeningTests(): Promise<{
   assert(allowedCount === 40, 'Rate limiter permits exactly up to the 40 request threshold');
   assert(securityService.checkRateLimit(testClient, 40, 60000) === false, 'Subsequent requests above limit are throttled');
 
-  logs.push('=== 5. TESTING AUDIT LOGGING OF SECURITY EVENTS ===');
+  logs.push('=== 4. TESTING AUDIT LOGGING OF SECURITY EVENTS ===');
   const logged = securityService.logAudit({
     eventType: 'SECURITY_BLOCKED_SSRF',
     workspaceId: 'workspace_tata_steel',
@@ -131,7 +101,7 @@ export async function runSecurityHardeningTests(): Promise<{
   const recentLogs = securityService.getAuditLogs('workspace_tata_steel');
   assert(recentLogs.some((l) => l.eventType === 'SECURITY_BLOCKED_SSRF'), 'Security event recorded in workspace audit ledger');
 
-  logs.push('=== 6. TESTING DISCONNECTED CLIENT ERROR HANDLING ===');
+  logs.push('=== 5. TESTING DISCONNECTED CLIENT ERROR HANDLING ===');
   let responseWrites = 0;
   const disconnectedResponse = {
     destroyed: true,

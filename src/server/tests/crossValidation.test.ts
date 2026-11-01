@@ -63,6 +63,37 @@ export async function runCrossValidationTests(): Promise<{
   assert(validatedSingle.needsHumanReview, 'Correctly flags single-source finding as needing human review');
   assert(validatedSingle.sourcesCounted.length === 1, 'Records exactly 1 counted source');
 
+  const inconclusiveCandidate: RiskFinding = {
+    ...singleFinding,
+    id: 'rf_name_only_candidate',
+    title: 'Unverified Court Case Candidate',
+    status: 'inconclusive',
+    severity: 1,
+  };
+  const leadReport = await crossValidationService.compileAssessmentReport({
+    investigationId: 'inv_name_only_candidate',
+    vendorId: 'ven_test',
+    vendorName: 'TEST MANUFACTURING LTD',
+    cin: 'L27100MH1907PLC000260',
+    gstin: '27AAACT2727Q1ZW',
+    pan: 'AAACT2727Q',
+    identityMatchQuality: 'EXACT_IDENTIFIER',
+    rawFindings: [inconclusiveCandidate],
+    coverageGaps: [],
+    dimensionTaskStates: {
+      company_registry: { status: 'completed' },
+      gst_compliance: { status: 'completed' },
+      court_litigation: { status: 'completed' },
+      blacklist_debarment: { status: 'completed' },
+      negative_news: { status: 'completed' },
+    },
+    investigationDate: now,
+    sourcesChecked: ['MCA21', 'GSTN', 'E-Courts'],
+    enableAIWebVerification: false,
+  });
+  assert(leadReport.reviewedFindings?.[0]?.reviewDisposition === 'UNVERIFIED_LEAD', 'Low-severity inconclusive court candidates are classified as leads');
+  assert(leadReport.humanReviewQueue?.length === 0, 'Name-only candidate leads do not inflate the officer review queue');
+
   // Two Independent Sources Finding
   const dualFinding: RiskFinding = {
     ...singleFinding,

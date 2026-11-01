@@ -14,7 +14,6 @@ import {
 } from '../../types/riskFinding.js';
 import { indiacos } from '../providers/indiacos.js';
 import { tinyfish } from '../providers/tinyfish.js';
-import { tinyfishClient } from '../providers/tinyfishClient.js';
 import {
   COURT_LITIGATION_OUTPUT_SCHEMA,
   BLACKLIST_DEBARMENT_OUTPUT_SCHEMA,

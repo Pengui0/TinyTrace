@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { getAssessmentDisplayValues } from '../../utils/assessmentDisplay.js';
@@ -43,7 +44,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
     if (!investigation) return;
     setIsExportingPdf(true);
     try {
-      const res = await fetch(`/api/reports/${investigation.id}/export/pdf`, {
+      const res = await apiFetch(`/api/reports/${investigation.id}/export/pdf`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ investigation }),
       });
       if (!res.ok) {
@@ -71,7 +72,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
     if (!investigation) return;
     setIsExportingCsv(true);
     try {
-      const res = await fetch(`/api/reports/${investigation.id}/export/csv`, {
+      const res = await apiFetch(`/api/reports/${investigation.id}/export/csv`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ investigation }),
       });
       if (!res.ok) {

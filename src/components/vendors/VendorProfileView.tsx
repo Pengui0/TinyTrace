@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { getAssessmentDisplayValues, getAssessmentTrend, AssessmentTrend } from '../../utils/assessmentDisplay.js';
@@ -66,7 +67,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`/api/vendors/${vendorId}/profile`)
+    apiFetch(`/api/vendors/${vendorId}/profile`)
       .then((res) => res.json())
       .then((data: VendorProfileData) => {
         const localReports = investigations.filter((inv) => `local-${inv.identifierType}-${inv.identifierValue}` === vendorId);
@@ -101,7 +102,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
     e.stopPropagation();
     setExportingId(`pdf_${invId}`);
     try {
-      const res = await fetch(`/api/reports/${invId}/export/pdf`, {
+      const res = await apiFetch(`/api/reports/${invId}/export/pdf`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ investigation: investigations.find((item) => item.id === invId) }),
       });
@@ -130,7 +131,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
     e.stopPropagation();
     setExportingId(`csv_${invId}`);
     try {
-      const res = await fetch(`/api/reports/${invId}/export/csv`, {
+      const res = await apiFetch(`/api/reports/${invId}/export/csv`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ investigation: investigations.find((item) => item.id === invId) }),
       });

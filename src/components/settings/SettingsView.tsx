@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Card } from '../common/Card.js';
 import { Badge } from '../common/Badge.js';
@@ -59,7 +60,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
   }, [activeTab]);
 
   useEffect(() => {
-    fetch('/api/repository/status')
+    apiFetch('/api/repository/status')
       .then((res) => res.json())
       .then((data) => setStorageStatus(data.status))
       .catch((err) => console.error('Error fetching storage status:', err));
@@ -68,7 +69,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
   const handleRunVerification = async () => {
     setIsRunningTest(true);
     try {
-      const res = await fetch('/api/repository/verify-persistence', { method: 'POST' });
+      const res = await apiFetch('/api/repository/verify-persistence', { method: 'POST' });
       const data = await res.json();
       setTestReport(data);
       saveSettings({ repositoryVerificationReport: data });

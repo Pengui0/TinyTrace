@@ -38,6 +38,8 @@ import {
   requestSizeLimitMiddleware,
   globalErrorSanitizer,
 } from './src/server/security/securityService.js';
+import { googleApiAuthMiddleware } from './src/server/security/googleAuth.js';
+import type { AuthenticatedRequest } from './src/server/security/googleAuth.js';
 import { runSecurityHardeningTests } from './src/server/tests/securityHardening.test.js';
 
 const app = express();
@@ -97,6 +99,7 @@ app.use((req, res, next) => {
   const carriesSavedReport = /^\/api\/(?:reports\/[^/]+\/export\/(?:pdf|csv)|investigations\/[^/]+\/(?:rerun|trace|graph|assessment)|monitoring\/compare|investigations\/compare)$/.test(req.path);
   requestSizeLimitMiddleware(carriesSavedReport ? 2 * 1024 * 1024 : 51200)(req, res, next);
 });
+app.use('/api', googleApiAuthMiddleware);
 
 
 const normalizeDirectoryValue = (value: unknown): string =>
@@ -195,6 +198,14 @@ app.get('/api/health', (_req: Request, res: Response) => {
       indiacosConfigured: indiacos.isConfigured(),
       tinyfishConfigured: tinyfish.isConfigured(),
     },
+  });
+});
+
+app.get('/api/auth/config', (_req: Request, res: Response) => {
+  res.json({
+    authRequired: process.env.ENABLE_AUTH === 'true',
+    clientId: process.env.GOOGLE_CLIENT_ID || null,
+    configurationReady: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_ALLOWED_DOMAIN),
   });
 });
 
@@ -1486,21 +1497,12 @@ const exportPdf = (req: Request, res: Response) => {
     return;
   }
 
-  const tenantCheck = securityService.checkTenantAccess({
-    requestWorkspaceId: (req.headers['x-workspace-id'] as string) || 'default_ws',
-    resourceWorkspaceId: 'default_ws',
-  });
-  if (!tenantCheck.authorized) {
-    res.status(403).json({ error: tenantCheck.reason });
-    return;
-  }
-
   try {
     const pdfBytes = exportService.generatePdfReport(inv);
     securityService.logAudit({
       eventType: 'REPORT_EXPORTED_PDF',
-      workspaceId: (req.headers['x-workspace-id'] as string) || 'default_ws',
-      userId: (req.headers['x-user-id'] as string) || 'session_user',
+      workspaceId: 'default_ws',
+      userId: (req as AuthenticatedRequest).authenticatedUser?.email || 'local_development_user',
       targetEntity: inv.targetName,
       details: { reportId: inv.id, byteSize: pdfBytes.length },
     });
@@ -1523,21 +1525,12 @@ const exportCsv = (req: Request, res: Response) => {
     return;
   }
 
-  const tenantCheck = securityService.checkTenantAccess({
-    requestWorkspaceId: (req.headers['x-workspace-id'] as string) || 'default_ws',
-    resourceWorkspaceId: 'default_ws',
-  });
-  if (!tenantCheck.authorized) {
-    res.status(403).json({ error: tenantCheck.reason });
-    return;
-  }
-
   try {
     const csvContent = exportService.generateCsvRegister(inv);
     securityService.logAudit({
       eventType: 'REPORT_EXPORTED_CSV',
-      workspaceId: (req.headers['x-workspace-id'] as string) || 'default_ws',
-      userId: (req.headers['x-user-id'] as string) || 'session_user',
+      workspaceId: 'default_ws',
+      userId: (req as AuthenticatedRequest).authenticatedUser?.email || 'local_development_user',
       targetEntity: inv.targetName,
       details: { reportId: inv.id },
     });
@@ -1624,7 +1617,7 @@ app.get('/api/vendors/:id/profile', asyncHandler(async (req: Request, res: Respo
 
 // API: Security Audit Ledger
 app.get('/api/security/audit-logs', (req: Request, res: Response) => {
-  const workspaceId = (req.headers['x-workspace-id'] as string) || 'default_ws';
+  const workspaceId = 'default_ws';
   res.json({
     workspaceId,
     logs: securityService.getAuditLogs(workspaceId),
@@ -1664,6 +1657,14 @@ app.use(globalErrorSanitizer);
 
 // Frontend serving & Vite Integration
 async function startServer() {
+  const authEnabled = process.env.ENABLE_AUTH === 'true';
+  if (process.env.NODE_ENV === 'production' && !authEnabled) {
+    throw new Error('Production startup requires ENABLE_AUTH=true.');
+  }
+  if (authEnabled && (!process.env.GOOGLE_CLIENT_ID?.trim() || !process.env.GOOGLE_ALLOWED_DOMAIN?.trim())) {
+    throw new Error('ENABLE_AUTH requires GOOGLE_CLIENT_ID and GOOGLE_ALLOWED_DOMAIN.');
+  }
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },

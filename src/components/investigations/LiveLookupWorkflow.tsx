@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Card } from '../common/Card.js';
 import { Button } from '../common/Button.js';
@@ -56,7 +57,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
 
   const fetchCacheStats = async () => {
     try {
-      const res = await fetch('/api/integrations/indiacos/cache-stats');
+      const res = await apiFetch('/api/integrations/indiacos/cache-stats');
       if (res.ok) setCacheStats(await res.json());
     } catch (e) {
       console.error('Error fetching cache stats:', e);
@@ -74,7 +75,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
 
     try {
       let payload = buildCustomResolverPayload(searchInput, useMock, candidateToConfirm);
-      let res = await fetch('/api/integrations/indiacos/resolve', {
+      let res = await apiFetch('/api/integrations/indiacos/resolve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -91,7 +92,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
         && /HTTP 404/i.test(String(data.message || ''));
       if (canFallbackToName) {
         payload = { ...payload, query: payload.legalName, cin: '', gstin: '' };
-        res = await fetch('/api/integrations/indiacos/resolve', {
+        res = await apiFetch('/api/integrations/indiacos/resolve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -166,7 +167,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
   const handleRunIndiacosSuite = async () => {
     setIsRunningUnitTests(true);
     try {
-      const res = await fetch('/api/integrations/indiacos/verify-suite', { method: 'POST' });
+      const res = await apiFetch('/api/integrations/indiacos/verify-suite', { method: 'POST' });
       const data = await res.json();
       setUnitTestReport(data);
       fetchCacheStats();
@@ -188,7 +189,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
     try {
       const parsed = new URL(url);
       if (!['https:', 'http:'].includes(parsed.protocol)) throw new Error('Enter a public HTTP or HTTPS website URL.');
-      const response = await fetch('/api/integrations/tinyfish/test', {
+      const response = await apiFetch('/api/integrations/tinyfish/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

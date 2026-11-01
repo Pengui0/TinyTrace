@@ -1,34 +1,33 @@
+import { apiFetch } from './api/authenticatedFetch.js';
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { PanelLeftOpen } from 'lucide-react';
+import { GoogleSignInGate } from './components/auth/GoogleSignInGate.js';
 import { Sidebar, NavigationTab } from './components/layout/Sidebar.js';
 import { Topbar } from './components/layout/Topbar.js';
-import { OverviewView } from './components/overview/OverviewView.js';
-import { InvestigationView } from './components/investigations/InvestigationView.js';
-import { VendorsView } from './components/vendors/VendorsView.js';
-import { MonitoringView } from './components/monitoring/MonitoringView.js';
-import { SettingsView } from './components/settings/SettingsView.js';
 import { HelpModal } from './components/common/HelpModal.js';
 import { ConnectorModal } from './components/common/ConnectorModal.js';
 import { IdentifierType, Investigation, SourceConnector, WorkspaceStats } from './types/vendor.js';
-import {
-  DEMO_INVESTIGATION_RUN_1,
-  DEMO_INVESTIGATION_RUN_2,
-} from './server/demo/demoDataset.js';
-import { DemoScenarioWalkthrough } from './components/investigations/DemoScenarioWalkthrough.js';
-import { InvestigationHistoryView } from './components/investigations/InvestigationHistoryView.js';
 import { getInvestigationIdentityKey, keepLatestInvestigationPerIdentity } from './utils/investigationIdentity.js';
-import { LiveEvidenceView } from './components/investigations/LiveEvidenceView.js';
 import { openCustomVendorSearch } from './components/overview/customVendorSearch.js';
 import { getStorageReadError, loadWorkspace, updateWorkspace, WorkspaceSnapshot } from './persistence/localStore.js';
-import { LandingPage } from './components/landing/LandingPage.js';
 import { applyFindingReviewResults, getHumanReviewCount } from './utils/reviewPolicy.js';
 
-function DashboardApp() {
+const OverviewView = lazy(() => import('./components/overview/OverviewView.js').then((module) => ({ default: module.OverviewView })));
+const InvestigationView = lazy(() => import('./components/investigations/InvestigationView.js').then((module) => ({ default: module.InvestigationView })));
+const VendorsView = lazy(() => import('./components/vendors/VendorsView.js').then((module) => ({ default: module.VendorsView })));
+const MonitoringView = lazy(() => import('./components/monitoring/MonitoringView.js').then((module) => ({ default: module.MonitoringView })));
+const SettingsView = lazy(() => import('./components/settings/SettingsView.js').then((module) => ({ default: module.SettingsView })));
+const DemoScenarioWalkthrough = lazy(() => import('./components/investigations/DemoScenarioWalkthrough.js').then((module) => ({ default: module.DemoScenarioWalkthrough })));
+const InvestigationHistoryView = lazy(() => import('./components/investigations/InvestigationHistoryView.js').then((module) => ({ default: module.InvestigationHistoryView })));
+const LiveEvidenceView = lazy(() => import('./components/investigations/LiveEvidenceView.js').then((module) => ({ default: module.LiveEvidenceView })));
+const LandingPage = lazy(() => import('./components/landing/LandingPage.js').then((module) => ({ default: module.LandingPage })));
+
+function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
   const [savedWorkspace] = useState<WorkspaceSnapshot>(() => loadWorkspace());
   const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => savedWorkspace.preferences.executionMode !== 'LIVE');
@@ -97,27 +96,27 @@ function DashboardApp() {
     let mergedInvestigations = [...savedWorkspace.investigations];
     try {
       // 1. Health check
-      const healthRes = await fetch('/api/health');
+      const healthRes = await apiFetch('/api/health');
       if (healthRes.ok) {
         setIsBackendHealthy(true);
       }
 
       // 2. Connectors
-      const connRes = await fetch('/api/connectors');
+      const connRes = await apiFetch('/api/connectors');
       if (connRes.ok) {
         const connData = await connRes.json();
         setConnectors(connData.connectors || []);
       }
 
       // 3. Stats (real counts, no mock numbers)
-      const statsRes = await fetch('/api/stats');
+      const statsRes = await apiFetch('/api/stats');
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
 
       // 4. Historical investigations
-      const invRes = await fetch('/api/investigations');
+      const invRes = await apiFetch('/api/investigations');
       if (invRes.ok) {
         const invData = await invRes.json();
         // An empty dev-server repository is not authoritative over browser history.
@@ -140,7 +139,7 @@ function DashboardApp() {
         const batch = needsReviewPass.slice(offset, offset + 2);
         const results = await Promise.all(batch.map(async (item) => {
           try {
-            const response = await fetch(`/api/investigations/${encodeURIComponent(item.id)}/assessment`, {
+            const response = await apiFetch(`/api/investigations/${encodeURIComponent(item.id)}/assessment`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ investigation: item }),
@@ -196,7 +195,7 @@ function DashboardApp() {
     activeInvestigationRunIdRef.current = clientRunId;
 
     try {
-      const res = await fetch('/api/investigations', {
+      const res = await apiFetch('/api/investigations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -225,7 +224,7 @@ function DashboardApp() {
         : `Investigation completed for ${newInv.targetName}. Report saved to workspace.`);
 
       // Refresh real stats
-      const statsRes = await fetch('/api/stats');
+      const statsRes = await apiFetch('/api/stats');
       if (statsRes.ok) {
         setStats(await statsRes.json());
       }
@@ -246,7 +245,7 @@ function DashboardApp() {
     const runId = activeInvestigationRunIdRef.current;
     if (!runId) return;
     try {
-      const response = await fetch('/api/investigations/cancel', {
+      const response = await apiFetch('/api/investigations/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ runId }),
@@ -259,9 +258,12 @@ function DashboardApp() {
     }
   };
 
-  const handleSelectInvestigation = (id: string) => {
-    const found = investigations.find((i) => i.id === id)
-      || (id === DEMO_INVESTIGATION_RUN_1.id ? DEMO_INVESTIGATION_RUN_1 : id === DEMO_INVESTIGATION_RUN_2.id ? DEMO_INVESTIGATION_RUN_2 : undefined);
+  const handleSelectInvestigation = async (id: string) => {
+    let found = investigations.find((investigation) => investigation.id === id);
+    if (!found && (id === 'inv_demo_run_01' || id === 'inv_demo_run_02')) {
+      const { DEMO_INVESTIGATION_RUN_1, DEMO_INVESTIGATION_RUN_2 } = await import('./server/demo/demoDataset.js');
+      found = id === DEMO_INVESTIGATION_RUN_1.id ? DEMO_INVESTIGATION_RUN_1 : id === DEMO_INVESTIGATION_RUN_2.id ? DEMO_INVESTIGATION_RUN_2 : undefined;
+    }
     if (found) {
       setInvestigationDraft(null);
       setMonitoringSelection(null);
@@ -275,7 +277,7 @@ function DashboardApp() {
   const handleDeleteInvestigation = async (id: string) => {
     const target = investigations.find((item) => item.id === id);
     if (!target) throw new Error('This report is no longer in the workspace. Refresh the page and try again.');
-    const response = await fetch(`/api/investigations/${encodeURIComponent(id)}`, {
+    const response = await apiFetch(`/api/investigations/${encodeURIComponent(id)}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ identity: {
@@ -312,7 +314,8 @@ function DashboardApp() {
     });
   };
 
-  const handleLoadScenarioStep = (stepNumber: number) => {
+  const handleLoadScenarioStep = async (stepNumber: number) => {
+    const { DEMO_INVESTIGATION_RUN_1, DEMO_INVESTIGATION_RUN_2 } = await import('./server/demo/demoDataset.js');
     if (stepNumber === 1) {
       setCurrentInvestigation(DEMO_INVESTIGATION_RUN_1);
       setCurrentTab('investigations');
@@ -412,6 +415,7 @@ function DashboardApp() {
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           isBackendHealthy={isBackendHealthy}
           isDemoMode={isDemoMode}
+          onSignOut={onSignOut}
           onToggleMode={(mode) => {
             const demoMode = mode === 'DEMO';
             setIsDemoMode(demoMode);
@@ -435,6 +439,7 @@ function DashboardApp() {
         {/* Main Content View */}
         {storageWarning && <div role="alert" className="px-5 py-2 text-xs bg-amber-100 text-amber-950 border-b border-amber-300 flex justify-between">{storageWarning}<button onClick={() => { setSettingsInitialTab('persistence'); setSettingsInstanceKey((key) => key + 1); setCurrentTab('settings'); }} className="underline font-semibold">Open backup options</button></div>}
         <main className="mx-auto w-full max-w-[1380px] flex-1 space-y-6 px-4 py-5 sm:px-6 md:py-7 xl:px-8">
+          <Suspense fallback={<div className="rounded-xl border border-[#E4E9EB] bg-white p-6 text-sm text-[#687385]">Loading workspace view…</div>}>
           {/* Guided Demo Walkthrough Banner when Demo Mode is active */}
           {isDemoMode && currentTab === 'overview' && (
             <DemoScenarioWalkthrough
@@ -479,12 +484,12 @@ function DashboardApp() {
             />
           )}
 
-          <div className={currentTab === 'live-search' ? 'block' : 'hidden'}>
+          {currentTab === 'live-search' && (
             <LiveEvidenceView
               investigations={investigations}
               isDemoMode={isDemoMode}
             />
-          </div>
+          )}
 
           {currentTab === 'history' && (
             <InvestigationHistoryView
@@ -535,6 +540,7 @@ function DashboardApp() {
           {currentTab === 'settings' && (
             <SettingsView key={settingsInstanceKey} connectors={connectors} initialTab={settingsInitialTab} />
           )}
+          </Suspense>
         </main>
       </div>
 
@@ -555,8 +561,8 @@ function DashboardApp() {
 
 export default function App() {
   if (window.location.pathname === '/') {
-    return <LandingPage />;
+    return <Suspense fallback={<div className="p-8 text-sm text-[#687385]">Loading TinyTrace…</div>}><LandingPage /></Suspense>;
   }
 
-  return <DashboardApp />;
+  return <GoogleSignInGate>{(onSignOut) => <DashboardApp onSignOut={onSignOut} />}</GoogleSignInGate>;
 }

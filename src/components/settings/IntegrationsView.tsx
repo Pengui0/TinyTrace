@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Card } from '../common/Card.js';
 import { Badge, BadgeTone } from '../common/Badge.js';
@@ -68,7 +69,7 @@ export const IntegrationsView: React.FC = () => {
   const fetchIntegrations = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/health/integrations');
+      const res = await apiFetch('/api/health/integrations');
       if (res.ok) {
         const data = await res.json();
         setIntegrations(data.integrations || {});
@@ -105,7 +106,7 @@ export const IntegrationsView: React.FC = () => {
   const handleTestConnection = async (providerId: 'indiacos' | 'tinyfish', useMock = false) => {
     setTestingProviderId(`${providerId}_${useMock ? 'mock' : 'live'}`);
     try {
-      const res = await fetch('/api/integrations/test', {
+      const res = await apiFetch('/api/integrations/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ providerId, useMock }),
@@ -130,7 +131,7 @@ export const IntegrationsView: React.FC = () => {
   const handleRunSuite = async () => {
     setIsRunningSuite(true);
     try {
-      const res = await fetch('/api/integrations/verify-suite', { method: 'POST' });
+      const res = await apiFetch('/api/integrations/verify-suite', { method: 'POST' });
       const data = await res.json();
       setTestSuiteReport(data);
     } catch (e: any) {
@@ -150,7 +151,7 @@ export const IntegrationsView: React.FC = () => {
     }
 
     try {
-      const res = await fetch('/api/integrations/tinyfish/test', {
+      const res = await apiFetch('/api/integrations/tinyfish/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -179,7 +180,7 @@ export const IntegrationsView: React.FC = () => {
   const handleRunTinyfishSuite = async () => {
     setIsRunningTfSuite(true);
     try {
-      const res = await fetch('/api/integrations/tinyfish/verify-suite', { method: 'POST' });
+      const res = await apiFetch('/api/integrations/tinyfish/verify-suite', { method: 'POST' });
       const data = await res.json();
       setTfSuiteReport(data);
     } catch (e: any) {

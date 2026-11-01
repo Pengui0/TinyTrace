@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useEffect, useState } from 'react';
 import {
   CheckCircle2,
@@ -90,7 +91,7 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
   }, [isActive]);
 
   useEffect(() => {
-    fetch('/api/investigations/limits')
+    apiFetch('/api/investigations/limits')
       .then((response) => response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)))
       .then((data) => setLimits({
         overallTimeoutMs: Number(data.overallTimeoutMs) || 120000,

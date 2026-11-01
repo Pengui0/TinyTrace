@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useMemo, useState } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { InvestigationSearchFilter, FilterState } from './InvestigationSearchFilter.js';
@@ -37,7 +38,7 @@ export const InvestigationHistoryView: React.FC<InvestigationHistoryViewProps> =
     const id = inv.id;
     setExporting(`${format}-${id}`);
     try {
-      const response = await fetch(`/api/reports/${id}/export/${format}`, {
+      const response = await apiFetch(`/api/reports/${id}/export/${format}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ investigation: inv }),

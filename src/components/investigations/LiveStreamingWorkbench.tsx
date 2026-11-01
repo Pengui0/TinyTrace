@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Activity,
@@ -178,7 +179,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
         message: 'Running as part of the concurrent live investigation; awaiting provider result.',
       })));
       try {
-        const limitsResponse = await fetch('/api/investigations/limits');
+        const limitsResponse = await apiFetch('/api/investigations/limits');
         if (limitsResponse.ok && isCurrentRun()) {
           const limits = await limitsResponse.json();
           setAgentTimeoutMs(Number(limits.liveStreamTimeoutMs) || 120000);
@@ -193,7 +194,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
     abortControllerRef.current = controller;
 
     try {
-      const response = await fetch('/api/investigations/tinyfish/stream', {
+      const response = await apiFetch('/api/investigations/tinyfish/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -409,7 +410,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
     }
     if (activeRunId && !activeRunId.startsWith('tf_search_')) {
       try {
-        await fetch('/api/investigations/tinyfish/cancel', {
+        await apiFetch('/api/investigations/tinyfish/cancel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ runId: activeRunId, useMock: isDemoMode }),

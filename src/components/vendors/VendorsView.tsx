@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Vendor } from '../../types/domain.js';
 import { EmptyState } from '../common/EmptyState.js';
@@ -33,7 +34,7 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
   const fetchVendors = (query = '') => {
     setIsLoading(true);
     const url = query ? `/api/vendors?q=${encodeURIComponent(query)}` : '/api/vendors';
-    fetch(url)
+    apiFetch(url)
       .then((res) => res.json())
       .then((data) => {
         const fromServer: Vendor[] = data.vendors || [];
@@ -62,7 +63,7 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
     setDeletingVendorId(vendor.id);
     setDeleteError(null);
     try {
-      const response = await fetch(`/api/vendors/${encodeURIComponent(vendor.id)}`, { method: 'DELETE' });
+      const response = await apiFetch(`/api/vendors/${encodeURIComponent(vendor.id)}`, { method: 'DELETE' });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'Vendor record could not be deleted.');
       fetchVendors(searchQuery);

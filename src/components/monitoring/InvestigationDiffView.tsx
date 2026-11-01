@@ -1,3 +1,4 @@
+import { apiFetch } from '../../api/authenticatedFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { loadWorkspace, updateWorkspace } from '../../persistence/localStore.js';
@@ -91,7 +92,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
   // Load monitoring configuration
   useEffect(() => {
     const vendorId = currentInvestigation?.id || 'ven_default';
-    fetch(`/api/monitoring/config/${vendorId}`)
+    apiFetch(`/api/monitoring/config/${vendorId}`)
       .then((res) => res.json())
       .then((data: MonitoringConfig) => setMonitoringConfig(loadWorkspace().monitoringConfigs[vendorId] || data))
       .catch((err) => console.error('Failed to load monitoring config:', err));
@@ -118,7 +119,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
     if (!rerunTarget?.id) return;
     setIsReRunning(true);
     try {
-      const res = await fetch(`/api/investigations/${rerunTarget.id}/rerun`, {
+      const res = await apiFetch(`/api/investigations/${rerunTarget.id}/rerun`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ useMock: isDemoMode, baseline: rerunTarget }),
@@ -155,7 +156,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
     setComparisonReport(null);
     setIsComparing(true);
     try {
-      const res = await fetch('/api/monitoring/compare', {
+      const res = await apiFetch('/api/monitoring/compare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -184,7 +185,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
     const vendorId = currentInvestigation?.id || 'ven_default';
     setIsSavingPref(true);
     try {
-      const res = await fetch(`/api/monitoring/config/${vendorId}`, {
+      const res = await apiFetch(`/api/monitoring/config/${vendorId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ preference: pref }),

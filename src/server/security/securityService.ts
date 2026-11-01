@@ -1,6 +1,6 @@
 /**
  * TinyTrace Security Service
- * Implements SSRF defense, prompt-injection neutralization, multi-tenant isolation,
+ * Implements SSRF defense, prompt-injection neutralization,
  * rate-limiting, audit logging, and data retention policies.
  */
 
@@ -16,8 +16,7 @@ export interface AuditEvent {
     | 'RE_CHECK_TRIGGERED'
     | 'SECURITY_BLOCKED_SSRF'
     | 'SECURITY_BLOCKED_INJECTION'
-    | 'SECURITY_AUTH_FAILURE'
-    | 'SECURITY_CROSS_TENANT_BLOCKED';
+    | 'SECURITY_AUTH_FAILURE';
   workspaceId: string;
   userId: string;
   targetEntity?: string;
@@ -29,15 +28,6 @@ export interface AuditEvent {
 export class SecurityService {
   private auditLog: AuditEvent[] = [];
   private rateLimitMap = new Map<string, { count: number; windowStart: number }>();
-  private authEnabled: boolean = process.env.ENABLE_AUTH === 'true';
-
-  public isAuthEnabled(): boolean {
-    return this.authEnabled;
-  }
-
-  public setAuthEnabled(enabled: boolean) {
-    this.authEnabled = enabled;
-  }
 
   /**
    * SSRF Guard for user-selected company sites. Allows public company domains while
@@ -141,36 +131,6 @@ export class SecurityService {
   }
 
   /**
-   * Multi-Tenant Authorization Check:
-   * Ensures the requesting user/token belongs to the authorized workspace for the requested resource.
-   */
-  public checkTenantAccess(params: {
-    requestWorkspaceId?: string | null;
-    resourceWorkspaceId: string;
-    userId?: string | null;
-  }): { authorized: boolean; reason?: string } {
-    if (!this.authEnabled) {
-      // In development / demo mode when auth is disabled, allow access
-      return { authorized: true };
-    }
-
-    const { requestWorkspaceId, resourceWorkspaceId } = params;
-
-    if (!requestWorkspaceId) {
-      return { authorized: false, reason: 'Missing authorized workspace identifier.' };
-    }
-
-    if (requestWorkspaceId !== resourceWorkspaceId && resourceWorkspaceId !== 'PUBLIC_SHARED') {
-      return {
-        authorized: false,
-        reason: `Cross-tenant access denied: workspace ${requestWorkspaceId} cannot access resources in workspace ${resourceWorkspaceId}.`,
-      };
-    }
-
-    return { authorized: true };
-  }
-
-  /**
    * Rate Limiter:
    * Enforces reasonable per-client rate limits for demo security (e.g. max 40 requests / minute).
    */
@@ -222,8 +182,8 @@ export function ssrfGuardMiddleware(req: Request, res: Response, next: NextFunct
     if (!validation.isValid) {
       securityService.logAudit({
         eventType: 'SECURITY_BLOCKED_SSRF',
-        workspaceId: (req.headers['x-workspace-id'] as string) || 'default_ws',
-        userId: (req.headers['x-user-id'] as string) || 'anonymous',
+        workspaceId: 'default_ws',
+        userId: (req as Request & { authenticatedUser?: { email?: string } }).authenticatedUser?.email || 'anonymous',
         details: { targetUrl, reason: validation.reason },
         ipAddress: req.ip,
       });

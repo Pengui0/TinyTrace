@@ -17,6 +17,7 @@ import {
 import { RiskFinding, EvidenceItem, FindingConfidence } from '../../types/riskFinding.js';
 import { isSyndicatedPressRelease } from '../validation/riskFindingValidator.js';
 import { GoogleGenAI } from '@google/genai';
+import { normalizeGroundedAIDecision, retainGroundedSources } from './groundedAIVerification.js';
 
 export class CrossValidationService {
   /**
@@ -166,16 +167,8 @@ export class CrossValidationService {
           const parsed = text ? JSON.parse(text) as { results?: Array<{ id?: string; decision?: string; rationale?: string; sources?: Array<{ title?: string; url?: string }> }> } : null;
           for (const result of parsed?.results || []) {
             if (!batch.some((finding) => finding.id === result.id)) continue;
-            const sources = (result.sources || []).flatMap((source) => {
-              // Only accept citations that are present in Google's grounding metadata.
-              const grounded = groundingSources.find((item) => item.url === source.url);
-              return grounded ? [grounded] : [];
-            });
-            const decision = result.decision === 'VERIFIED' && sources.length > 0
-              ? 'VERIFIED'
-              : result.decision === 'ESCALATE_HUMAN'
-              ? 'ESCALATE_HUMAN'
-              : 'UNABLE_TO_CONFIRM';
+            const sources = retainGroundedSources(result.sources || [], groundingSources);
+            const decision = normalizeGroundedAIDecision(result.decision, sources);
             decisions.set(result.id!, { decision, rationale: String(result.rationale || '').slice(0, 400), sources });
           }
         } catch {
