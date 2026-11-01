@@ -1,5 +1,5 @@
 /**
- * Normalized Risk Finding and Discovery Contracts for VendorTrace
+ * Normalized Risk Finding and Discovery Contracts for TinyTrace
  * Layer 1 Discovery Engine & Evidence Cross-Validation Architecture
  */
 

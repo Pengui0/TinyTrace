@@ -15,9 +15,10 @@ export const LiveEvidenceView: React.FC<LiveEvidenceViewProps> = ({ investigatio
 
   useEffect(() => {
     try {
+      window.localStorage.removeItem('tinytrace.live-workbench-target.v1');
       window.localStorage.removeItem('vendortrace.live-workbench-target.v1');
       for (const key of Object.keys(window.localStorage)) {
-        if (key.startsWith('vendortrace.live-workbench.v1:')) window.localStorage.removeItem(key);
+        if (key.startsWith('vendortrace.live-workbench.v1:') || key.startsWith('tinytrace.live-workbench.v1:')) window.localStorage.removeItem(key);
       }
     } catch {
       // Live research still starts cleanly when browser storage is unavailable.

@@ -8,7 +8,7 @@ import { runSecurityHardeningTests } from './securityHardening.test.js';
 
 async function main() {
   console.log('================================================================');
-  console.log('   VENDORTRACE PHASE 4 TESTS: EXPORTS, FILTER & SECURITY        ');
+  console.log('   TINYTRACE PHASE 4 TESTS: EXPORTS, FILTER & SECURITY        ');
   console.log('================================================================\n');
 
   console.log('>>> [1/3] Running Export Service Tests (PDF, CSV, Unicode, RFC 4180)...');

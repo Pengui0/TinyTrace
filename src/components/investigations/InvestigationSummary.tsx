@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { getAssessmentDisplayValues } from '../../utils/assessmentDisplay.js';
-import { VendorTraceAssessmentReport, ReviewPriority, CoverageStatus } from '../../types/crossValidation.js';
+import { TinyTraceAssessmentReport, ReviewPriority, CoverageStatus } from '../../types/crossValidation.js';
 import { Badge } from '../common/Badge.js';
 import { Card } from '../common/Card.js';
 import { EmptyState } from '../common/EmptyState.js';
@@ -55,7 +55,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `VendorTrace_${investigation.id}.pdf`;
+      a.download = `TinyTrace_${investigation.id}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -83,7 +83,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `VendorTrace_Evidence_${investigation.id}.csv`;
+      a.download = `TinyTrace_Evidence_${investigation.id}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();

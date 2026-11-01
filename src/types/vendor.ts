@@ -1,5 +1,5 @@
 /**
- * Core domain types for VendorTrace
+ * Core domain types for TinyTrace
  * Enterprise Due Diligence & Entity Tracing Platform
  */
 
@@ -106,7 +106,7 @@ export interface Investigation {
   totalDurationMs?: number;
   relatedLeads: RelatedEntityLead[];
   entityGraph?: import('./entityTracing.js').EntityGraph;
-  assessmentReport?: import('./crossValidation.js').VendorTraceAssessmentReport;
+  assessmentReport?: import('./crossValidation.js').TinyTraceAssessmentReport;
   summaryNarrative?: string;
 }
 

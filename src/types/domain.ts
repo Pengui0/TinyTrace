@@ -1,5 +1,5 @@
 /**
- * Comprehensive TypeScript Domain Models for VendorTrace
+ * Comprehensive TypeScript Domain Models for TinyTrace
  * Enterprise Due Diligence & Entity Tracing Platform
  */
 

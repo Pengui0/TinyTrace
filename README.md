@@ -1,4 +1,4 @@
-# VendorTrace
+# TinyTrace
 
 > **Evidence-Backed B2B Vendor Due Diligence for Indian Procurement & Compliance**
 > 
@@ -30,10 +30,10 @@
 
 Indian procurement teams face massive blindspots when evaluating suppliers: shell companies, shared directors behind disqualified entities, undisclosed litigation, and sudden debarment on government procurement portals like GeM.
 
-**VendorTrace** solves this through a zero-hallucination, evidence-backed diligence engine:
+**TinyTrace** solves this through a zero-hallucination, evidence-backed diligence engine:
 - **Never fabricates claims**: LLMs are restricted from independently declaring vendors fraudulent. Risk scores are deterministic (0–100).
 - **Independent cross-validation**: Syndicated and mirrored press releases never count as multiple independent sources.
-- **Explainable scoring**: If upstream data coverage is inadequate, VendorTrace displays `INSUFFICIENT_COVERAGE` rather than a reassuring low score. Absence of data never reduces risk.
+- **Explainable scoring**: If upstream data coverage is inadequate, TinyTrace displays `INSUFFICIENT_COVERAGE` rather than a reassuring low score. Absence of data never reduces risk.
 - **Zero guilt by association**: Related corporate entities discovered via director DIN or shared addresses are leads for review, not proof of wrongdoing.
 
 ---
@@ -108,7 +108,7 @@ flowchart TD
 
 ## Deterministic Demo Mode
 
-VendorTrace includes a **zero-dependency, offline-capable Demo Mode** designed for live stage presentations where external networks or API quotas might fluctuate.
+TinyTrace includes a **zero-dependency, offline-capable Demo Mode** designed for live stage presentations where external networks or API quotas might fluctuate.
 
 - **Synthetic Identity**: Target is `Acme Horizon Technologies Pvt Ltd (SYNTHETIC DEMO)` with synthetic CIN `U99999XX2024PTC999999`, GSTIN `99AAAAA9999A1Z5`, and DIN `99999999`. Real public companies are never used for synthetic risk signals.
 - **Prominent Disclaimers**: Every demo screen, PDF report, and CSV register displays the notice:
@@ -151,7 +151,7 @@ Compliance officers can filter past investigations across:
 
 ## Integrations & Environment Secrets
 
-VendorTrace keeps all credentials strictly server-side. **No API keys or auth headers are ever exposed to the client bundle.**
+TinyTrace keeps all credentials strictly server-side. **No API keys or auth headers are ever exposed to the client bundle.**
 
 ### Environment Variables
 
@@ -160,10 +160,10 @@ VendorTrace keeps all credentials strictly server-side. **No API keys or auth he
 | `GEMINI_API_KEY` | Recommended | Powers deterministic evidence summaries and brief compliance briefs. |
 | `TINYFISH_API_KEY` | Required | Required for live web crawling, litigation dockets, and SSE streaming. |
 | `INDIACOS_API_KEY` | Optional in Demo | Required for live MCA21 master data and Director DIN lookups. |
-| `VENDORTRACE_INVESTIGATION_TIMEOUT_MS` | Optional | Overall live investigation deadline in milliseconds (default and maximum: `120000`). |
-| `VENDORTRACE_AGENT_TIMEOUT_MS` | Optional | Per-agent deadline in milliseconds (default: `45000`, maximum: `120000`). |
-| `VENDORTRACE_AGENT_MAX_ATTEMPTS` | Optional | Total attempts per agent, including the first attempt (default and maximum: `2`; minimum: `1`). Authentication failures are never retried. |
-| `VENDORTRACE_AGENT_RETRY_BACKOFF_MS` | Optional | Base retry backoff in milliseconds (default: `300`, maximum: `2000`). |
+| `TINYTRACE_INVESTIGATION_TIMEOUT_MS` | Optional | Overall live investigation deadline in milliseconds (default and maximum: `120000`). |
+| `TINYTRACE_AGENT_TIMEOUT_MS` | Optional | Per-agent deadline in milliseconds (default: `45000`, maximum: `120000`). |
+| `TINYTRACE_AGENT_MAX_ATTEMPTS` | Optional | Total attempts per agent, including the first attempt (default and maximum: `2`; minimum: `1`). Authentication failures are never retried. |
+| `TINYTRACE_AGENT_RETRY_BACKOFF_MS` | Optional | Base retry backoff in milliseconds (default: `300`, maximum: `2000`). |
 | `PORT` | Optional | Application listening port (default: `3000`). |
 | `NODE_ENV` | Optional | Set to `production` or `development`. |
 | `ENABLE_AUTH` | Optional | Set to `true` to enforce Google token authentication on API routes. |
@@ -193,7 +193,7 @@ The shipped implementation currently wires **`DevInMemoryRepositoryAdapter` only
 
 ```bash
 # 1. Extract the full project ZIP (or clone your repository) and enter the project directory
-cd vendortrace
+cd tinytrace
 npm ci
 
 # 2. Configure environment
@@ -216,7 +216,7 @@ Visit `http://localhost:3000` in your browser.
 
 ## Cloud Run Deployment Guide
 
-VendorTrace is packaged as a unified Node.js Express + Vite application that compiles into a single deployable container.
+TinyTrace is packaged as a unified Node.js Express + Vite application that compiles into a single deployable container.
 
 > [!IMPORTANT]
 > **Controlled Deployment Protocol**: Do not deploy automatically to Cloud Run without confirming project ID, region, secret bindings, and access controls. This build has no verified durable storage and application-level multi-tenant authorization is not production-cleared. Keep Cloud Run private; do not enable unauthenticated public access.
@@ -243,7 +243,7 @@ gcloud config set project YOUR_GCP_PROJECT_ID
 gcloud config set run/region us-central1
 
 # 2. Deploy directly using Cloud Build and Cloud Run
-gcloud run deploy vendortrace \
+gcloud run deploy tinytrace \
   --source . \
   --platform managed \
   --port 3000 \

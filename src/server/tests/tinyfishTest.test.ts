@@ -114,10 +114,10 @@ export async function runTinyFishIntegrationTests(): Promise<TinyFishTestReport>
     let pollCount = 0;
 
     try {
-      process.env.TINYFISH_API_KEY = 'vendortrace-test-only-key';
+      process.env.TINYFISH_API_KEY = 'tinytrace-test-only-key';
       globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
         const headers = new Headers(init?.headers);
-        assert(headers.get('X-API-Key') === 'vendortrace-test-only-key', 'TinyFish API key is sent only in the server-side request header');
+        assert(headers.get('X-API-Key') === 'tinytrace-test-only-key', 'TinyFish API key is sent only in the server-side request header');
         const requestUrl = new URL(String(_input));
         if (requestUrl.pathname.endsWith('/run-async')) {
           enqueuePath = requestUrl.pathname;
@@ -269,7 +269,7 @@ export async function runTinyFishIntegrationTests(): Promise<TinyFishTestReport>
       const providerFailure = await tinyfishClient.runBaselineTest({ url: 'https://example.com' });
       assert(providerFailure.status === 'UPSTREAM_ERROR', 'Provider HTTP failure is reported as UPSTREAM_ERROR');
       assert(providerFailure.providerConnected === true, 'Provider HTTP response is distinct from extraction success');
-      assert(!providerFailure.diagnosticMessage.includes('vendortrace-test-only-key'), 'Provider diagnostics never expose the API key');
+      assert(!providerFailure.diagnosticMessage.includes('tinytrace-test-only-key'), 'Provider diagnostics never expose the API key');
 
       const mappedProviderErrors: Array<{ httpStatus: number; expected: string }> = [
         { httpStatus: 401, expected: 'AUTH_ERROR' },

@@ -45,7 +45,7 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
       step: 2,
       title: '2. Parallel 4-Dimension Registry Audit',
       badge: 'Step 2 of 6',
-      summary: 'VendorTrace audits MCA21, GSTN, High Court commercial dockets, and GeM debarment simultaneously with failure-isolated workers.',
+      summary: 'TinyTrace audits MCA21, GSTN, High Court commercial dockets, and GeM debarment simultaneously with failure-isolated workers.',
       actionLabel: 'View Parallel Discovery Results',
       icon: <Layers className="w-4 h-4 text-purple-600" />,
     },
@@ -97,7 +97,7 @@ export const DemoScenarioWalkthrough: React.FC<DemoScenarioWalkthroughProps> = (
             </span>
           </div>
           <h3 className="text-base font-bold text-[#1C1F26] mt-1">
-            VendorTrace End-to-End Enterprise Due Diligence Scenario
+            TinyTrace End-to-End Enterprise Due Diligence Scenario
           </h3>
           <p className="text-xs text-[#687385] mt-0.5">
             Follow this 6-step scripted scenario during live demonstration. Every fact and link is 100% synthetic, verified, and preloaded locally.

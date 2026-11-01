@@ -1,5 +1,5 @@
 /**
- * VendorTrace Security Hardening & Isolation Test Suite
+ * TinyTrace Security Hardening & Isolation Test Suite
  * Tests SSRF guard, prompt-injection defense, cross-tenant isolation,
  * rate-limiting, and error redaction.
  */

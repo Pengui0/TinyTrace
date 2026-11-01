@@ -1,7 +1,7 @@
 import { runRepositoryVerification } from './repositoryVerification.test.js';
 
 async function main() {
-  console.log('=== RUNNING VENDORTRACE PERSISTENCE VERIFICATION TEST ===');
+  console.log('=== RUNNING TINYTRACE PERSISTENCE VERIFICATION TEST ===');
   const report = await runRepositoryVerification();
   console.log(`Success: ${report.success}`);
   console.log(`Storage Mode: ${report.storageMode}`);

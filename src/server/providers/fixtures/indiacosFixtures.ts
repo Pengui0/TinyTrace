@@ -15,7 +15,7 @@ export const TATA_STEEL_CIN_FIXTURE = {
   business_category: 'Company limited by Shares / Non-govt public company',
   class_of_company: 'Public',
   registered_address: 'Bombay House, 24 Homi Mody Street, Fort, Mumbai, Maharashtra 400001, India',
-  source_url: 'https://mca-fixture.vendortrace.invalid/company/L27100MH1907PLC000260',
+  source_url: 'https://mca-fixture.tinytrace.invalid/company/L27100MH1907PLC000260',
   last_updated_at: '2026-10-24T05:30:00.000Z',
   directors: [
     {
@@ -60,7 +60,7 @@ export const PROPRIETORSHIP_GSTIN_FIXTURE = {
   constitution_of_business: 'Sole Proprietorship',
   registration_date: '2018-07-01',
   principal_place_address: 'Shop 14, Okhla Industrial Area Phase II, New Delhi, Delhi 110020, India',
-  source_url: 'https://gst-fixture.vendortrace.invalid/taxpayer/07AAAAA0000A1Z5',
+  source_url: 'https://gst-fixture.tinytrace.invalid/taxpayer/07AAAAA0000A1Z5',
   last_updated_at: '2026-10-20T10:15:00.000Z',
 };
 
@@ -75,7 +75,7 @@ export const LLPIN_FIXTURE = {
   incorporation_date: '2019-03-14',
   business_category: 'Limited Liability Partnership',
   registered_address: 'Level 5, Cyber Park, Electronic City, Bengaluru, Karnataka 560100, India',
-  source_url: 'https://mca-fixture.vendortrace.invalid/llp/AAA-1234',
+  source_url: 'https://mca-fixture.tinytrace.invalid/llp/AAA-1234',
   last_updated_at: '2026-10-22T08:00:00.000Z',
   directors: [
     {
@@ -98,7 +98,7 @@ export const MULTI_CANDIDATE_SEARCH_FIXTURE = [
     entityType: 'COMPANY' as const,
     registeredAddress: 'Unit 402, Trade Tower, Bandra Kurla Complex, Mumbai 400051',
     state: 'Maharashtra',
-    sourceUrl: 'https://mca-fixture.vendortrace.invalid/search-candidate',
+    sourceUrl: 'https://mca-fixture.tinytrace.invalid/search-candidate',
     identityMatchMethod: 'NAME_MATCH' as const,
     ambiguityNote: 'Synthetic candidate fixture for disambiguation testing; verify any real entity in live mode.',
   },
@@ -112,7 +112,7 @@ export const MULTI_CANDIDATE_SEARCH_FIXTURE = [
     entityType: 'COMPANY' as const,
     registeredAddress: 'Barakhamba Road, Connaught Place, New Delhi 110001',
     state: 'Delhi',
-    sourceUrl: 'https://mca-fixture.vendortrace.invalid/search-candidate',
+    sourceUrl: 'https://mca-fixture.tinytrace.invalid/search-candidate',
     identityMatchMethod: 'NAME_MATCH' as const,
     ambiguityNote: 'Synthetic candidate fixture for disambiguation testing; status is illustrative and not a live registry result.',
   },
@@ -126,7 +126,7 @@ export const MULTI_CANDIDATE_SEARCH_FIXTURE = [
     entityType: 'LLP' as const,
     registeredAddress: 'SG Highway, Bodakdev, Ahmedabad, Gujarat 380054',
     state: 'Gujarat',
-    sourceUrl: 'https://mca-fixture.vendortrace.invalid/search-candidate',
+    sourceUrl: 'https://mca-fixture.tinytrace.invalid/search-candidate',
     identityMatchMethod: 'NAME_MATCH' as const,
     ambiguityNote: 'Requires manual selection: registered as Limited Liability Partnership.',
   },

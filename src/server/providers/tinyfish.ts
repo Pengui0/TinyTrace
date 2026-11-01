@@ -128,7 +128,7 @@ export class LiveTinyFishProvider implements WebInvestigationProvider {
     }
 
     // Ping TinyFish automation or search endpoint with sane timeout
-    const testUrl = this.buildSearchUrl('VendorTrace connectivity check');
+    const testUrl = this.buildSearchUrl('TinyTrace connectivity check');
     const res = await executeHardenedRequest(testUrl, {
       method: 'GET',
       headers: this.getAuthHeaders(),

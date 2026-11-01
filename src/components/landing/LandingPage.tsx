@@ -4,7 +4,7 @@ import { ArrowRight, Building2, Check, ChevronDown, Network, ShieldCheck, Sparkl
 const capabilities = [
   { icon: ShieldCheck, title: 'Evidence-led assessments', body: 'Every material finding carries source provenance, confidence, recency, and an audit-ready explanation.' },
   { icon: Network, title: 'Entity tracing', body: 'Follow shared directors, registered addresses, and linked corporate identifiers with explicit trace boundaries.' },
-  { icon: UserRoundSearch, title: 'Human-reviewed judgment', body: 'Ambiguous evidence stays ambiguous. VendorTrace separates verified facts from leads that require review.' },
+  { icon: UserRoundSearch, title: 'Human-reviewed judgment', body: 'Ambiguous evidence stays ambiguous. TinyTrace separates verified facts from leads that require review.' },
 ];
 
 const proofPoints = [
@@ -21,9 +21,9 @@ export function LandingPage() {
   return (
     <div className="landing-page min-h-screen overflow-hidden bg-[#F5F7F8] text-[#171C25]">
       <nav className="relative z-20 mx-auto flex h-20 max-w-[1200px] items-center justify-between px-5 sm:px-8" aria-label="Primary navigation">
-        <a href="/" className="flex items-center gap-3" aria-label="VendorTrace home">
-          <span aria-hidden="true" className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-[0_5px_12px_rgba(8,127,97,0.12)]"><img src="/images/vendortrace-logo.png" alt="" className="absolute left-1/2 top-0 h-auto w-20 max-w-none -translate-x-1/2" /></span>
-          <span><span className="block text-[17px] font-bold tracking-[-0.02em]">VendorTrace</span><span className="block text-[9px] font-bold uppercase tracking-[0.18em] text-[#718096]">Intelligence, verified</span></span>
+        <a href="/" className="flex items-center gap-3" aria-label="TinyTrace home">
+          <span aria-hidden="true" className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-[0_5px_12px_rgba(8,127,97,0.12)]"><img src="/images/tinytrace-logo.png" alt="" className="absolute left-1/2 top-0 h-auto w-20 max-w-none -translate-x-1/2" /></span>
+          <span><span className="block text-[17px] font-bold tracking-[-0.02em]">TinyTrace</span><span className="block text-[9px] font-bold uppercase tracking-[0.18em] text-[#718096]">Intelligence, verified</span></span>
         </a>
         <button type="button" onClick={() => setShowMethodology((open) => !open)} className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-[#526176] transition hover:bg-white hover:text-[#087F61] sm:flex" aria-expanded={showMethodology}>
           Methodology <ChevronDown className={`h-4 w-4 transition ${showMethodology ? 'rotate-180' : ''}`} />
@@ -38,7 +38,7 @@ export function LandingPage() {
             <h1 className="max-w-[610px] text-[46px] font-bold leading-[0.98] tracking-[-0.055em] text-[#171C25] sm:text-[62px] lg:text-[72px]">
               Know who you are <span className="text-[#087F61]">really doing business with.</span>
             </h1>
-            <p className="mt-7 max-w-[560px] text-lg leading-8 text-[#637188] sm:text-xl">VendorTrace turns fragmented corporate, regulatory, legal, and adverse-media signals into clear, explainable vendor intelligence.</p>
+            <p className="mt-7 max-w-[560px] text-lg leading-8 text-[#637188] sm:text-xl">TinyTrace turns fragmented corporate, regulatory, legal, and adverse-media signals into clear, explainable vendor intelligence.</p>
             <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-l-2 border-[#B8E5D5] pl-4 text-xs font-semibold tracking-wide text-[#526176]">
               <span>Verified public records</span><span>Traceable evidence</span><span>Human reviewed</span>
             </div>
@@ -76,7 +76,7 @@ export function LandingPage() {
 
         <section className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8 md:py-20"><div className="grid items-center gap-10 rounded-[28px] bg-[#087F61] px-6 py-10 text-white sm:px-10 lg:grid-cols-[1fr_auto] lg:px-14"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#B8E5D5]">Built for the diligence desk</p><h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">Move from fragmented signals to a defensible vendor record.</h2><p className="mt-4 max-w-2xl text-base leading-7 text-[#C8D4DF]">Start with synthetic demo data. Then explore the live investigation workspace when provider integrations are ready.</p></div><button type="button" onClick={openDashboard} className="group inline-flex h-14 items-center justify-center gap-3 rounded-xl bg-white px-6 font-bold text-[#075842] shadow-lg transition hover:-translate-y-1 hover:bg-[#E7F5F0]"><Building2 className="h-5 w-5" />Enter workspace <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" /></button></div></section>
       </main>
-      <footer className="border-t border-[#E4E9EB] bg-white"><div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-5 py-7 text-xs text-[#7A8799] sm:flex-row sm:items-center sm:justify-between sm:px-8"><p>© {new Date().getFullYear()} VendorTrace</p><p className="font-medium">Decision support—not automated accusations.</p></div></footer>
+      <footer className="border-t border-[#E4E9EB] bg-white"><div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-5 py-7 text-xs text-[#7A8799] sm:flex-row sm:items-center sm:justify-between sm:px-8"><p>© {new Date().getFullYear()} TinyTrace</p><p className="font-medium">Decision support—not automated accusations.</p></div></footer>
     </div>
   );
 }

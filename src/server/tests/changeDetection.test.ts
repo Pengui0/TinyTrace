@@ -1,5 +1,5 @@
 /**
- * VendorTrace Change Detection & Deterministic Signal Fingerprinting Test Suite
+ * TinyTrace Change Detection & Deterministic Signal Fingerprinting Test Suite
  * Tests deterministic hashing, first run baseline, unchanged runs, new items,
  * changed case status, disappeared records ('not observed in latest run'), and scheduling notices.
  */

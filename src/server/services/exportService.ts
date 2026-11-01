@@ -1,5 +1,5 @@
 /**
- * VendorTrace Export Service
+ * TinyTrace Export Service
  * Generates verified, tamper-evident PDF reports and RFC 4180 compliant CSV evidence registers.
  * Strictly prevents secret leakage, handles Unicode/newlines, and enforces zero-empty-export rules.
  */
@@ -325,7 +325,7 @@ export class ExportService {
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(255, 255, 255);
-    doc.text('VENDORTRACE DUE DILIGENCE REPORT', 20, y + 11.5);
+    doc.text('TINYTRACE DUE DILIGENCE REPORT', 20, y + 11.5);
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');

@@ -66,7 +66,7 @@ export class ResolutionService {
           profile.companyStatus = cand.companyStatus || 'UNKNOWN';
           profile.entityType = cand.entityType;
           profile.registeredOffice = cand.registeredAddress || null;
-          profile.sourceUrl = cand.sourceUrl || 'https://candidate-fixture.vendortrace.invalid/selected';
+          profile.sourceUrl = cand.sourceUrl || 'https://candidate-fixture.tinytrace.invalid/selected';
           profile.cin = cand.identifierType === 'CIN' ? cand.identifierValue : null;
           profile.llpin = cand.identifierType === 'LLPIN' ? cand.identifierValue : null;
           profile.gstins = cand.identifierType === 'GSTIN' ? [cand.identifierValue] : [];

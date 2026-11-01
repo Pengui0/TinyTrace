@@ -41,7 +41,7 @@ export const CandidateSelectionModal: React.FC<CandidateSelectionModalProps> = (
           <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
           <div className="leading-relaxed text-[11px]">
             <strong className="font-semibold text-amber-950">Zero-Assumption Mandate: </strong>
-            IndiaCos registry returned multiple corporate candidates sharing root keywords. VendorTrace will not silently guess or auto-select an entity based on similar names. Please confirm the exact legal entity.
+            IndiaCos registry returned multiple corporate candidates sharing root keywords. TinyTrace will not silently guess or auto-select an entity based on similar names. Please confirm the exact legal entity.
           </div>
         </div>
 

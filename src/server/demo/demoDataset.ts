@@ -1,5 +1,5 @@
 /**
- * VendorTrace Fictional Demo Datasets & Guided Scenario
+ * TinyTrace Fictional Demo Datasets & Guided Scenario
  * Guaranteed 100% synthetic, deterministic, and locally available.
  * Fictional names, identifiers, and dockets cannot be mistaken for real corporate entities.
  */
@@ -7,7 +7,7 @@
 import { Finding, Investigation } from '../../types/vendor.js';
 import { DimensionTaskResult, RiskFinding, RiskDimension } from '../../types/riskFinding.js';
 import { EntityGraph } from '../../types/entityTracing.js';
-import { VendorTraceAssessmentReport } from '../../types/crossValidation.js';
+import { TinyTraceAssessmentReport } from '../../types/crossValidation.js';
 
 export const DEMO_NOTICE_BANNER =
   'DEMO DATA — SYNTHETIC EXAMPLE: Entirely fictional corporate entity and evidence for demonstration purposes. Not real findings or allegations.';
@@ -36,8 +36,8 @@ export const DEMO_FINDINGS_RUN_1: RiskFinding[] = [
       {
         id: 'evi_demo_roc_1',
         sourceName: 'MCA21 Registry Fixture (Synthetic)',
-        sourceDomain: 'mca-fixture.vendortrace.invalid',
-        url: 'https://mca-fixture.vendortrace.invalid/company/U99999XX2024PTC999999',
+        sourceDomain: 'mca-fixture.tinytrace.invalid',
+        url: 'https://mca-fixture.tinytrace.invalid/company/U99999XX2024PTC999999',
         snippet: 'Company Status: ACTIVE. Class: Private. Paid up Capital: INR 50,00,000.',
         publishedAt: twoWeeksAgo,
         capturedAt: twoWeeksAgo,
@@ -48,12 +48,12 @@ export const DEMO_FINDINGS_RUN_1: RiskFinding[] = [
       {
         id: 'evi_demo_roc_fixture_2',
         sourceName: 'Independent Registry Fixture (Synthetic)',
-        sourceDomain: 'registry-fixture.vendortrace.invalid',
+        sourceDomain: 'registry-fixture.tinytrace.invalid',
         url: null,
         snippet: 'Synthetic corroboration fixture: ACTIVE status is included only to demonstrate two-source validation; this is not a live registry record.',
         publishedAt: twoWeeksAgo,
         capturedAt: twoWeeksAgo,
-        underlyingSource: 'VendorTrace Synthetic Registry Fixture',
+        underlyingSource: 'TinyTrace Synthetic Registry Fixture',
         identityMatchNote: 'Exact synthetic CIN fixture match',
         legalStatus: null,
       },
@@ -74,8 +74,8 @@ export const DEMO_FINDINGS_RUN_1: RiskFinding[] = [
       {
         id: 'evi_demo_gst_1',
         sourceName: 'GSTN Taxpayer Fixture (Synthetic)',
-        sourceDomain: 'gstn-fixture.vendortrace.invalid',
-        url: 'https://gstn-fixture.vendortrace.invalid/taxpayer/99AAAAA9999A1Z5',
+        sourceDomain: 'gstn-fixture.tinytrace.invalid',
+        url: 'https://gstn-fixture.tinytrace.invalid/taxpayer/99AAAAA9999A1Z5',
         snippet: 'Taxpayer Status: Active. Constitution of Business: Private Limited Company.',
         publishedAt: twoWeeksAgo,
         capturedAt: twoWeeksAgo,
@@ -86,12 +86,12 @@ export const DEMO_FINDINGS_RUN_1: RiskFinding[] = [
       {
         id: 'evi_demo_gst_fixture_2',
         sourceName: 'Independent Tax Filing Fixture (Synthetic)',
-        sourceDomain: 'tax-fixture.vendortrace.invalid',
+        sourceDomain: 'tax-fixture.tinytrace.invalid',
         url: null,
         snippet: 'Synthetic corroboration fixture: active GST status is included only to demonstrate two-source validation; this is not a live tax record.',
         publishedAt: twoWeeksAgo,
         capturedAt: twoWeeksAgo,
-        underlyingSource: 'VendorTrace Synthetic Tax Fixture',
+        underlyingSource: 'TinyTrace Synthetic Tax Fixture',
         identityMatchNote: 'Exact synthetic GSTIN fixture match',
         legalStatus: null,
       },
@@ -112,8 +112,8 @@ export const DEMO_FINDINGS_RUN_1: RiskFinding[] = [
       {
         id: 'evi_demo_crt_claim',
         sourceName: 'Commercial Court Docket Fixture (Synthetic)',
-        sourceDomain: 'court-fixture.vendortrace.invalid',
-        url: 'https://court-fixture.vendortrace.invalid/cases/COMM_CS_9999_2025',
+        sourceDomain: 'court-fixture.tinytrace.invalid',
+        url: 'https://court-fixture.tinytrace.invalid/cases/COMM_CS_9999_2025',
         snippet: 'Plaintiff claims outstanding vendor dues of INR 42,00,000 under Master Services Agreement.',
         publishedAt: twoWeeksAgo,
         capturedAt: twoWeeksAgo,
@@ -124,8 +124,8 @@ export const DEMO_FINDINGS_RUN_1: RiskFinding[] = [
       {
         id: 'evi_demo_crt_defense',
         sourceName: 'Commercial Court Docket Fixture (Synthetic)',
-        sourceDomain: 'court-fixture.vendortrace.invalid',
-        url: 'https://court-fixture.vendortrace.invalid/cases/COMM_CS_9999_2025/defense',
+        sourceDomain: 'court-fixture.tinytrace.invalid',
+        url: 'https://court-fixture.tinytrace.invalid/cases/COMM_CS_9999_2025/defense',
         snippet: 'Vendor filed written statement asserting goods delivered were non-conforming; advance refund claimed.',
         publishedAt: twoWeeksAgo,
         capturedAt: twoWeeksAgo,
@@ -150,8 +150,8 @@ export const DEMO_FINDINGS_RUN_1: RiskFinding[] = [
       {
         id: 'evi_demo_forum_1',
         sourceName: 'Contractor Complaint Fixture (Synthetic)',
-        sourceDomain: 'complaint-fixture.vendortrace.invalid',
-        url: 'https://complaint-fixture.vendortrace.invalid/posts/acme-horizon-notice',
+        sourceDomain: 'complaint-fixture.tinytrace.invalid',
+        url: 'https://complaint-fixture.tinytrace.invalid/posts/acme-horizon-notice',
         snippet: 'Subcontractor alleges delay in milestone release on regional pilot installation.',
         publishedAt: twoWeeksAgo,
         capturedAt: twoWeeksAgo,
@@ -271,8 +271,8 @@ const DEMO_RECHECK_FINDING: RiskFinding = {
     {
       id: 'evi_demo_arb_consent',
       sourceName: 'Arbitration Tribunal Fixture (Synthetic)',
-      sourceDomain: 'arbitration-fixture.vendortrace.invalid',
-      url: 'https://arbitration-fixture.vendortrace.invalid/awards/ARB_999_2026',
+      sourceDomain: 'arbitration-fixture.tinytrace.invalid',
+      url: 'https://arbitration-fixture.tinytrace.invalid/awards/ARB_999_2026',
       snippet: 'Synthetic demo record: consent terms recorded and matter disposed. This is not a real case or legal finding.',
       publishedAt: now,
       capturedAt: now,
@@ -283,12 +283,12 @@ const DEMO_RECHECK_FINDING: RiskFinding = {
     {
       id: 'evi_demo_arb_consent_fixture_2',
       sourceName: 'Independent Disposal Index Fixture (Synthetic)',
-      sourceDomain: 'disposal-fixture.vendortrace.invalid',
+      sourceDomain: 'disposal-fixture.tinytrace.invalid',
       url: null,
       snippet: 'Synthetic second-source fixture for demonstrating independent corroboration of a disposed procedural matter. Not a live court or tribunal record.',
       publishedAt: now,
       capturedAt: now,
-      underlyingSource: 'VendorTrace Synthetic Disposal Index',
+      underlyingSource: 'TinyTrace Synthetic Disposal Index',
       identityMatchNote: 'Exact synthetic Corporate CIN fixture',
       legalStatus: 'settled',
     },
@@ -357,7 +357,7 @@ export const DEMO_ENTITY_GRAPH: EntityGraph = {
       strength: 'strong_identifier',
       label: 'Director (DIN 99999999)',
       evidenceIds: ['evi_demo_dir_1'],
-      sourceUrls: ['https://mca-fixture.vendortrace.invalid/din/99999999'],
+      sourceUrls: ['https://mca-fixture.tinytrace.invalid/din/99999999'],
       provenance: 'Synthetic MCA21 registry fixture',
       disclaimer: 'Documented public registry directorship link.',
     },
@@ -369,7 +369,7 @@ export const DEMO_ENTITY_GRAPH: EntityGraph = {
       strength: 'strong_identifier',
       label: 'Designated Partner (DIN 99999999)',
       evidenceIds: ['evi_demo_dir_2'],
-      sourceUrls: ['https://mca-fixture.vendortrace.invalid/llp/AAA-9999'],
+      sourceUrls: ['https://mca-fixture.tinytrace.invalid/llp/AAA-9999'],
       provenance: 'Synthetic MCA21 registry fixture',
       disclaimer: 'Directorship association lead.',
     },
@@ -381,7 +381,7 @@ export const DEMO_ENTITY_GRAPH: EntityGraph = {
       strength: 'registry_link',
       label: 'Registered Office',
       evidenceIds: ['evi_demo_addr_1'],
-      sourceUrls: ['https://mca-fixture.vendortrace.invalid/company/U99999XX2024PTC999999'],
+      sourceUrls: ['https://mca-fixture.tinytrace.invalid/company/U99999XX2024PTC999999'],
       provenance: 'Synthetic RoC filing fixture',
       disclaimer: 'Official registered address.',
     },
@@ -393,7 +393,7 @@ export const DEMO_ENTITY_GRAPH: EntityGraph = {
       strength: 'same_address_candidate',
       label: 'Candidate: Co-located Office',
       evidenceIds: ['evi_demo_addr_2'],
-      sourceUrls: ['https://mca-fixture.vendortrace.invalid/company/U72900MH2023PTC888888'],
+      sourceUrls: ['https://mca-fixture.tinytrace.invalid/company/U72900MH2023PTC888888'],
       provenance: 'Synthetic commercial address index',
       disclaimer: 'Candidate match only; shared business center does not indicate common liability.',
     },

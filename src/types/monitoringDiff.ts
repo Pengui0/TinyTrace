@@ -1,5 +1,5 @@
 /**
- * VendorTrace Change Detection, Signal Fingerprinting & Monitoring Contracts
+ * TinyTrace Change Detection, Signal Fingerprinting & Monitoring Contracts
  * Enforces deterministic signal hashing, honest 'not observed' statuses, and diff tracking.
  */
 

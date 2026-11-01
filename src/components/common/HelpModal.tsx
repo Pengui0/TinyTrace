@@ -13,7 +13,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="VendorTrace Verification & Due Diligence Methodology"
+      title="TinyTrace Verification & Due Diligence Methodology"
       description="Operational standards governing Indian procurement compliance and risk tracing."
       maxWidth="lg"
       footer={

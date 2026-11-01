@@ -1,5 +1,5 @@
 /**
- * Master Test Runner for VendorTrace
+ * Master Test Runner for TinyTrace
  * Executes all test suites across all 4 layers, providers, security, and exports.
  */
 
@@ -70,7 +70,7 @@ const suites: TestSuite[] = [
 
 async function runAll() {
   console.log('================================================================');
-  console.log('       VENDORTRACE COMPLETE END-TO-END TEST SUITE RUNNER        ');
+  console.log('       TINYTRACE COMPLETE END-TO-END TEST SUITE RUNNER        ');
   console.log('================================================================\n');
 
   let totalPassed = 0;

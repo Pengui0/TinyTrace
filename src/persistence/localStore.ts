@@ -2,7 +2,8 @@ import type { Investigation } from '../types/vendor.js';
 import type { Vendor } from '../types/domain.js';
 import type { MonitoringConfig, RunComparisonReport } from '../types/monitoringDiff.js';
 
-export const STORAGE_KEY = 'vendortrace.workspace';
+export const STORAGE_KEY = 'tinytrace.workspace';
+const LEGACY_STORAGE_KEY = 'vendortrace.workspace';
 export const STORAGE_VERSION = 1;
 let storageReadError: string | null = null;
 export const getStorageReadError = () => storageReadError;
@@ -41,18 +42,18 @@ export function migrateWorkspace(raw: unknown): WorkspaceSnapshot {
   if (envelope.version === STORAGE_VERSION && validWorkspace(envelope.data)) return envelope.data;
   // v0 migration accepts the early unversioned snapshot without discarding records.
   if (envelope.version === undefined && validWorkspace(raw)) return raw;
-  throw new Error('Unsupported or malformed VendorTrace storage. Existing data was left untouched.');
+  throw new Error('Unsupported or malformed TinyTrace storage. Existing data was left untouched.');
 }
 
 export function loadWorkspace(storage?: StorageLike): WorkspaceSnapshot {
   const target = storage ?? (typeof window !== 'undefined' ? window.localStorage : undefined);
   if (!target) return emptyWorkspace();
-  const serialized = target.getItem(STORAGE_KEY);
+  const serialized = target.getItem(STORAGE_KEY) ?? target.getItem(LEGACY_STORAGE_KEY);
   if (!serialized) return emptyWorkspace();
   try { return migrateWorkspace(JSON.parse(serialized)); }
   catch (error) {
     storageReadError = error instanceof Error ? error.message : 'Unable to read saved workspace.';
-    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('vendortrace-storage-error', { detail: storageReadError }));
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('tinytrace-storage-error', { detail: storageReadError }));
     return emptyWorkspace();
   }
 }
@@ -66,14 +67,14 @@ export function saveWorkspace(snapshot: WorkspaceSnapshot, storage?: StorageLike
       try { migrateWorkspace(JSON.parse(existing)); }
       catch (error) {
         storageReadError = error instanceof Error ? error.message : 'Saved workspace data is malformed and was preserved.';
-        if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('vendortrace-storage-error', { detail: storageReadError }));
+        if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('tinytrace-storage-error', { detail: storageReadError }));
         return false;
       }
     }
     target.setItem(STORAGE_KEY, JSON.stringify({ version: STORAGE_VERSION, data: snapshot }));
     return true;
   } catch (error) {
-    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('vendortrace-storage-error', {
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('tinytrace-storage-error', {
       detail: error instanceof Error && (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')
         ? 'Local storage is full. Export a workspace backup and free browser storage before continuing.'
         : 'Workspace changes could not be saved to this browser.',
@@ -91,10 +92,11 @@ export function exportWorkspaceBackup(storage?: StorageLike): void {
   const blob = new Blob([JSON.stringify({ version: STORAGE_VERSION, data: snapshot }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href = url; link.download = `vendortrace-backup-${new Date().toISOString().slice(0, 10)}.json`; link.click();
+  link.href = url; link.download = `tinytrace-backup-${new Date().toISOString().slice(0, 10)}.json`; link.click();
   URL.revokeObjectURL(url);
 }
 
 export function clearWorkspace(storage?: StorageLike): void {
   (storage ?? window.localStorage).removeItem(STORAGE_KEY);
+  (storage ?? window.localStorage).removeItem(LEGACY_STORAGE_KEY);
 }

@@ -6,7 +6,7 @@
  */
 
 import {
-  VendorTraceAssessmentReport,
+  TinyTraceAssessmentReport,
   CrossValidatedFinding,
   ScoreFactorBreakdown,
   ReviewPriority,
@@ -360,7 +360,7 @@ Instructions:
     dimensionTaskStates: Record<string, { status: string; lastCheckedAt?: string }>;
     investigationDate: string;
     sourcesChecked: string[];
-  }): Promise<VendorTraceAssessmentReport> {
+  }): Promise<TinyTraceAssessmentReport> {
     const {
       investigationId,
       vendorId,

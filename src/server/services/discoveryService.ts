@@ -1,5 +1,5 @@
 /**
- * Layer 1 VendorTrace Discovery Orchestration Service
+ * Layer 1 TinyTrace Discovery Orchestration Service
  * Concurrent 4-Dimension Due Diligence with Failure Isolation & Strict Zero-Fabrication.
  */
 
@@ -114,7 +114,7 @@ function labelOfflineResultsAsSynthetic(results: DimensionTaskResult[]): Dimensi
       const normalized = key.trim().toLowerCase() || 'unknown-source';
       const existing = domainMap.get(normalized);
       if (existing) return existing;
-      const domain = `source-${slug(normalized)}-${domainMap.size + 1}.vendortrace.invalid`;
+      const domain = `source-${slug(normalized)}-${domainMap.size + 1}.tinytrace.invalid`;
       domainMap.set(normalized, domain);
       return domain;
     };
@@ -133,7 +133,7 @@ function labelOfflineResultsAsSynthetic(results: DimensionTaskResult[]): Dimensi
           url: evidence.url ? `https://${syntheticDomain}/evidence/${encodeURIComponent(evidence.id || String(index + 1))}` : null,
           snippet: `SYNTHETIC DEMO DATA ONLY. ${evidence.snippet} No external source was queried; this is fictional demonstration text.`,
           publishedAt: null,
-          underlyingSource: 'VendorTrace offline synthetic fixture; no external portal queried',
+          underlyingSource: 'TinyTrace offline synthetic fixture; no external portal queried',
           identityMatchNote: 'Synthetic demo fixture; target identity has not been verified against an external source.',
           legalStatus: null,
         };
@@ -142,7 +142,7 @@ function labelOfflineResultsAsSynthetic(results: DimensionTaskResult[]): Dimensi
 
     return {
       ...result,
-      provider: 'VendorTrace Offline Synthetic Fixture Engine',
+      provider: 'TinyTrace Offline Synthetic Fixture Engine',
       sourcesChecked: result.sourcesChecked.map((source) => `Synthetic fixture: ${source} (offline; not queried live)`),
       findings,
       coverageGaps: [...result.coverageGaps],
@@ -159,7 +159,7 @@ export class DiscoveryOrchestrationService {
   }
 
   /**
-   * Orchestrates Layer 1 VendorTrace discovery across four risk dimensions concurrently.
+   * Orchestrates Layer 1 TinyTrace discovery across four risk dimensions concurrently.
    */
   public async runDiscovery(
     vendor: {
@@ -179,15 +179,15 @@ export class DiscoveryOrchestrationService {
 
     const maxConcurrency = options.maxConcurrency || 3;
     const overallTimeoutMs = Math.min(
-      options.overallTimeoutMs || configuredDuration(process.env.VENDORTRACE_INVESTIGATION_TIMEOUT_MS, DEFAULT_OVERALL_TIMEOUT_MS),
+      options.overallTimeoutMs || configuredDuration(process.env.TINYTRACE_INVESTIGATION_TIMEOUT_MS, DEFAULT_OVERALL_TIMEOUT_MS),
       MAX_TIMEOUT_MS
     );
     const dimensionTimeoutMs = Math.min(
-      options.dimensionTimeoutMs || configuredDuration(process.env.VENDORTRACE_AGENT_TIMEOUT_MS, DEFAULT_AGENT_TIMEOUT_MS),
+      options.dimensionTimeoutMs || configuredDuration(process.env.TINYTRACE_AGENT_TIMEOUT_MS, DEFAULT_AGENT_TIMEOUT_MS),
       overallTimeoutMs
     );
-    const maxAttempts = Math.max(1, Math.min(options.maxAttempts || Number(process.env.VENDORTRACE_AGENT_MAX_ATTEMPTS) || MAX_ATTEMPTS, MAX_ATTEMPTS));
-    const configuredBackoff = options.retryBackoffMs ?? (Number(process.env.VENDORTRACE_AGENT_RETRY_BACKOFF_MS) || 300);
+    const maxAttempts = Math.max(1, Math.min(options.maxAttempts || Number(process.env.TINYTRACE_AGENT_MAX_ATTEMPTS) || MAX_ATTEMPTS, MAX_ATTEMPTS));
+    const configuredBackoff = options.retryBackoffMs ?? (Number(process.env.TINYTRACE_AGENT_RETRY_BACKOFF_MS) || 300);
     const retryBackoffMs = Math.max(0, Math.min(configuredBackoff, MAX_RETRY_BACKOFF_MS));
     const useMock = Boolean(options.useMock);
     const mockScenario = options.mockScenario || 'ALL_SUCCESS';
@@ -538,7 +538,7 @@ export class DiscoveryOrchestrationService {
       dimension,
       title,
       status,
-      provider: 'VendorTrace Core Engine',
+      provider: 'TinyTrace Core Engine',
       startedAt: null,
       completedAt: new Date().toISOString(),
       durationMs,
@@ -566,7 +566,7 @@ export class DiscoveryOrchestrationService {
       dimension,
       title,
       status: 'failed',
-      provider: 'VendorTrace Core Engine',
+      provider: 'TinyTrace Core Engine',
       startedAt: now,
       completedAt: now,
       durationMs: 0,
@@ -729,7 +729,7 @@ export class DiscoveryOrchestrationService {
       const finding = validateRiskFinding({
         dimension: 'company_registry',
         title: isDormantOrDefunct ? `Company Registration Marked as ${profile.companyStatus}` : 'Company Status Returned by IndiaCos',
-        neutralSummary: `IndiaCos company lookup returned ${profile.canonicalName} with status '${profile.companyStatus}'. This is a registry data result, not a direct VendorTrace connection to MCA21.`,
+        neutralSummary: `IndiaCos company lookup returned ${profile.canonicalName} with status '${profile.companyStatus}'. This is a registry data result, not a direct TinyTrace connection to MCA21.`,
         status: isDormantOrDefunct ? 'signal_found' : 'inconclusive',
         severity,
         severityExplanation,
@@ -924,7 +924,7 @@ export class DiscoveryOrchestrationService {
           evidence: [
             {
               sourceName: 'Vendor Intake Data',
-              sourceDomain: 'vendortrace.internal',
+              sourceDomain: 'tinytrace.internal',
               url: null,
               snippet: 'Entity onboarding intake did not specify a registered GSTIN.',
               publishedAt: null,
@@ -1929,7 +1929,7 @@ export class DiscoveryOrchestrationService {
     }
 
     text += `${totalSignals} total finding(s) evaluated (${corroboratedSignals} corroborated across independent sources, ${reviewNeededSignals} requiring human officer review). `;
-    text += `Under VendorTrace integrity guarantees: absence of findings in checked sources does not constitute absolute clearance.`;
+    text += `Under TinyTrace integrity guarantees: absence of findings in checked sources does not constitute absolute clearance.`;
 
     return text;
   }

@@ -61,7 +61,7 @@ export interface CoreDimensionCard {
   findings: CrossValidatedFinding[];
 }
 
-export interface VendorTraceAssessmentReport {
+export interface TinyTraceAssessmentReport {
   investigationId: string;
   vendorId: string;
   vendorName: string;
@@ -100,4 +100,4 @@ export interface VendorTraceAssessmentReport {
   unresolvedQueue?: any[];
 }
 
-export type AssessmentReport = VendorTraceAssessmentReport;
+export type AssessmentReport = TinyTraceAssessmentReport;

@@ -8,7 +8,7 @@ import {
 } from '../demo/demoDataset.js';
 
 /**
- * VendorTrace In-Memory / File Persistent Store
+ * TinyTrace In-Memory / File Persistent Store
  * Ensures truthful metrics: counts reflect actual stored records.
  * No fabricated statistics or mock metrics.
  */

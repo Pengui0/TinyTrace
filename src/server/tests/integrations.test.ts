@@ -1,5 +1,5 @@
 /**
- * Automated Verification Test Suite for VendorTrace Integration Layer
+ * Automated Verification Test Suite for TinyTrace Integration Layer
  * Tests: Configured, Missing-key, Auth failure (401), Billing/Wallet (402), Rate limit (429),
  * Timeout, Provider 5xx transient error paths, and Secret Redaction.
  */

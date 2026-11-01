@@ -7,7 +7,7 @@ import { runGraphNetworkTests } from './graphNetwork.test.js';
 
 async function main() {
   console.log('================================================================');
-  console.log('   VENDORTRACE PHASE 3 TESTS: CHANGE DETECTION & NETWORK GRAPH  ');
+  console.log('   TINYTRACE PHASE 3 TESTS: CHANGE DETECTION & NETWORK GRAPH  ');
   console.log('================================================================\n');
 
   console.log('>>> [1/2] Running Change Detection & Signal Fingerprinting Tests...');

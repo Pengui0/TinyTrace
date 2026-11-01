@@ -50,7 +50,7 @@ export const InvestigationHistoryView: React.FC<InvestigationHistoryViewProps> =
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = format === 'pdf' ? `VendorTrace_${id}.pdf` : `VendorTrace_Evidence_${id}.csv`;
+      link.download = format === 'pdf' ? `TinyTrace_${id}.pdf` : `TinyTrace_Evidence_${id}.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {

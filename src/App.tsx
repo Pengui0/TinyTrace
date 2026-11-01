@@ -78,8 +78,8 @@ function DashboardApp() {
   useEffect(() => {
     if (getStorageReadError()) setStorageWarning(getStorageReadError());
     const onStorageError = (event: Event) => setStorageWarning((event as CustomEvent<string>).detail);
-    window.addEventListener('vendortrace-storage-error', onStorageError);
-    return () => window.removeEventListener('vendortrace-storage-error', onStorageError);
+    window.addEventListener('tinytrace-storage-error', onStorageError);
+    return () => window.removeEventListener('tinytrace-storage-error', onStorageError);
   }, []);
 
   useEffect(() => {
@@ -183,7 +183,7 @@ function DashboardApp() {
       }
     } catch (err: any) {
       const message = err instanceof TypeError && /fetch/i.test(err.message)
-        ? 'VendorTrace could not reach its investigation API. Check that the backend server is running, then retry. Your investigation was not confirmed as saved.'
+        ? 'TinyTrace could not reach its investigation API. Check that the backend server is running, then retry. Your investigation was not confirmed as saved.'
         : `Investigation failed: ${err?.message || 'The server returned an unexpected response.'}`;
       alert(message);
     } finally {
@@ -242,7 +242,7 @@ function DashboardApp() {
         ? await response.json().catch(() => ({}))
         : {};
       if (response.status === 404) {
-        throw new Error('Report deletion is not available in the running server yet. Restart the VendorTrace server, refresh this page, and try again.');
+        throw new Error('Report deletion is not available in the running server yet. Restart the TinyTrace server, refresh this page, and try again.');
       }
       throw new Error(error.error || `Report history could not be deleted (server returned HTTP ${response.status}).`);
     }

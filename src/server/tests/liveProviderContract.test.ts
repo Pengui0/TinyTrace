@@ -32,7 +32,7 @@ export async function runLiveProviderContractTests(): Promise<TestResult> {
   const called: string[] = [];
 
   try {
-    process.env.INDIACOS_API_KEY = 'vendortrace-test-only-key';
+    process.env.INDIACOS_API_KEY = 'tinytrace-test-only-key';
     process.env.INDIACOS_BASE_URL = 'https://indiacos.test/api/v1';
     registryCache.clear();
 
@@ -41,8 +41,8 @@ export async function runLiveProviderContractTests(): Promise<TestResult> {
       called.push(`${init?.method || 'GET'} ${url.pathname}${url.search}`);
       if (init?.headers) {
         const headers = new Headers(init.headers);
-        assert(headers.get('authorization') === 'Bearer vendortrace-test-only-key', 'IndiaCos request includes server-side bearer authentication');
-        assert(headers.get('x-api-key') === 'vendortrace-test-only-key', 'IndiaCos request includes documented API-key header');
+        assert(headers.get('authorization') === 'Bearer tinytrace-test-only-key', 'IndiaCos request includes server-side bearer authentication');
+        assert(headers.get('x-api-key') === 'tinytrace-test-only-key', 'IndiaCos request includes documented API-key header');
       }
 
       if (url.pathname === '/api/v1/company/UTESTCIN0000000000001') {

@@ -230,7 +230,7 @@ export class EntityTracingService {
         matchMethod: 'EXACT_DIN',
         strength: 'strong_identifier',
         evidenceIds: ['evi_din_00000001'],
-        sourceUrls: ['https://mca-fixture.vendortrace.invalid/director/99999999'],
+        sourceUrls: ['https://mca-fixture.tinytrace.invalid/director/99999999'],
         provenance: 'Synthetic IndiaCos/MCA21 relationship fixture',
         details: {
           din: dinAnchor.value,
@@ -256,7 +256,7 @@ export class EntityTracingService {
         matchMethod: 'EXACT_DIN',
         strength: 'strong_identifier',
         evidenceIds: ['evi_din_00000001'],
-        sourceUrls: ['https://mca-fixture.vendortrace.invalid/director/99999999'],
+        sourceUrls: ['https://mca-fixture.tinytrace.invalid/director/99999999'],
         provenance: 'Synthetic IndiaCos/MCA21 relationship fixture',
         details: {
           din: dinAnchor.value,
@@ -285,7 +285,7 @@ export class EntityTracingService {
         matchMethod: 'REGISTERED_OFFICE_STRING_MATCH',
         strength: 'same_address_candidate',
         evidenceIds: ['evi_addr_mca'],
-        sourceUrls: ['https://mca-fixture.vendortrace.invalid/company/U99999XX2024PTC999996'],
+        sourceUrls: ['https://mca-fixture.tinytrace.invalid/company/U99999XX2024PTC999996'],
         provenance: 'Synthetic RoC registered-office fixture',
         details: {
           commonAddress: addr,
@@ -311,7 +311,7 @@ export class EntityTracingService {
         matchMethod: 'UNVERIFIED_DIRECTOR_NAME_MATCH',
         strength: 'same_name_candidate',
         evidenceIds: ['evi_name_match_01'],
-        sourceUrls: ['https://mca-fixture.vendortrace.invalid/company/U99999XX2024PTC999995'],
+        sourceUrls: ['https://mca-fixture.tinytrace.invalid/company/U99999XX2024PTC999995'],
         provenance: 'Synthetic Company Registry Fixture',
         details: {
           directorName: 'Kiran Demo (Fictional Director)',
@@ -337,7 +337,7 @@ export class EntityTracingService {
         matchMethod: 'EXACT_DIN',
         strength: 'strong_identifier',
         evidenceIds: ['evi_din_00000001'],
-        sourceUrls: ['https://mca-fixture.vendortrace.invalid/director/99999999'],
+        sourceUrls: ['https://mca-fixture.tinytrace.invalid/director/99999999'],
         provenance: 'Synthetic IndiaCos/MCA21 relationship fixture',
         details: {
           din: '00000001',
@@ -364,7 +364,7 @@ export class EntityTracingService {
           matchMethod: 'EXACT_DIN',
           strength: 'strong_identifier',
           evidenceIds: [`evi_${i}`],
-          sourceUrls: ['https://mca-fixture.vendortrace.invalid/'],
+          sourceUrls: ['https://mca-fixture.tinytrace.invalid/'],
           provenance: 'Synthetic registry fixture',
           details: {
             din: '00000001',

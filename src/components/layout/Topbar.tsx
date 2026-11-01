@@ -176,7 +176,7 @@ export const Topbar: React.FC<TopbarProps> = ({
             </div>
 
             <p className="text-xs text-[#687385] leading-relaxed">
-              In accordance with VendorTrace zero-fabrication guarantees: Live investigations require authentic upstream registry access. The current server environment reports:
+              In accordance with TinyTrace zero-fabrication guarantees: Live investigations require authentic upstream registry access. The current server environment reports:
             </p>
 
             <div className="bg-[#F5F7F8] p-3 rounded border border-[#E4E9EB] space-y-2 text-xs">

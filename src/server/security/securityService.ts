@@ -1,5 +1,5 @@
 /**
- * VendorTrace Security Service
+ * TinyTrace Security Service
  * Implements SSRF defense, prompt-injection neutralization, multi-tenant isolation,
  * rate-limiting, audit logging, and data retention policies.
  */

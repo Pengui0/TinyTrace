@@ -1,5 +1,5 @@
 /**
- * Automated Verification Test for VendorTrace Repository Persistence
+ * Automated Verification Test for TinyTrace Repository Persistence
  * Executes comprehensive Create, Read, Update, and Delete (CRUD) assertions.
  */
 

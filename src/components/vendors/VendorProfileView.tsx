@@ -114,7 +114,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `VendorTrace_${invId}.pdf`;
+      a.download = `TinyTrace_${invId}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -143,7 +143,7 @@ export const VendorProfileView: React.FC<VendorProfileViewProps> = ({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `VendorTrace_Evidence_${invId}.csv`;
+      a.download = `TinyTrace_Evidence_${invId}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();

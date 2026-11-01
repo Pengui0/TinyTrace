@@ -99,11 +99,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="h-16 min-h-16 shrink-0 px-4 border-b border-[#E4E9EB] flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
         <div aria-hidden="true" className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white shadow-[0_5px_12px_rgba(8,127,97,0.12)]">
-          <img src="/images/vendortrace-logo.png" alt="" className="absolute left-1/2 top-0 h-auto w-20 max-w-none -translate-x-1/2" />
+          <img src="/images/tinytrace-logo.png" alt="" className="absolute left-1/2 top-0 h-auto w-20 max-w-none -translate-x-1/2" />
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold tracking-tight text-[#1C1F26]">
-            VendorTrace
+            TinyTrace
           </span>
           <span className="text-[10px] text-[#687385] leading-none uppercase tracking-wider font-medium">
             Due Diligence & Tracing

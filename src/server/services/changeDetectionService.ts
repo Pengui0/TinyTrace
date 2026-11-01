@@ -1,5 +1,5 @@
 /**
- * VendorTrace Change Detection & Deterministic Signal Fingerprinting Service
+ * TinyTrace Change Detection & Deterministic Signal Fingerprinting Service
  * Compares latest normalized investigation report against baseline/previous runs.
  * Strictly avoids hashing volatile fields and treats disappeared sources honestly.
  */

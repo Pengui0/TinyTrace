@@ -1,5 +1,5 @@
 /**
- * VendorTrace Investigation Filter & Search Service
+ * TinyTrace Investigation Filter & Search Service
  * Supports multi-attribute filtering by vendor name, identifiers, status, review priority, date, and dimension.
  */
 

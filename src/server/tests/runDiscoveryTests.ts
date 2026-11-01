@@ -2,7 +2,7 @@ import { runRiskFindingValidationTests } from './riskFindingValidation.test.js';
 import { runDiscoveryOrchestrationTests } from './discoveryOrchestration.test.js';
 
 async function main() {
-  console.log('=== RUNNING VENDORTRACE LAYER 1 DISCOVERY & VALIDATION TEST SUITE ===');
+  console.log('=== RUNNING TINYTRACE LAYER 1 DISCOVERY & VALIDATION TEST SUITE ===');
 
   const validationReport = await runRiskFindingValidationTests();
   console.log('\n--- RISK FINDING VALIDATION SUITE ---');

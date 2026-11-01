@@ -448,7 +448,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
           <p className="text-xs text-[#687385] mt-0.5">
             {isDemoMode
               ? 'Deterministic synthetic event stream for demonstration. No live browser session or upstream audit is claimed.'
-              : 'VendorTrace runs bounded registry, court, procurement, and adverse-media checks. Missing or inaccessible evidence never verifies a clean record.'}
+              : 'TinyTrace runs bounded registry, court, procurement, and adverse-media checks. Missing or inaccessible evidence never verifies a clean record.'}
           </p>
         </div>
 

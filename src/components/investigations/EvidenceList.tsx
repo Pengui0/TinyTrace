@@ -72,7 +72,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
         <EmptyState
           icon={<FileText className="w-5 h-5" />}
           title="No findings recorded in checked registries"
-          description="Investigation returned zero adverse signals in the sources audited. VendorTrace Integrity Rule: 'No signal found in sources checked' does not constitute proof that a vendor is clean."
+          description="Investigation returned zero adverse signals in the sources audited. TinyTrace Integrity Rule: 'No signal found in sources checked' does not constitute proof that a vendor is clean."
         />
         {coverageGaps.length > 0 && (
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-900 space-y-1">

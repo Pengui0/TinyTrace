@@ -352,7 +352,7 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
             <span>Coverage Gaps Identified ({coverageGaps.length})</span>
           </div>
           <p className="text-[11px] text-amber-900 leading-snug">
-            Under VendorTrace zero-fabrication discipline, unavailable registry sources or timeout errors are never converted into clean risk assumptions. Manual verification or connector credentials required for:
+            Under TinyTrace zero-fabrication discipline, unavailable registry sources or timeout errors are never converted into clean risk assumptions. Manual verification or connector credentials required for:
           </p>
           <ul className="list-disc list-inside text-[11px] text-amber-950 space-y-0.5 pt-0.5">
             {coverageGaps.map((gap, idx) => (

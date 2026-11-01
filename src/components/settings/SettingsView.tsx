@@ -128,7 +128,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
               <div className="flex flex-wrap gap-2">
                 <Button variant="secondary" size="sm" onClick={() => exportWorkspaceBackup()}>Export workspace backup</Button>
                 <Button variant="outline" size="sm" onClick={() => {
-                  if (window.confirm('Clear all VendorTrace data saved in this browser? This cannot be undone unless you exported a backup.')) {
+                  if (window.confirm('Clear all TinyTrace data saved in this browser? This cannot be undone unless you exported a backup.')) {
                     clearWorkspace(); setSavedCount(0); window.location.reload();
                   }
                 }}>Clear local application data</Button>

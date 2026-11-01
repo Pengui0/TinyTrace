@@ -1,5 +1,5 @@
 /**
- * Typed Provider Interfaces & Health Types for VendorTrace
+ * Typed Provider Interfaces & Health Types for TinyTrace
  * Strict isolation of server-only secrets, safe redaction, and standardized error categories.
  */
 

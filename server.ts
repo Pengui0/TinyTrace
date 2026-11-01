@@ -169,7 +169,7 @@ function mapProviderHealthToConnectorStatus(status: string): SourceConnector['st
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
-    service: 'VendorTrace Core Engine',
+    service: 'TinyTrace Core Engine',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     storage: repositoryManager.getStorageStatus(),
@@ -456,10 +456,10 @@ app.get('/api/investigations', asyncHandler(async (req: Request, res: Response) 
 
 app.get('/api/investigations/limits', (_req: Request, res: Response) => {
   res.json({
-    overallTimeoutMs: configuredLimit('VENDORTRACE_INVESTIGATION_TIMEOUT_MS', 120000, 120000),
-    agentTimeoutMs: configuredLimit('VENDORTRACE_AGENT_TIMEOUT_MS', 45000, 120000),
-    liveStreamTimeoutMs: configuredLimit('VENDORTRACE_LIVE_STREAM_TIMEOUT_MS', 120000, 120000),
-    maxAttempts: configuredLimit('VENDORTRACE_AGENT_MAX_ATTEMPTS', 2, 2),
+    overallTimeoutMs: configuredLimit('TINYTRACE_INVESTIGATION_TIMEOUT_MS', 120000, 120000),
+    agentTimeoutMs: configuredLimit('TINYTRACE_AGENT_TIMEOUT_MS', 45000, 120000),
+    liveStreamTimeoutMs: configuredLimit('TINYTRACE_LIVE_STREAM_TIMEOUT_MS', 120000, 120000),
+    maxAttempts: configuredLimit('TINYTRACE_AGENT_MAX_ATTEMPTS', 2, 2),
   });
 });
 
@@ -557,7 +557,7 @@ app.post('/api/investigations', async (req: Request, res: Response) => {
   const now = new Date().toISOString();
   const controller = new AbortController();
   investigationController = controller;
-  const overallTimeoutMs = Math.max(configuredLimit('VENDORTRACE_INVESTIGATION_TIMEOUT_MS', 120000, 120000), 1000);
+  const overallTimeoutMs = Math.max(configuredLimit('TINYTRACE_INVESTIGATION_TIMEOUT_MS', 120000, 120000), 1000);
   const overallTimer = setTimeout(() => controller.abort('overall_timeout'), overallTimeoutMs);
   activeInvestigationControllers.set(runId, controller);
   cleanupInvestigation = () => {
@@ -594,7 +594,7 @@ app.post('/api/investigations', async (req: Request, res: Response) => {
     sourceReference: 'Procurement Investigation Flow',
   });
 
-  // 2. Execute Layer 1 VendorTrace discovery orchestration across 4 dimensions concurrently
+  // 2. Execute Layer 1 TinyTrace discovery orchestration across 4 dimensions concurrently
   const discoveryReport = await discoveryService.runDiscovery(
     {
       id: vendor.id,
@@ -912,7 +912,7 @@ app.post('/api/investigations/cancel', (req: Request, res: Response) => {
 // API: GeM/CVC Search + Fetch Evidence Workflow (SSE progress adapter; with SSRF Guard)
 app.post('/api/investigations/tinyfish/stream', ssrfGuardMiddleware, async (req: Request, res: Response) => {
   const { url, goal, outputSchema, useMock, mockScenario, timeoutMs } = req.body || {};
-  const configuredAgentTimeoutMs = Math.max(configuredLimit('VENDORTRACE_LIVE_STREAM_TIMEOUT_MS', 120000, 120000), 1000);
+  const configuredAgentTimeoutMs = Math.max(configuredLimit('TINYTRACE_LIVE_STREAM_TIMEOUT_MS', 120000, 120000), 1000);
   const streamController = new AbortController();
   res.on('close', () => {
     if (!res.writableEnded) streamController.abort();
@@ -1481,7 +1481,7 @@ const exportPdf = (req: Request, res: Response) => {
     });
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="VendorTrace_${inv.id}.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="TinyTrace_${inv.id}.pdf"`);
     res.send(Buffer.from(pdfBytes));
   } catch (err: any) {
     res.status(400).json({ error: err.message || 'PDF export generation failed' });
@@ -1518,7 +1518,7 @@ const exportCsv = (req: Request, res: Response) => {
     });
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="VendorTrace_Evidence_${inv.id}.csv"`);
+    res.setHeader('Content-Disposition', `attachment; filename="TinyTrace_Evidence_${inv.id}.csv"`);
     res.send(csvContent);
   } catch (err: any) {
     res.status(400).json({ error: err.message || 'CSV export generation failed' });
@@ -1653,12 +1653,12 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[VendorTrace Server] Running on http://0.0.0.0:${PORT}`);
-    console.log(`[VendorTrace Persistence] Active Adapter: ${repositoryManager.getStorageStatus().activeAdapterName} (Durable: ${repositoryManager.getStorageStatus().isDurable})`);
+    console.log(`[TinyTrace Server] Running on http://0.0.0.0:${PORT}`);
+    console.log(`[TinyTrace Persistence] Active Adapter: ${repositoryManager.getStorageStatus().activeAdapterName} (Durable: ${repositoryManager.getStorageStatus().isDurable})`);
   });
 }
 
 startServer().catch((err) => {
-  console.error('[VendorTrace Server] Startup failed:', err);
+  console.error('[TinyTrace Server] Startup failed:', err);
   process.exit(1);
 });

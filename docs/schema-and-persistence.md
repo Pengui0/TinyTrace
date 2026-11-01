@@ -1,7 +1,7 @@
-# VendorTrace — Domain Schema & Persistence Architecture
+# TinyTrace — Domain Schema & Persistence Architecture
 
 ## 1. Overview
-VendorTrace enforces a typed repository layer that isolates storage mechanics from business logic. The system operates under strict data integrity invariants:
+TinyTrace enforces a typed repository layer that isolates storage mechanics from business logic. The system operates under strict data integrity invariants:
 * **Zero-Fabrication Rule**: Absences of records or unconfigured connectors are never translated into positive risk clearance.
 * **Stable IDs & ISO Timestamps**: All entities carry predictable, domain-prefixed IDs (`ven_`, `inv_`, `sig_`, `evi_`, `rel_`, `cmp_`) and strict ISO 8601 timestamps.
 * **Storage Transparency**: The application explicitly reports whether it is operating on the **Development-Only In-Memory Adapter (Non-Durable)** or persistent **Google Cloud Firestore**.

@@ -1,5 +1,5 @@
 /**
- * Repository Interfaces for VendorTrace Data Access Layer
+ * Repository Interfaces for TinyTrace Data Access Layer
  * Supports pluggable backends (Firestore / Development In-Memory)
  */
 
