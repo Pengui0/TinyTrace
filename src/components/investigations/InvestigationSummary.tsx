@@ -477,14 +477,16 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
 
       {assessment?.aiVerificationSummary && (
         <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-3.5 text-xs text-sky-950">
-          <div className="font-bold">Second verification pass · AI evidence review</div>
+          <div className="font-bold">Second verification pass · AI web verification</div>
           <p className="mt-1 leading-relaxed">
             Runs automatically after source cross-validation and before the human review queue is built. The list below contains only escalated or extreme cases.
             {' '}
             {assessment.aiVerificationSummary.enabled
-              ? `${assessment.aiVerificationSummary.reviewed} routine evidence packet(s) checked; ${assessment.aiVerificationSummary.supported} supported, ${assessment.aiVerificationSummary.escalated} escalated, and ${assessment.aiVerificationSummary.unableToConfirm} unable to confirm.`
-              : 'AI is not configured. Uncorroborated routine items are escalated for human review until AI verification is available.'}
-            {' '}This check assesses supplied evidence only. It does not independently verify sources or replace two-source corroboration.
+              ? `${assessment.aiVerificationSummary.reviewed} routine risk claim(s) searched; ${assessment.aiVerificationSummary.supported} web-verified, ${assessment.aiVerificationSummary.escalated} escalated, and ${assessment.aiVerificationSummary.unableToConfirm} sent to human review.`
+              : investigation.executionMode === 'DEMO'
+              ? 'Synthetic demo reports skip live web verification. Low-severity inconclusive candidates remain leads, not adverse findings.'
+              : 'AI web verification is unavailable. Uncorroborated routine risk claims remain in the human review queue.'}
+            {' '}AI-supported items include clickable web sources in the evidence chain. Independent-source corroboration remains separately labelled.
           </p>
         </div>
       )}

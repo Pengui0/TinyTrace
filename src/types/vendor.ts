@@ -25,7 +25,8 @@ export type FindingRiskLevel = 'VERIFIED_CLEAR' | 'CAUTION' | 'MATERIAL_RISK' | 
 export type FindingVerificationStatus =
   | 'CORROBORATED'           // Verified across >= 2 independent sources
   | 'REQUIRES_HUMAN_REVIEW'  // Single source only or low identity match
-  | 'AI_REVIEWED'            // AI checked the supplied evidence packet; not independent corroboration
+  | 'AI_REVIEWED'            // AI web search found cited support; not independent source corroboration
+  | 'UNVERIFIED_LEAD'        // Candidate does not establish a verified adverse finding
   | 'CONFLICTING_EVIDENCE'   // Discrepancy between independent registries
   | 'UNRESOLVED';            // Pending manual documentation check
 
@@ -57,6 +58,7 @@ export interface Finding {
   sources: FindingEvidence[];
   identityMatchStrength: 'EXACT' | 'HIGH' | 'PROBABLE' | 'WEAK';
   notesForOfficer?: string;
+  aiVerificationSources?: Array<{ title: string; url: string }>;
 }
 
 export type RelationType = 

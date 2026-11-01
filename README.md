@@ -91,8 +91,8 @@ flowchart TD
 ### Layer 3: Cross-Validation & Deterministic Risk Scoring
 - Strict corroboration rules:
   - `multiple_independent_sources`: Requires at least 2 genuinely independent publisher domains with matching corporate identifiers.
-  - Routine `single_source_review` findings receive a second-layer AI evidence-packet check. Critical findings, identity uncertainty, conflicts, and AI escalations require human compliance officer review.
-  - AI packet review checks only the evidence supplied to TinyTrace. It is not independent source verification and never counts as two-source corroboration.
+  - Routine single-source risk findings receive second-layer AI web verification with Google Search grounding, exact entity identifiers, and retained citations. Critical findings, identity uncertainty, conflicts, and claims the AI cannot verify require human review.
+  - Low-severity inconclusive candidates remain unverified leads and are not presented as adverse findings or human review tasks. AI verification is labelled separately from deterministic multi-source corroboration.
   - `conflicting_sources`: Surfaces opposing claims (e.g. pending litigation vs dismissed on appeal).
 - **Deterministic 0–100 Risk Score**:
   - Severity points (0–40)

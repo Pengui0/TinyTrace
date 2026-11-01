@@ -15,7 +15,7 @@ const isManualEscalation = (finding: RiskFinding) =>
 
 export function getHumanReviewCount(investigation: Investigation): number {
   const assessment = investigation.assessmentReport;
-  if (assessment?.reviewPolicyVersion === 2) return assessment.humanReviewQueue?.length || 0;
+  if (assessment?.reviewPolicyVersion === 3) return assessment.humanReviewQueue?.length || 0;
   if (assessment?.identityMatchQuality === 'WEAK' || assessment?.identityMatchQuality === 'NO_MATCHING_ENTITY') {
     return investigation.normalizedFindings?.length || investigation.findings.filter((finding) =>
       finding.verificationStatus === 'CONFLICTING_EVIDENCE' || finding.identityMatchStrength === 'WEAK'
@@ -30,7 +30,7 @@ export function getHumanReviewCount(investigation: Investigation): number {
 }
 
 export function getAICheckedCount(investigation: Investigation): number {
-  return investigation.assessmentReport?.reviewPolicyVersion === 2
+  return investigation.assessmentReport?.reviewPolicyVersion === 3
     ? investigation.assessmentReport.aiVerificationSummary?.supported || 0
     : investigation.findings.filter((finding) => finding.verificationStatus === 'AI_REVIEWED').length;
 }
@@ -45,12 +45,15 @@ export function applyFindingReviewResults(findings: Finding[], reviewed: CrossVa
       ? 'REQUIRES_HUMAN_REVIEW'
       : result.aiVerificationStatus === 'AI_SUPPORTED'
       ? 'AI_REVIEWED'
+      : result.reviewDisposition === 'UNVERIFIED_LEAD'
+      ? 'UNVERIFIED_LEAD'
       : result.confidence === 'multiple_independent_sources'
       ? 'CORROBORATED'
       : 'UNRESOLVED';
     return {
       ...finding,
       verificationStatus,
+      aiVerificationSources: result.aiVerificationSources,
       notesForOfficer: result.aiVerificationRationale
         ? [finding.notesForOfficer, 'AI verification: ' + result.aiVerificationRationale].filter(Boolean).join(' ')
         : finding.notesForOfficer,

@@ -61,10 +61,12 @@ function applyAssessmentReviewPolicy(findings: Finding[], reviewed: CrossValidat
     if (assessment.confidence === 'conflicting_sources') finding.verificationStatus = 'CONFLICTING_EVIDENCE';
     else if (assessment.needsHumanReview) finding.verificationStatus = 'REQUIRES_HUMAN_REVIEW';
     else if (assessment.aiVerificationStatus === 'AI_SUPPORTED') finding.verificationStatus = 'AI_REVIEWED';
+    else if (assessment.reviewDisposition === 'UNVERIFIED_LEAD') finding.verificationStatus = 'UNVERIFIED_LEAD';
     else if (assessment.confidence === 'multiple_independent_sources') finding.verificationStatus = 'CORROBORATED';
     else finding.verificationStatus = 'UNRESOLVED';
+    finding.aiVerificationSources = assessment.aiVerificationSources;
     if (assessment.aiVerificationRationale) {
-      finding.notesForOfficer = [finding.notesForOfficer, 'Second-layer AI packet check: ' + assessment.aiVerificationRationale].filter(Boolean).join(' ');
+      finding.notesForOfficer = [finding.notesForOfficer, 'Second-layer AI web verification: ' + assessment.aiVerificationRationale].filter(Boolean).join(' ');
     }
   });
 }
@@ -814,6 +816,7 @@ app.post('/api/investigations', async (req: Request, res: Response) => {
     },
     investigationDate: discoveryReport.startedAt,
     sourcesChecked: checkedSources,
+    enableAIWebVerification: !useMock,
   });
   applyAssessmentReviewPolicy(findings, assessmentReport.reviewedFindings);
 
@@ -1091,7 +1094,7 @@ const getInvestigationAssessment = async (req: Request, res: Response) => {
     return;
   }
 
-  if (inv.assessmentReport?.reviewPolicyVersion === 2) {
+  if (inv.assessmentReport?.reviewPolicyVersion === 3) {
     res.json(inv.assessmentReport);
     return;
   }
@@ -1110,6 +1113,7 @@ const getInvestigationAssessment = async (req: Request, res: Response) => {
     dimensionTaskStates: inv.dimensionResults || {},
     investigationDate: inv.createdAt,
     sourcesChecked: inv.sourcesChecked || [],
+    enableAIWebVerification: inv.executionMode !== 'DEMO',
   });
 
   inv.assessmentReport = report;
@@ -1229,6 +1233,7 @@ app.post('/api/investigations/:id/rerun', async (req: Request, res: Response) =>
       },
       investigationDate: discoveryReport.startedAt,
       sourcesChecked: prev.sourcesChecked,
+      enableAIWebVerification: !Boolean(req.body?.useMock),
     });
 
     // Run Layer 4 Change Detection & Signal Fingerprinting

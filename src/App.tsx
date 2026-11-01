@@ -48,7 +48,7 @@ function DashboardApp() {
   const [investigationWorkspaceKey, setInvestigationWorkspaceKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isReviewProcessing, setIsReviewProcessing] = useState(() => savedWorkspace.investigations.some((item) =>
-    item.executionMode !== 'DEMO' && item.assessmentReport?.reviewPolicyVersion !== 2 && Boolean(item.normalizedFindings?.length)
+    item.executionMode !== 'DEMO' && item.assessmentReport?.reviewPolicyVersion !== 3 && Boolean(item.normalizedFindings?.length)
   ));
   const [isBackendHealthy, setIsBackendHealthy] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
@@ -132,7 +132,7 @@ function DashboardApp() {
       // Older saved reports have no second-layer result. Run it before marking their review status final.
       const needsReviewPass = mergedInvestigations.filter((item) =>
         item.executionMode !== 'DEMO' &&
-        item.assessmentReport?.reviewPolicyVersion !== 2 &&
+        item.assessmentReport?.reviewPolicyVersion !== 3 &&
         Boolean(item.normalizedFindings?.length)
       );
       setIsReviewProcessing(needsReviewPass.length > 0);

@@ -98,7 +98,7 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
         return <Badge tone="verified" size="sm">Checked Clear</Badge>;
       case 'UNKNOWN':
       default:
-        return <Badge tone="neutral" size="sm">Status Unknown</Badge>;
+        return null;
     }
   };
 
@@ -107,7 +107,9 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
       case 'CORROBORATED':
         return <Badge tone="verified" size="sm">Corroborated (&ge;2 Sources)</Badge>;
       case 'AI_REVIEWED':
-        return <Badge tone="verified" size="sm">AI Packet Check Passed</Badge>;
+        return <Badge tone="verified" size="sm">AI Web-Verified</Badge>;
+      case 'UNVERIFIED_LEAD':
+        return <Badge tone="neutral" size="sm">Unverified Lead — Not a Risk Finding</Badge>;
       case 'REQUIRES_HUMAN_REVIEW':
         return <Badge tone="caution" size="sm">Requires Human Review</Badge>;
       case 'CONFLICTING_EVIDENCE':
@@ -212,6 +214,17 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
                 <div className="p-2.5 bg-[#F5F7F8] border-l-2 border-[#1C1F26] rounded-r text-[11px] text-[#687385] leading-relaxed">
                   <span className="font-semibold text-[#1C1F26]">Compliance Rationale: </span>
                   {f.notesForOfficer}
+                </div>
+              )}
+              {f.aiVerificationSources && f.aiVerificationSources.length > 0 && (
+                <div className="text-[11px] text-[#526176]">
+                  <span className="font-semibold text-[#1C1F26]">AI verification sources: </span>
+                  {f.aiVerificationSources.map((source, sourceIndex) => (
+                    <React.Fragment key={source.url}>
+                      {sourceIndex > 0 && ', '}
+                      <a href={source.url} target="_blank" rel="noreferrer" className="text-[#087F61] underline underline-offset-2">{source.title}</a>
+                    </React.Fragment>
+                  ))}
                 </div>
               )}
 

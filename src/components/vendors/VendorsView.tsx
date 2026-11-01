@@ -83,7 +83,7 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
         return <Badge tone="verified" size="sm">Verified Clear</Badge>;
       case 'UNKNOWN':
       default:
-        return <Badge tone="neutral" size="sm">Status Unknown</Badge>;
+        return null;
     }
   };
 

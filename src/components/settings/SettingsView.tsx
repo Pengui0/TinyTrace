@@ -212,7 +212,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
               <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="text-[#1C1F26]">Two-Source Corroboration Rule: </strong>
-                Findings with two or more independent sources are marked as corroborated. Routine single-source findings receive a second-layer AI evidence-packet check; critical findings, identity concerns, conflicts, and AI escalations go to the human review queue. AI packet checks do not count as independent source corroboration.
+                Findings with two or more independent sources are marked as corroborated. Routine single-source risk findings receive Google Search-grounded AI verification with citations; critical findings, identity concerns, conflicts, and items the AI cannot verify go to the human review queue. Low-severity inconclusive candidates remain leads, not adverse findings.
               </div>
             </div>
 

@@ -42,8 +42,10 @@ export interface CrossValidatedFinding extends RiskFinding {
   syndicatedOrExcludedSources: string[];
   needsHumanReview: boolean;
   humanReviewReason?: string;
-  aiVerificationStatus?: 'AI_SUPPORTED' | 'AI_ESCALATED' | 'AI_UNABLE_TO_CONFIRM' | 'NOT_RUN';
+  aiVerificationStatus?: 'AI_SUPPORTED' | 'AI_ESCALATED' | 'AI_UNABLE_TO_CONFIRM' | 'NOT_RUN' | 'NOT_APPLICABLE';
   aiVerificationRationale?: string;
+  aiVerificationSources?: Array<{ title: string; url: string }>;
+  reviewDisposition?: 'CORROBORATED' | 'AI_VERIFIED' | 'HUMAN_REVIEW' | 'UNVERIFIED_LEAD';
 }
 
 export interface AIVerificationSummary {

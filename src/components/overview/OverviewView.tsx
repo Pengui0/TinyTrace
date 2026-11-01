@@ -39,11 +39,11 @@ const formatDate = (value: string) => new Date(value).toLocaleString(undefined, 
 });
 
 const reviewState = (investigation: Investigation, isReviewProcessing: boolean): { label: string; tone: BadgeTone } => {
-  if (isReviewProcessing && investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 2) {
+  if (isReviewProcessing && investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 3) {
     return { label: 'AI verification running', tone: 'neutral' };
   }
   const humanReviews = getHumanReviewCount(investigation);
-  if (investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 2) {
+  if (investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 3) {
     return {
       label: humanReviews > 0 ? `${humanReviews} human review${humanReviews === 1 ? '' : 's'} · AI unavailable` : 'AI verification unavailable',
       tone: humanReviews > 0 ? 'caution' : 'neutral',
@@ -52,7 +52,7 @@ const reviewState = (investigation: Investigation, isReviewProcessing: boolean):
   if (humanReviews > 0) {
     return { label: `${humanReviews} human review${humanReviews === 1 ? '' : 's'}`, tone: 'caution' };
   }
-  if (getAICheckedCount(investigation) > 0) return { label: 'AI review complete', tone: 'verified' };
+  if (getAICheckedCount(investigation) > 0) return { label: 'AI web-verified', tone: 'verified' };
   if (investigation.findingsCount.materialRisk > 0) {
     return { label: `${investigation.findingsCount.materialRisk} material risk${investigation.findingsCount.materialRisk === 1 ? '' : 's'}`, tone: 'risk' };
   }

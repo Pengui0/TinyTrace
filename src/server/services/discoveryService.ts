@@ -1210,8 +1210,8 @@ export class DiscoveryOrchestrationService {
               identityMatchNote: completeProvenance
                 ? 'IndiaCos returned a case candidate by name; confirm the named party against the target legal identity.'
                 : !sourceUrl
-                  ? 'No case-specific source URL was supplied; this candidate is unverified and requires human review.'
-                  : 'Case-level provenance or party details are incomplete; unverified candidate requiring human review.',
+                  ? 'No case-specific source URL was supplied; this remains an unverified lead, not an adverse finding.'
+                  : 'Case-level provenance or party details are incomplete; this remains an unverified lead, not an adverse finding.',
               caseId: item.caseId,
               caseTitle: item.caseTitle,
               caseNumber: item.caseNumber,
@@ -1225,7 +1225,7 @@ export class DiscoveryOrchestrationService {
             },
           ],
           confidence: 'insufficient_evidence',
-          recommendedReviewAction: 'Manually verify the docket, named parties, case status, source record, and exact vendor identity before treating this as a relevant case.',
+          recommendedReviewAction: 'Do not treat this candidate as a relevant case unless a reliable docket source and exact vendor identity match are established.',
           missingDataReason: completeProvenance ? 'IndiaCos case results are name matches and require exact identity verification.' : 'Case-level source URL, reference number, or party details were not all returned.',
         });
 
