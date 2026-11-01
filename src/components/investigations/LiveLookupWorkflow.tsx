@@ -66,6 +66,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
     setResolutionMessage(null);
     setResolvedProfile(null);
 
+    let alternateIdentifierTried = false;
     try {
       let payload = buildCustomResolverPayload(searchInput, candidateToConfirm);
       let res = await apiFetch('/api/integrations/indiacos/resolve', {
@@ -76,6 +77,19 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
       });
 
       let data = await res.json();
+
+      const firstLookupTimedOut = data.errorCategory === 'TIMEOUT' || /timed out/i.test(String(data.message || data.error || ''));
+      if (!candidateToConfirm && payload.cin && payload.gstin && firstLookupTimedOut) {
+        alternateIdentifierTried = true;
+        payload = { ...payload, query: payload.gstin, cin: '' };
+        res = await apiFetch('/api/integrations/indiacos/resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          timeoutMs: 60_000,
+        });
+        data = await res.json();
+      }
 
       // If an entered registry identifier is not found, use the supplied legal
       // name as a separate search. Never carry the failed identifier into that
@@ -130,14 +144,14 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
         setIsDisambiguationOpen(true);
         setResolutionMessage(canFallbackToName
           ? 'The identifier returned 404, so results are from a legal-name search. Select the correct entity to confirm it; the entered GSTIN was not verified.'
-          : 'Identity match needs your review. Select the correct legal entity to confirm it.');
+          : `${alternateIdentifierTried ? 'CIN lookup timed out; this candidate was found using the GSTIN and needs your review. ' : ''}Identity match needs your review. Select the correct legal entity to confirm it.`);
       } else if (data.profile) {
         setResolvedProfile(data.profile);
         setResolvedMode('Live provider');
         setIsDisambiguationOpen(false);
         setResolutionMessage(canFallbackToName
           ? `Searched by legal name after the identifier returned 404. Confirm this candidate; any GSTIN you entered was not verified. ${data.message || ''}`.trim()
-          : data.message);
+          : `${alternateIdentifierTried ? 'CIN lookup timed out; resolved using the entered GSTIN. ' : ''}${data.message || ''}`.trim());
         if (onEntityResolved) onEntityResolved(data.profile);
       } else {
         const status = String(data.status || '').toUpperCase();
@@ -153,7 +167,9 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
       if (/HTTP 404/i.test(message)) {
         setResolutionMessage('IndiaCos returned 404 for this identifier lookup. The registry record was not resolved; this does not prove the company does not exist. Check the identifier/provider configuration or try the legal name without the CIN.');
       } else if (/timed out after \d+ms|timeout/i.test(message)) {
-        setResolutionMessage('IndiaCos is taking longer than expected. This lookup timed out, so no identity match was verified. Retry shortly or try the other identifier.');
+        setResolutionMessage(alternateIdentifierTried
+          ? 'IndiaCos timed out on both the CIN and GSTIN lookups. No identity match was verified; try again later or check that the identifiers belong to this company.'
+          : 'IndiaCos is taking longer than expected. This lookup timed out, so no identity match was verified. Retry shortly or try the other identifier.');
       } else {
         setResolutionMessage(`Error: ${message}`);
       }
