@@ -69,6 +69,9 @@ export function loadWorkspace(storage?: StorageLike): WorkspaceSnapshot {
 
 export function hydrateWorkspace(snapshot: WorkspaceSnapshot): void {
   workspaceCache = removeSyntheticDemoData(migrateWorkspace(snapshot));
+  // A prior session's 401 may have been surfaced as a save warning. A successful
+  // server hydration confirms the new session can access its workspace.
+  storageReadError = null;
   remotePersistenceReady = true;
 }
 
@@ -105,6 +108,9 @@ function enqueueRemoteSave(snapshot: WorkspaceSnapshot): void {
       body: JSON.stringify({ snapshot }),
     });
     if (!response.ok) {
+      // apiFetch clears an invalid session and AuthGate returns to sign-in.
+      // Don't persist an authentication failure as a storage/backup warning.
+      if (response.status === 401 || response.status === 403) return;
       const result = await response.json().catch(() => ({})) as { error?: string };
       throw new Error(result.error || `Supabase workspace save failed (HTTP ${response.status}).`);
     }

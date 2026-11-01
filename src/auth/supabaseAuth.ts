@@ -122,9 +122,15 @@ export async function getAccessToken(): Promise<string | null> {
 }
 
 export async function signOut(): Promise<void> {
-  const session = activeSession || await restoreSession();
-  try { if (session?.access_token) await authRequest('logout', {}, session.access_token); }
-  finally { notifySessionChange(null); }
+  const session = activeSession;
+  // Clear the local session first so a slow or offline Auth API cannot leave the
+  // protected dashboard visible after the server has rejected the access token.
+  notifySessionChange(null);
+  if (session?.access_token) {
+    void authRequest('logout', {}, session.access_token).catch(() => {
+      // The local session is already cleared; remote revocation is best effort.
+    });
+  }
 }
 
 export function handleAuthStorageEvent(event: StorageEvent): void {
