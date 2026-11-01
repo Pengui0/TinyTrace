@@ -391,6 +391,9 @@ export const IntegrationsView: React.FC = () => {
             <p className="text-[11px] text-[#687385]">
               Verified paths: Configured, Missing-Key, Auth Failure (401), Billing/Wallet (402), Rate Limit (429), Timeout, Transient 5xx Retry, and Secret Redaction.
             </p>
+            <p className="text-[11px] text-blue-800">
+              These automated checks use controlled test adapters. They validate TinyTrace behavior and do not indicate whether the live provider is reachable; use the provider's Test Live Connection result below for current availability.
+            </p>
             <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-[#687385] bg-[#F8FAFB] p-2.5 rounded border border-[#E4E9EB]">
               {testSuiteReport.details.map((d: string, i: number) => (
                 <div key={i} className={d.includes('[FAIL]') ? 'text-red-700 font-bold' : ''}>

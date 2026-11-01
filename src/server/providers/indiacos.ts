@@ -92,12 +92,14 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
       };
     }
 
-    const testUrl = `${this.baseUrl}/search?q=Infosys&limit=1`;
+    // /account is authenticated but free, so probing health does not spend the
+    // user's registry-query balance. Search and identity endpoints are billed.
+    const testUrl = `${this.baseUrl}/account`;
     const res = await executeHardenedRequest(testUrl, {
       method: 'GET',
       headers: this.getAuthHeaders(),
-      timeoutMs: 6000,
-      maxRetries: 1,
+      timeoutMs: 15_000,
+      maxRetries: 0,
     });
 
     return {
@@ -107,7 +109,7 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
       upstreamRequestId: res.upstreamRequestId,
       latencyMs: res.latencyMs,
       message: res.ok
-        ? 'IndiaCos Search endpoint responded successfully; API key authentication and endpoint connectivity verified.'
+        ? 'IndiaCos account endpoint responded successfully; API key authentication and service connectivity verified. This free probe does not use registry-query credits.'
         : res.errorMessage || 'Failed to connect to IndiaCos.',
       isMock: false,
     };
