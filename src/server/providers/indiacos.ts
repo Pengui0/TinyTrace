@@ -15,6 +15,10 @@ import {
 import { executeHardenedRequest } from './httpClient.js';
 import { registryCache } from './cache.js';
 
+// Registry identity lookups can be slower than lightweight connector probes.
+const IDENTITY_LOOKUP_TIMEOUT_MS = 20_000;
+const DIRECTOR_LOOKUP_TIMEOUT_MS = 12_000;
+
 
 function formatIndiaCosAddress(value: unknown): string | null {
   if (typeof value === 'string') return value.trim() || null;
@@ -139,7 +143,7 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
       method: 'GET',
       headers: this.getAuthHeaders(),
       signal: options.signal,
-      timeoutMs: options.timeoutMs,
+      timeoutMs: options.timeoutMs ?? IDENTITY_LOOKUP_TIMEOUT_MS,
       maxRetries: 0,
     });
 
@@ -184,7 +188,7 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
       const directorsRes = await executeHardenedRequest(directorsUrl, {
         method: 'GET',
         headers: this.getAuthHeaders(),
-        timeoutMs: 6000,
+        timeoutMs: DIRECTOR_LOOKUP_TIMEOUT_MS,
         maxRetries: 0,
         signal: options.signal,
       });
@@ -280,7 +284,7 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
       method: 'GET',
       headers: this.getAuthHeaders(),
       signal: options.signal,
-      timeoutMs: options.timeoutMs,
+      timeoutMs: options.timeoutMs ?? IDENTITY_LOOKUP_TIMEOUT_MS,
       maxRetries: 0,
     });
 
