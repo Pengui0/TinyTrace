@@ -15,7 +15,7 @@ import { RiskFinding } from '../../types/riskFinding.js';
 import { generateStableId } from '../validation/domainValidators.js';
 
 export const SCHEDULING_UNAVAILABLE_NOTICE =
-  'Scheduling not enabled in this deployment. Automated unattended background monitoring is inactive; re-checks must be executed manually.';
+  'Automated monitoring is available in the Automated monitoring tab. Due checks run on the TinyTrace server and new or changed findings appear in Notifications.';
 
 /**
  * Computes deterministic signal fingerprint without volatile fields.

@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Card } from '../common/Card.js';
 import { Badge, BadgeTone } from '../common/Badge.js';
@@ -39,32 +39,25 @@ export const IntegrationsView: React.FC = () => {
   const [instructions, setInstructions] = useState<Record<string, SetupInstruction> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [testingProviderId, setTestingProviderId] = useState<string | null>(null);
-  const [mockTestResults, setMockTestResults] = useState<Record<string, { success: boolean; message: string }>>(savedSettings.mockTestResults || {});
   const [testSuiteReport, setTestSuiteReport] = useState<any | null>(savedSettings.integrationTestSuiteReport || null);
   const [isRunningSuite, setIsRunningSuite] = useState(false);
 
   // TinyFish Baseline Test State
   const [tfUrl, setTfUrl] = useState(typeof savedSettings.tinyfishTestUrl === 'string' ? savedSettings.tinyfishTestUrl : 'https://mca.gov.in');
-  const [tfMockScenario, setTfMockScenario] = useState<
-    'SUCCESS' | 'NULL_RESULT' | 'INVALID_SCHEMA' | 'AUTH_ERROR' | 'INSUFFICIENT_CREDITS' | 'RATE_LIMITED' | 'TIMEOUT' | 'UPSTREAM_500'
-  >(savedSettings.tinyfishMockScenario || 'SUCCESS');
   const [tfTestResult, setTfTestResult] = useState<any | null>(savedSettings.tinyfishTestResult || null);
   const [isTestingTfLive, setIsTestingTfLive] = useState(false);
-  const [isTestingTfMock, setIsTestingTfMock] = useState(false);
   const [tfSuiteReport, setTfSuiteReport] = useState<any | null>(savedSettings.tinyfishSuiteReport || null);
   const [isRunningTfSuite, setIsRunningTfSuite] = useState(false);
   const [savedProviderProbes, setSavedProviderProbes] = useState<Record<string, SavedProviderProbe>>(savedSettings.providerProbes || {});
 
   useEffect(() => {
     saveSettings({
-      mockTestResults,
       integrationTestSuiteReport: testSuiteReport,
       tinyfishTestUrl: sanitizeSavedPublicUrl(tfUrl),
-      tinyfishMockScenario: tfMockScenario,
       tinyfishTestResult: tfTestResult,
       tinyfishSuiteReport: tfSuiteReport,
     });
-  }, [mockTestResults, testSuiteReport, tfUrl, tfMockScenario, tfTestResult, tfSuiteReport]);
+  }, [testSuiteReport, tfUrl, tfTestResult, tfSuiteReport]);
 
   const fetchIntegrations = async () => {
     try {
@@ -103,24 +96,17 @@ export const IntegrationsView: React.FC = () => {
     fetchIntegrations();
   }, []);
 
-  const handleTestConnection = async (providerId: 'indiacos' | 'tinyfish', useMock = false) => {
-    setTestingProviderId(`${providerId}_${useMock ? 'mock' : 'live'}`);
+  const handleTestConnection = async (providerId: 'indiacos' | 'tinyfish') => {
+    setTestingProviderId(`${providerId}_live`);
     try {
       const res = await apiFetch('/api/integrations/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providerId, useMock }),
+        body: JSON.stringify({ providerId }),
       });
       const data = await res.json();
-      if (useMock) {
-        // Mock probes verify UI/demo handling only; they never overwrite live provider health.
-        setMockTestResults((prev) => ({
-          ...prev,
-          [providerId]: { success: Boolean(data.success), message: String(data.message || 'Demo mock test finished.') },
-        }));
-      } else {
-        await fetchIntegrations();
-      }
+      if (!res.ok) throw new Error(data.error || 'Provider connection test failed.');
+      await fetchIntegrations();
     } catch (e: any) {
       alert(`Test failed: ${e.message}`);
     } finally {
@@ -141,14 +127,10 @@ export const IntegrationsView: React.FC = () => {
     }
   };
 
-  const handleRunTinyfishTest = async (useMock: boolean) => {
+  const handleRunTinyfishTest = async () => {
     // Never leave a persisted result from the previous URL on screen during a new run.
     setTfTestResult(null);
-    if (useMock) {
-      setIsTestingTfMock(true);
-    } else {
-      setIsTestingTfLive(true);
-    }
+    setIsTestingTfLive(true);
 
     try {
       const res = await apiFetch('/api/integrations/tinyfish/test', {
@@ -157,8 +139,6 @@ export const IntegrationsView: React.FC = () => {
         body: JSON.stringify({
           url: tfUrl,
           goal: 'Extract page title and primary heading into structured JSON.',
-          useMock,
-          mockScenario: tfMockScenario,
         }),
       });
       const data = await res.json();
@@ -169,11 +149,9 @@ export const IntegrationsView: React.FC = () => {
         result: null,
         elapsedMs: 0,
         diagnosticMessage: `Request error: ${e.message}`,
-        isMock: useMock,
       });
     } finally {
       setIsTestingTfLive(false);
-      setIsTestingTfMock(false);
     }
   };
 
@@ -190,11 +168,7 @@ export const IntegrationsView: React.FC = () => {
     }
   };
 
-  const getStatusBadge = (status: ProviderAppStatus, isMock = false) => {
-    if (isMock || status === 'DEMO_DATA') {
-      return <Badge tone="subtle" size="sm">Demo data</Badge>;
-    }
-
+  const getStatusBadge = (status: ProviderAppStatus) => {
     switch (status) {
       case 'LIVE':
         return <Badge tone="verified" size="sm">Live (probe passed)</Badge>;
@@ -218,7 +192,6 @@ export const IntegrationsView: React.FC = () => {
     const info = integrations?.[providerKey];
     const instr = instructions?.[providerKey];
     const isTestingLive = testingProviderId === `${providerKey}_live`;
-    const isTestingMock = testingProviderId === `${providerKey}_mock`;
 
     const authHeaderNote =
       providerKey === 'indiacos'
@@ -231,7 +204,7 @@ export const IntegrationsView: React.FC = () => {
         header={
           <div className="flex items-center gap-2">
             <span>{info?.providerName || providerKey}</span>
-            {info && getStatusBadge(info.status, info.isMock)}
+            {info && getStatusBadge(info.status)}
           </div>
         }
         headerAction={
@@ -297,8 +270,6 @@ export const IntegrationsView: React.FC = () => {
                   ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
                   : info.status === 'CONFIGURED'
                   ? 'bg-amber-50 text-amber-900 border border-amber-200'
-                  : info.status === 'DEMO_DATA'
-                  ? 'bg-slate-50 text-slate-800 border border-slate-200'
                   : info.status === 'NOT_CONFIGURED'
                   ? 'bg-[#F8FAFB] text-[#687385] border border-[#E4E9EB]'
                   : 'bg-amber-50 text-amber-900 border border-amber-200'
@@ -327,11 +298,6 @@ export const IntegrationsView: React.FC = () => {
             </div>
           )}
 
-          {mockTestResults[providerKey] && (
-            <div className={`p-2.5 rounded text-[11px] border ${mockTestResults[providerKey].success ? 'bg-slate-50 text-slate-800 border-slate-200' : 'bg-amber-50 text-amber-900 border-amber-200'}`}>
-              <strong>Demo mock test (not live health):</strong> {mockTestResults[providerKey].message}
-            </div>
-          )}
 
           {/* Setup Instructions if missing */}
           {!info?.configured && instr && (
@@ -363,19 +329,10 @@ export const IntegrationsView: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                isLoading={isTestingMock}
-                disabled={isTestingLive}
-                onClick={() => handleTestConnection(providerKey, true)}
-              >
-                Test with Demo Mock
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
                 isLoading={isTestingLive}
-                disabled={isTestingMock || !info?.configured}
+                disabled={!info?.configured}
                 icon={<Activity className="w-3.5 h-3.5" />}
-                onClick={() => handleTestConnection(providerKey, false)}
+                onClick={() => handleTestConnection(providerKey)}
               >
                 Test Live Connection
               </Button>
@@ -395,7 +352,7 @@ export const IntegrationsView: React.FC = () => {
             Server-Only Integration Configuration Layer
           </h2>
           <p className="text-xs text-[#687385] mt-0.5">
-            Manages secure upstream communication with IndiaCos (MCA21/GSTN) and TinyFish (Adverse Web Media). Verification results and test preferences are saved in this browser workspace; API keys remain server-side.
+            Manages secure upstream communication with IndiaCos (MCA21/GSTN) and TinyFish (Adverse Web Media). Verification results and test preferences are saved in the Supabase workspace; API keys remain server-side.
           </p>
         </div>
         <Button
@@ -481,7 +438,7 @@ export const IntegrationsView: React.FC = () => {
           </p>
 
           {/* Test Parameters Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
+          <div className="grid grid-cols-1 gap-3 p-3 bg-[#F5F7F8] border border-[#E4E9EB] rounded">
             <div>
               <label className="text-[10px] uppercase font-semibold text-[#8490A0] block mb-1">
                 Target Public Web URL
@@ -503,28 +460,6 @@ export const IntegrationsView: React.FC = () => {
               </span>
             </div>
 
-            <div>
-              <label className="text-[10px] uppercase font-semibold text-[#8490A0] block mb-1">
-                Offline Mock Scenario (For Testing Edge Cases)
-              </label>
-              <select
-                value={tfMockScenario}
-                onChange={(e) => setTfMockScenario(e.target.value as any)}
-                className="w-full text-xs font-mono bg-white border border-[#D7DFE3] rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#1C1F26]"
-              >
-                <option value="SUCCESS">Clean Success (Conforming Schema Extracted)</option>
-                <option value="NULL_RESULT">Anti-False-Success: Completed with Null Result</option>
-                <option value="INVALID_SCHEMA">Schema Rejected: Missing Required Title</option>
-                <option value="AUTH_ERROR">HTTP 401 Auth Error (Invalid Key)</option>
-                <option value="INSUFFICIENT_CREDITS">HTTP 402 / Billing (Wallet/Credits Exhausted)</option>
-                <option value="RATE_LIMITED">HTTP 429 Rate Limit (Concurrency Limit)</option>
-                <option value="TIMEOUT">Timeout Exceeded (&gt;10s window)</option>
-                <option value="UPSTREAM_500">HTTP 500 Upstream Internal Error</option>
-              </select>
-              <span className="text-[10px] text-[#8490A0] mt-1 block">
-                Simulates specific provider conditions without network calls.
-              </span>
-            </div>
           </div>
 
           {/* Action Row */}
@@ -534,21 +469,12 @@ export const IntegrationsView: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
-                size="sm"
-                isLoading={isTestingTfMock}
-                disabled={isTestingTfLive}
-                onClick={() => handleRunTinyfishTest(true)}
-              >
-                Run Offline Mock Test
-              </Button>
-              <Button
                 variant="primary"
                 size="sm"
                 isLoading={isTestingTfLive}
-                disabled={isTestingTfMock || !integrations?.tinyfish?.configured}
+                disabled={!integrations?.tinyfish?.configured}
                 icon={<Activity className="w-3.5 h-3.5" />}
-                onClick={() => handleRunTinyfishTest(false)}
+                onClick={handleRunTinyfishTest}
               >
                 Run Live Web Agent Test
               </Button>
@@ -596,7 +522,7 @@ export const IntegrationsView: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2 text-[11px] font-mono text-[#687385]">
-                  <span>{tfTestResult.isMock ? 'OFFLINE MOCK' : 'LIVE NETWORK'}</span>
+                  <span>LIVE NETWORK</span>
                   <span>·</span>
                   <span>{tfTestResult.elapsedMs}ms</span>
                   {tfTestResult.upstreamRunId && (

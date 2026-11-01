@@ -1,11 +1,11 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Card } from '../common/Card.js';
 import { Badge } from '../common/Badge.js';
 import { Button } from '../common/Button.js';
 import { Tabs } from '../common/Tabs.js';
 import { IntegrationsView } from './IntegrationsView.js';
-import { clearWorkspace, exportWorkspaceBackup, loadWorkspace } from '../../persistence/localStore.js';
+import { clearLegacyBrowserWorkspace, clearWorkspace, exportWorkspaceBackup, loadWorkspace } from '../../persistence/localStore.js';
 import { readSavedSettings, saveSettings } from '../../persistence/settingsPersistence.js';
 import {
   ShieldCheck,
@@ -123,17 +123,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
       {/* Tab 2: Persistence & Repository Audit */}
       {activeTab === 'persistence' && (
         <div className="space-y-4">
-          <Card header="Browser Workspace Backup">
+          <Card header="Supabase Workspace Backup">
             <div className="space-y-3 text-xs text-[#687385]">
-              <p>Investigation reports and evidence are saved in this browser profile using localStorage. This data is specific to this browser and device; clearing browser site data can erase it. Provider credentials and API keys are never stored here.</p>
-              <p>{savedCount} investigation report(s) currently saved in this browser.</p>
+              <p>Reports, vendors, comparisons, monitoring preferences, search history, and workspace settings are stored in Supabase PostgreSQL. The Supabase secret key and provider credentials stay on the server.</p>
+              <p>{savedCount} investigation report(s) currently in this Supabase workspace.</p>
               <div className="flex flex-wrap gap-2">
                 <Button variant="secondary" size="sm" onClick={() => exportWorkspaceBackup()}>Export workspace backup</Button>
-                <Button variant="outline" size="sm" onClick={() => {
-                  if (window.confirm('Clear all TinyTrace data saved in this browser? This cannot be undone unless you exported a backup.')) {
-                    clearWorkspace(); setSavedCount(0); window.location.reload();
+                <Button variant="outline" size="sm" onClick={async () => {
+                  if (window.confirm('Clear all TinyTrace data stored in Supabase? This cannot be undone unless you exported a backup.')) {
+                    try {
+                      await clearWorkspace();
+                      clearLegacyBrowserWorkspace();
+                      setSavedCount(0);
+                      window.location.reload();
+                    } catch (error) {
+                      window.alert(error instanceof Error ? error.message : 'Supabase workspace could not be cleared.');
+                    }
                   }
-                }}>Clear local application data</Button>
+                }}>Clear Supabase workspace data</Button>
               </div>
             </div>
           </Card>
@@ -147,7 +154,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
                 icon={<Play className="w-3.5 h-3.5 text-[#1C1F26]" />}
                 onClick={handleRunVerification}
               >
-                Run Synthetic CRUD Test
+                Check Supabase Connection
               </Button>
             }
           >
@@ -158,15 +165,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
                   <div>
                     <span className="font-semibold text-[#1C1F26]">Active Repository Adapter:</span>
                     <span className="font-mono text-[11px] text-[#687385] ml-1.5">
-                      {storageStatus?.activeAdapterName || 'DevInMemoryRepositoryAdapter'}
+                      {storageStatus?.activeAdapterName || 'SupabaseNotConfigured'}
                     </span>
                   </div>
                 </div>
                 <div>
                   {storageStatus?.isDurable ? (
-                    <Badge tone="verified">Durable (Cloud Firestore)</Badge>
+                    <Badge tone="verified">Durable (Supabase PostgreSQL)</Badge>
                   ) : (
-                    <Badge tone="caution">Development-Only (Non-Durable)</Badge>
+                    <Badge tone="caution">Supabase Not Configured</Badge>
                   )}
                 </div>
               </div>
@@ -176,7 +183,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
                 <div>
                   <strong className="block font-semibold">Explicit Durability Transparency Notice:</strong>
                   {storageStatus?.warning ||
-                    'This application is currently using the Development-Only In-Memory Adapter. Entity state resides in server memory and resets on server reload. When Google Cloud Firestore is provisioned, records persist durably.'}
+                    'Run supabase/schema.sql in the Supabase SQL Editor and configure SUPABASE_URL and SUPABASE_SECRET_KEY on the server. The old browser workspace imports once after a successful database connection.'}
                 </div>
               </div>
 
@@ -184,7 +191,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialT
                 <div className="mt-4 p-4 bg-white border border-[#D7DFE3] rounded space-y-3">
                   <div className="flex items-center justify-between border-b border-[#E4E9EB] pb-2">
                     <span className="font-bold text-[#1C1F26]">
-                      Repository CRUD Persistence Verification Report
+                      Supabase Persistence Connection Report
                     </span>
                     <Badge tone={testReport.success ? 'verified' : 'risk'}>
                       {testReport.assertionsPassed} Assertions Passed ({testReport.assertionsFailed} Failed)

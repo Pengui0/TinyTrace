@@ -4,8 +4,7 @@ import { createServer as createViteServer } from 'vite';
 import { store } from './src/server/storage/store.js';
 import { getInvestigationIdentityKey } from './src/utils/investigationIdentity.js';
 import { validateInvestigationComparison } from './src/utils/investigationComparison.js';
-import { db, repositoryManager } from './src/server/repositories/index.js';
-import { runRepositoryVerification } from './src/server/tests/repositoryVerification.test.js';
+import { db } from './src/server/repositories/index.js';
 import { indiacos } from './src/server/providers/indiacos.js';
 import { tinyfish } from './src/server/providers/tinyfish.js';
 import { detectIdentifierKind } from './src/server/providers/identifierDetector.js';
@@ -19,7 +18,6 @@ import { RiskFinding } from './src/types/riskFinding.js';
 import { tinyfishStreamingClient, SanitizedStreamEvent } from './src/server/providers/tinyfishStreamingClient.js';
 import { entityTracingService, TRACING_DISCLAIMER } from './src/server/services/entityTracingService.js';
 import { runTinyFishStreamingTests } from './src/server/tests/tinyfishStreaming.test.js';
-import { FICTIONAL_CIN } from './src/server/demo/demoDataset.js';
 import { runEntityTracingTests } from './src/server/tests/entityTracing.test.js';
 import { crossValidationService } from './src/server/services/crossValidationService.js';
 import { CrossValidatedFinding } from './src/types/crossValidation.js';
@@ -38,9 +36,12 @@ import {
   requestSizeLimitMiddleware,
   globalErrorSanitizer,
 } from './src/server/security/securityService.js';
-import { googleApiAuthMiddleware } from './src/server/security/googleAuth.js';
-import type { AuthenticatedRequest } from './src/server/security/googleAuth.js';
 import { runSecurityHardeningTests } from './src/server/tests/securityHardening.test.js';
+import { supabaseWorkspaceStore } from './src/server/persistence/supabaseWorkspaceStore.js';
+import { monitoringScheduler } from './src/server/services/monitoringScheduler.js';
+import type { WorkspaceSnapshot } from './src/persistence/localStore.js';
+import type { AutomatedMonitoringFrequency } from './src/types/monitoringDiff.js';
+import { getNextMonitoringCheck } from './src/utils/monitoringSchedule.js';
 
 const app = express();
 const asyncHandler = (handler: (req: Request, res: Response) => Promise<unknown>) =>
@@ -94,12 +95,48 @@ function findInvestigationSnapshot(id: string, submitted?: unknown): Investigati
     || (isClientInvestigationSnapshot(submitted, id) ? submitted : undefined);
 }
 
-app.use(express.json({ limit: '2mb' }));
-app.use((req, res, next) => {
-  const carriesSavedReport = /^\/api\/(?:reports\/[^/]+\/export\/(?:pdf|csv)|investigations\/[^/]+\/(?:rerun|trace|graph|assessment)|monitoring\/compare|investigations\/compare)$/.test(req.path);
-  requestSizeLimitMiddleware(carriesSavedReport ? 2 * 1024 * 1024 : 51200)(req, res, next);
+app.use(express.json({ limit: '12mb' }));
+// This deployment is live-only. Ignore stale clients that still send the old
+// demo/mock switches so no API request can enter a fixture execution path.
+app.use('/api', (req, _res, next) => {
+  if (req.body && typeof req.body === 'object') {
+    req.body.useMock = false;
+    delete req.body.mockScenario;
+  }
+  next();
 });
-app.use('/api', googleApiAuthMiddleware);
+app.use((req, res, next) => {
+  const carriesWorkspaceSnapshot = req.path === '/api/workspace';
+  const carriesSavedReport = /^\/api\/(?:reports\/[^/]+\/export\/(?:pdf|csv)|investigations\/[^/]+\/(?:rerun|trace|graph|assessment)|monitoring\/compare|investigations\/compare)$/.test(req.path);
+  requestSizeLimitMiddleware(carriesWorkspaceSnapshot ? 10 * 1024 * 1024 : carriesSavedReport ? 2 * 1024 * 1024 : 51200)(req, res, next);
+});
+// Supabase stores the complete application workspace snapshot. The browser never
+// connects to Supabase directly and never receives the Supabase secret key.
+app.get('/api/workspace', asyncHandler(async (_req: Request, res: Response) => {
+  const stored = await supabaseWorkspaceStore.loadSnapshot();
+  if (stored.snapshot) {
+    supabaseWorkspaceStore.hydrateServerCache(stored.snapshot, (investigations, vendors) => store.hydrateWorkspace(investigations, vendors));
+  }
+  res.json({ exists: Boolean(stored.snapshot), ...stored });
+}));
+
+app.put('/api/workspace', asyncHandler(async (req: Request, res: Response) => {
+  const snapshot = req.body?.snapshot as WorkspaceSnapshot | undefined;
+  if (!supabaseWorkspaceStore.validateSnapshot(snapshot)) {
+    res.status(400).json({ error: 'Workspace snapshot is invalid or incomplete; nothing was saved.' });
+    return;
+  }
+  const saved = await supabaseWorkspaceStore.saveSnapshot(snapshot);
+  supabaseWorkspaceStore.hydrateServerCache(snapshot, (investigations, vendors) => store.hydrateWorkspace(investigations, vendors));
+  res.json({ success: true, ...saved });
+}));
+
+app.delete('/api/workspace', asyncHandler(async (_req: Request, res: Response) => {
+  await supabaseWorkspaceStore.clearSnapshot();
+  await db.clearAllForTesting?.();
+  store.resetWorkspaceData();
+  res.json({ success: true });
+}));
 
 
 const normalizeDirectoryValue = (value: unknown): string =>
@@ -114,7 +151,7 @@ const legacyRiskVerdict = (investigation?: Investigation): RiskVerdict => {
 };
 
 /**
- * Combines the older deterministic demo directory with the active repository.
+ * Combines persisted investigation history with the active vendor repository.
  * Repository records win on duplicates; no vendor count is fabricated.
  */
 async function getUnifiedVendorDirectory(query?: string): Promise<Vendor[]> {
@@ -144,7 +181,7 @@ async function getUnifiedVendorDirectory(query?: string): Promise<Vendor[]> {
       pan: null,
       companyStatus: 'UNKNOWN',
       registeredAddress: null,
-      sourceReference: 'Synthetic demo dataset (fictional entity)',
+      sourceReference: 'TinyTrace investigation history',
       firstSeenAt: legacy.addedAt,
       lastCheckedAt: latest?.completedAt || latest?.createdAt || legacy.addedAt,
       latestRiskStatus: legacyRiskVerdict(latest),
@@ -193,19 +230,12 @@ app.get('/api/health', (_req: Request, res: Response) => {
     service: 'TinyTrace Core Engine',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    storage: repositoryManager.getStorageStatus(),
+    storage: supabaseWorkspaceStore.getStorageStatus(),
+    supabaseConfigured: supabaseWorkspaceStore.isConfigured(),
     connectors: {
       indiacosConfigured: indiacos.isConfigured(),
       tinyfishConfigured: tinyfish.isConfigured(),
     },
-  });
-});
-
-app.get('/api/auth/config', (_req: Request, res: Response) => {
-  res.json({
-    authRequired: process.env.ENABLE_AUTH === 'true',
-    clientId: process.env.GOOGLE_CLIENT_ID || null,
-    configurationReady: Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && (process.env.GOOGLE_ALLOWED_DOMAIN?.trim() || process.env.GOOGLE_ALLOWED_EMAILS?.split(',').some((email) => email.trim()))),
   });
 });
 
@@ -401,15 +431,29 @@ app.post('/api/integrations/tinyfish/verify-suite', async (_req: Request, res: R
 
 // API: Repository & Persistence Status
 app.get('/api/repository/status', (_req: Request, res: Response) => {
+  const workspaceStatus = supabaseWorkspaceStore.getStorageStatus();
+  const repositoryStatus = db.getStorageMode();
   res.json({
-    status: repositoryManager.getStorageStatus(),
+    status: {
+      ...workspaceStatus,
+      activeAdapterName: `${workspaceStatus.activeAdapterName} + ${repositoryStatus.activeAdapterName}`,
+      isDurable: workspaceStatus.isDurable && repositoryStatus.isDurable,
+      warning: workspaceStatus.warning || repositoryStatus.warning,
+    },
   });
 });
 
 // API: Trigger Synthetic Persistence Verification (CRUD test)
 app.post('/api/repository/verify-persistence', async (_req: Request, res: Response) => {
   try {
-    const report = await runRepositoryVerification();
+    const workspaceReport = await supabaseWorkspaceStore.checkConnection();
+    const repositoryReport = await db.checkConnection?.() || { success: false, details: ['[FAIL] Domain repository durability is not configured.'] };
+    const report = {
+      success: workspaceReport.success && repositoryReport.success,
+      assertionsPassed: workspaceReport.assertionsPassed + (repositoryReport.success ? 1 : 0),
+      assertionsFailed: workspaceReport.assertionsFailed + (repositoryReport.success ? 0 : 1),
+      details: [...workspaceReport.details, ...repositoryReport.details],
+    };
     res.json(report);
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Verification test failed' });
@@ -572,8 +616,8 @@ app.post('/api/investigations', async (req: Request, res: Response) => {
   const cleanTargetName = targetName.trim();
   const syntheticNames = /\b(synthetic|fictional|demo vendor|demo entity|placeholder|test entity|sample entity)\b/i.test(cleanTargetName);
   const syntheticIds = /\b(synthetic|fictional|placeholder|dummy|example|test|demo)\b/i.test(cleanVal) ||
-    [FICTIONAL_CIN, 'AAA-9999', 'U72900MH2023PTC888888'].includes(cleanVal);
-  if (!useMock && (syntheticNames || syntheticIds)) {
+    ['U99999XX2024PTC999999', 'AAA-9999', 'U72900MH2023PTC888888'].includes(cleanVal);
+  if (syntheticNames || syntheticIds) {
     res.status(400).json({ error: 'Live investigation is blocked for synthetic demo targets and placeholder identifiers.' });
     return;
   }
@@ -1052,7 +1096,7 @@ app.post('/api/investigations/tinyfish/cancel', asyncHandler(async (req: Request
 // API: Honest polling fallback for TinyFish run status
 app.get('/api/investigations/tinyfish/runs/:id', asyncHandler(async (req: Request, res: Response) => {
   const runId = req.params.id;
-  const useMock = req.query.useMock === 'true';
+  const useMock = false;
   const statusEvent = await tinyfishStreamingClient.pollRunStatus(runId, useMock);
   res.json(statusEvent);
 }));
@@ -1379,6 +1423,89 @@ app.post('/api/monitoring/compare', asyncHandler(async (req: Request, res: Respo
   res.json(comparison);
 }));
 
+const monitoringFrequencies: AutomatedMonitoringFrequency[] = ['DAILY', 'WEEKLY', 'MONTHLY'];
+
+app.get('/api/monitoring/jobs', asyncHandler(async (_req: Request, res: Response) => {
+  res.json({ jobs: await supabaseWorkspaceStore.listMonitorJobs() });
+}));
+
+app.post('/api/monitoring/jobs', asyncHandler(async (req: Request, res: Response) => {
+  const { reportId } = req.body || {};
+  const frequency = req.body?.frequency as AutomatedMonitoringFrequency;
+  if (typeof reportId !== 'string' || !monitoringFrequencies.includes(frequency)) {
+    res.status(400).json({ error: 'Choose a saved report and a DAILY, WEEKLY, or MONTHLY frequency.' });
+    return;
+  }
+  const stored = await supabaseWorkspaceStore.loadSnapshot();
+  const baseline = stored.snapshot?.investigations.find((item) => item.id === reportId);
+  if (!baseline) {
+    res.status(404).json({ error: 'The selected report was not found in the saved Supabase workspace.' });
+    return;
+  }
+  if (baseline.executionMode === 'DEMO') {
+    res.status(400).json({ error: 'Automated monitoring requires a live report. Synthetic demo reports cannot be scheduled.' });
+    return;
+  }
+  if (baseline.status !== 'COMPLETED') {
+    res.status(400).json({ error: 'Only completed live reports can be scheduled for monitoring.' });
+    return;
+  }
+
+  const identity = `${baseline.identifierType}_${baseline.identifierValue || baseline.targetName}`
+    .trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 150);
+  const now = new Date();
+  const saved = await supabaseWorkspaceStore.saveMonitorJob({
+    monitorId: `mon_${identity}`,
+    companyName: baseline.targetName,
+    identifierType: baseline.identifierType,
+    identifierValue: baseline.identifierValue,
+    baselineReportId: baseline.id,
+    frequency,
+    enabled: true,
+    lastCheckedAt: null,
+    nextCheckAt: getNextMonitoringCheck(frequency, now).toISOString(),
+    lastError: null,
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+  });
+  res.status(201).json({ job: saved });
+}));
+
+app.patch('/api/monitoring/jobs/:monitorId', asyncHandler(async (req: Request, res: Response) => {
+  if (typeof req.body?.enabled !== 'boolean') {
+    res.status(400).json({ error: 'enabled must be true or false.' });
+    return;
+  }
+  const jobs = await supabaseWorkspaceStore.listMonitorJobs();
+  const job = jobs.find((item) => item.monitorId === req.params.monitorId);
+  if (!job) {
+    res.status(404).json({ error: 'Automated monitor not found.' });
+    return;
+  }
+  const enabled = req.body.enabled as boolean;
+  await supabaseWorkspaceStore.updateMonitorJob(job.monitorId, {
+    enabled,
+    nextCheckAt: enabled ? getNextMonitoringCheck(job.frequency).toISOString() : job.nextCheckAt,
+    lastError: null,
+  });
+  res.json({ success: true });
+}));
+
+app.delete('/api/monitoring/jobs/:monitorId', asyncHandler(async (req: Request, res: Response) => {
+  await supabaseWorkspaceStore.deleteMonitorJob(req.params.monitorId);
+  res.json({ success: true });
+}));
+
+app.get('/api/monitoring/notifications', asyncHandler(async (req: Request, res: Response) => {
+  const unreadOnly = req.query.unread === 'true';
+  res.json({ notifications: await supabaseWorkspaceStore.listMonitoringNotifications(unreadOnly) });
+}));
+
+app.patch('/api/monitoring/notifications/:notificationId/read', asyncHandler(async (req: Request, res: Response) => {
+  await supabaseWorkspaceStore.markMonitoringNotificationRead(req.params.notificationId);
+  res.json({ success: true });
+}));
+
 // API: Alias for compare under investigations namespace
 app.post('/api/investigations/compare', asyncHandler(async (req: Request, res: Response) => {
   const { previousInvestigationId, latestInvestigationId, previousInvestigation, latestInvestigation } = req.body;
@@ -1410,23 +1537,6 @@ app.post('/api/investigations/compare', asyncHandler(async (req: Request, res: R
   });
   res.json(comparison);
 }));
-
-// API: Get Monitoring Frequency Configuration & Notice
-app.get('/api/monitoring/config/:vendorId', (req: Request, res: Response) => {
-  const config = changeDetectionService.getMonitoringConfig(req.params.vendorId);
-  res.json(config);
-});
-
-// API: Set Monitoring Frequency Preference (Saves preference with explicit inactive-scheduler notice)
-app.post('/api/monitoring/config/:vendorId', (req: Request, res: Response) => {
-  const { preference } = req.body || {};
-  if (!preference) {
-    res.status(400).json({ error: 'preference is required (DAILY | WEEKLY | MONTHLY | MANUAL_ONLY)' });
-    return;
-  }
-  const config = changeDetectionService.setMonitoringPreference(req.params.vendorId, preference);
-  res.json(config);
-});
 
 // API: Run Phase 3 Change Detection & Network Graph Test Suite
 app.post('/api/monitoring/verify-suite', async (_req: Request, res: Response) => {
@@ -1463,7 +1573,12 @@ app.get('/api/vendors', asyncHandler(async (req: Request, res: Response) => {
       limit,
       hasMore: offset + limit < allVendors.length,
     },
-    storageStatus: repositoryManager.getStorageStatus(),
+    storageStatus: {
+      ...supabaseWorkspaceStore.getStorageStatus(),
+      activeAdapterName: `${supabaseWorkspaceStore.getStorageStatus().activeAdapterName} + ${db.getStorageMode().activeAdapterName}`,
+      isDurable: supabaseWorkspaceStore.getStorageStatus().isDurable && db.getStorageMode().isDurable,
+      warning: supabaseWorkspaceStore.getStorageStatus().warning || db.getStorageMode().warning,
+    },
   });
 }));
 
@@ -1502,7 +1617,7 @@ const exportPdf = (req: Request, res: Response) => {
     securityService.logAudit({
       eventType: 'REPORT_EXPORTED_PDF',
       workspaceId: 'default_ws',
-      userId: (req as AuthenticatedRequest).authenticatedUser?.email || 'local_development_user',
+      userId: 'local_development_user',
       targetEntity: inv.targetName,
       details: { reportId: inv.id, byteSize: pdfBytes.length },
     });
@@ -1530,7 +1645,7 @@ const exportCsv = (req: Request, res: Response) => {
     securityService.logAudit({
       eventType: 'REPORT_EXPORTED_CSV',
       workspaceId: 'default_ws',
-      userId: (req as AuthenticatedRequest).authenticatedUser?.email || 'local_development_user',
+      userId: 'local_development_user',
       targetEntity: inv.targetName,
       details: { reportId: inv.id },
     });
@@ -1657,12 +1772,16 @@ app.use(globalErrorSanitizer);
 
 // Frontend serving & Vite Integration
 async function startServer() {
-  const authEnabled = process.env.ENABLE_AUTH === 'true';
-  if (process.env.NODE_ENV === 'production' && !authEnabled) {
-    throw new Error('Production startup requires ENABLE_AUTH=true.');
+  if (db.getStorageMode().isDurable) {
+    const domainStorageCheck = await db.checkConnection?.();
+    if (!domainStorageCheck?.success) throw new Error(`Supabase domain repository check failed: ${domainStorageCheck?.details.join(' ') || 'adapter is unavailable'}`);
   }
-  if (authEnabled && (!process.env.GOOGLE_CLIENT_ID?.trim() || (!process.env.GOOGLE_ALLOWED_DOMAIN?.trim() && !process.env.GOOGLE_ALLOWED_EMAILS?.split(',').some((email) => email.trim())))) {
-    throw new Error('ENABLE_AUTH requires GOOGLE_CLIENT_ID and either GOOGLE_ALLOWED_DOMAIN or GOOGLE_ALLOWED_EMAILS.');
+  if (process.env.NODE_ENV === 'production' && !supabaseWorkspaceStore.isConfigured()) {
+    throw new Error('Production startup requires SUPABASE_URL and SUPABASE_SECRET_KEY for durable workspace storage.');
+  }
+  if (process.env.NODE_ENV === 'production') {
+    const storageCheck = await supabaseWorkspaceStore.checkConnection();
+    if (!storageCheck.success) throw new Error(`Supabase storage check failed: ${storageCheck.details.join(' ')}`);
   }
 
   if (process.env.NODE_ENV !== 'production') {
@@ -1680,7 +1799,8 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[TinyTrace Server] Running on http://0.0.0.0:${PORT}`);
-    console.log(`[TinyTrace Persistence] Active Adapter: ${repositoryManager.getStorageStatus().activeAdapterName} (Durable: ${repositoryManager.getStorageStatus().isDurable})`);
+    console.log(`[TinyTrace Persistence] Active Adapter: ${supabaseWorkspaceStore.getStorageStatus().activeAdapterName} (Durable: ${supabaseWorkspaceStore.getStorageStatus().isDurable})`);
+    monitoringScheduler.start(PORT);
   });
 }
 

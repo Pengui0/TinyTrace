@@ -9,7 +9,6 @@ export interface CustomVendorSearchInput {
 
 export interface CustomResolverPayload extends CustomVendorSearchInput {
   query: string;
-  useMock: boolean;
   selectedCandidate?: CandidateEntity;
 }
 
@@ -18,7 +17,7 @@ export function openCustomVendorSearch(setTab: (tab: 'investigations') => void, 
   setSubTab('resolution');
 }
 
-export function buildCustomResolverPayload(input: CustomVendorSearchInput, useMock: boolean, selectedCandidate?: CandidateEntity): CustomResolverPayload {
+export function buildCustomResolverPayload(input: CustomVendorSearchInput, selectedCandidate?: CandidateEntity): CustomResolverPayload {
   const legalName = input.legalName.trim();
   const cin = input.cin.trim().toUpperCase();
   const gstin = input.gstin.trim().toUpperCase();
@@ -32,7 +31,7 @@ export function buildCustomResolverPayload(input: CustomVendorSearchInput, useMo
       if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') throw new Error();
     } catch { throw new Error('Enter a valid public website URL beginning with http:// or https://.'); }
   }
-  return { legalName, cin, gstin, websiteUrl, query: cin || gstin || legalName, useMock, ...(selectedCandidate ? { selectedCandidate } : {}) };
+  return { legalName, cin, gstin, websiteUrl, query: cin || gstin || legalName, ...(selectedCandidate ? { selectedCandidate } : {}) };
 }
 
 export function isValidCandidate(value: unknown): value is CandidateEntity {
@@ -43,10 +42,6 @@ export function isValidCandidate(value: unknown): value is CandidateEntity {
     && ['CIN', 'LLPIN', 'GSTIN', 'PAN'].includes(candidate.identifierType)
     && typeof candidate.identifierValue === 'string' && candidate.identifierValue.trim().length > 0
     && typeof candidate.companyStatus === 'string' && typeof candidate.entityType === 'string';
-}
-
-export function resolutionModeLabel(isMock: boolean): 'Demo fixture' | 'Live provider' {
-  return isMock ? 'Demo fixture' : 'Live provider';
 }
 
 export function profileMatchesCandidate(profile: { canonicalName?: string; cin?: string | null; formerCins?: string[]; llpin?: string | null; gstins?: string[]; pan?: string | null }, candidate: CandidateEntity): boolean {

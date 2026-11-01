@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useMemo, useState } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { InvestigationSearchFilter, FilterState } from './InvestigationSearchFilter.js';
@@ -83,7 +83,7 @@ export const InvestigationHistoryView: React.FC<InvestigationHistoryViewProps> =
                     <strong className="text-xs text-[#1C1F26]">{inv.targetName}</strong>
                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white border border-[#E4E9EB]">{inv.identifierType}: {inv.identifierValue || 'Not provided'}</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">{inv.status === 'PARTIAL_FAILURE' ? 'PARTIAL COVERAGE' : inv.status}</span>
-                    {inv.executionMode && <span className={`text-[10px] px-1.5 py-0.5 rounded ${inv.executionMode === 'DEMO' ? 'bg-purple-50 text-purple-800' : 'bg-blue-50 text-blue-800'}`}>{inv.executionMode === 'DEMO' ? 'Demo' : 'Live'}</span>}
+                    <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] text-blue-800">Live</span>
                   </div>
                   <div className="text-[11px] text-[#687385] flex flex-wrap gap-x-3 gap-y-1">
                     <span>{new Date(inv.createdAt).toLocaleString()}</span><span>Report: <span className="font-mono">{inv.id}</span></span>

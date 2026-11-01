@@ -1,12 +1,16 @@
+import { apiFetch } from '../api/apiFetch.js';
 import type { Investigation } from '../types/vendor.js';
 import type { Vendor } from '../types/domain.js';
 import type { MonitoringConfig, RunComparisonReport } from '../types/monitoringDiff.js';
+import { removeSyntheticDemoData } from '../utils/workspaceData.js';
 
 export const STORAGE_KEY = 'tinytrace.workspace';
 const LEGACY_STORAGE_KEY = 'vendortrace.workspace';
 export const STORAGE_VERSION = 1;
 let storageReadError: string | null = null;
 export const getStorageReadError = () => storageReadError;
+let remotePersistenceReady = false;
+let remoteSaveQueue: Promise<void> = Promise.resolve();
 
 export interface WorkspaceSnapshot {
   investigations: Investigation[];
@@ -27,6 +31,8 @@ export const emptyWorkspace = (): WorkspaceSnapshot => ({
   investigations: [], vendors: [], comparisons: [], monitoringConfigs: {}, preferences: {}, searchHistory: [],
 });
 
+let workspaceCache = emptyWorkspace();
+
 function validWorkspace(value: unknown): value is WorkspaceSnapshot {
   if (!value || typeof value !== 'object') return false;
   const v = value as Partial<WorkspaceSnapshot>;
@@ -39,15 +45,14 @@ function validWorkspace(value: unknown): value is WorkspaceSnapshot {
 export function migrateWorkspace(raw: unknown): WorkspaceSnapshot {
   if (!raw || typeof raw !== 'object') return emptyWorkspace();
   const envelope = raw as { version?: unknown; data?: unknown };
-  if (envelope.version === STORAGE_VERSION && validWorkspace(envelope.data)) return envelope.data;
+  if (envelope.version === STORAGE_VERSION && validWorkspace(envelope.data)) return removeSyntheticDemoData(envelope.data);
   // v0 migration accepts the early unversioned snapshot without discarding records.
-  if (envelope.version === undefined && validWorkspace(raw)) return raw;
+  if (envelope.version === undefined && validWorkspace(raw)) return removeSyntheticDemoData(raw);
   throw new Error('Unsupported or malformed TinyTrace storage. Existing data was left untouched.');
 }
 
-export function loadWorkspace(storage?: StorageLike): WorkspaceSnapshot {
-  const target = storage ?? (typeof window !== 'undefined' ? window.localStorage : undefined);
-  if (!target) return emptyWorkspace();
+function loadWorkspaceFromStorage(storage: StorageLike): WorkspaceSnapshot {
+  const target = storage;
   const serialized = target.getItem(STORAGE_KEY) ?? target.getItem(LEGACY_STORAGE_KEY);
   if (!serialized) return emptyWorkspace();
   try { return migrateWorkspace(JSON.parse(serialized)); }
@@ -58,9 +63,62 @@ export function loadWorkspace(storage?: StorageLike): WorkspaceSnapshot {
   }
 }
 
+export function loadWorkspace(storage?: StorageLike): WorkspaceSnapshot {
+  return storage ? loadWorkspaceFromStorage(storage) : workspaceCache;
+}
+
+export function hydrateWorkspace(snapshot: WorkspaceSnapshot): void {
+  workspaceCache = removeSyntheticDemoData(migrateWorkspace(snapshot));
+  remotePersistenceReady = true;
+}
+
+export function readLegacyWorkspaceForMigration(): { snapshot: WorkspaceSnapshot | null; error: string | null } {
+  if (typeof window === 'undefined') return { snapshot: null, error: null };
+  try {
+    const serialized = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(LEGACY_STORAGE_KEY);
+    return serialized ? { snapshot: migrateWorkspace(JSON.parse(serialized)), error: null } : { snapshot: null, error: null };
+  } catch (error) {
+    return {
+      snapshot: null,
+      error: error instanceof Error ? error.message : 'The old browser workspace could not be read. Export or repair it before migration.',
+    };
+  }
+}
+
+export function clearLegacyBrowserWorkspace(): void {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(STORAGE_KEY);
+  window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+}
+
+function reportRemoteSaveError(error: unknown): void {
+  const message = error instanceof Error ? error.message : 'Workspace changes could not be saved to Supabase.';
+  storageReadError = message;
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('tinytrace-storage-error', { detail: message }));
+}
+
+function enqueueRemoteSave(snapshot: WorkspaceSnapshot): void {
+  remoteSaveQueue = remoteSaveQueue.then(async () => {
+    const response = await apiFetch('/api/workspace', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ snapshot }),
+    });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({})) as { error?: string };
+      throw new Error(result.error || `Supabase workspace save failed (HTTP ${response.status}).`);
+    }
+  }).catch(reportRemoteSaveError);
+}
+
 export function saveWorkspace(snapshot: WorkspaceSnapshot, storage?: StorageLike): boolean {
-  const target = storage ?? (typeof window !== 'undefined' ? window.localStorage : undefined);
-  if (!target) return false;
+  snapshot = removeSyntheticDemoData(snapshot);
+  if (!storage) {
+    workspaceCache = snapshot;
+    if (remotePersistenceReady) enqueueRemoteSave(snapshot);
+    return true;
+  }
+  const target = storage;
   try {
     const existing = target.getItem(STORAGE_KEY);
     if (existing) {
@@ -96,7 +154,19 @@ export function exportWorkspaceBackup(storage?: StorageLike): void {
   URL.revokeObjectURL(url);
 }
 
-export function clearWorkspace(storage?: StorageLike): void {
-  (storage ?? window.localStorage).removeItem(STORAGE_KEY);
-  (storage ?? window.localStorage).removeItem(LEGACY_STORAGE_KEY);
+export function clearWorkspace(storage?: StorageLike): void | Promise<void> {
+  if (storage) {
+    storage.removeItem(STORAGE_KEY);
+    storage.removeItem(LEGACY_STORAGE_KEY);
+    return;
+  }
+  workspaceCache = emptyWorkspace();
+  if (remotePersistenceReady) {
+    const clearRequest = remoteSaveQueue.then(async () => {
+      const response = await apiFetch('/api/workspace', { method: 'DELETE' });
+      if (!response.ok) throw new Error(`Supabase workspace clear failed (HTTP ${response.status}).`);
+    });
+    remoteSaveQueue = clearRequest.catch(reportRemoteSaveError);
+    return clearRequest;
+  }
 }

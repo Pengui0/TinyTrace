@@ -1,4 +1,4 @@
-import { apiFetch } from './api/authenticatedFetch.js';
+import { apiFetch } from './api/apiFetch.js';
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -6,7 +6,6 @@ import { apiFetch } from './api/authenticatedFetch.js';
 
 import React, { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { PanelLeftOpen } from 'lucide-react';
-import { GoogleSignInGate } from './components/auth/GoogleSignInGate.js';
 import { Sidebar, NavigationTab } from './components/layout/Sidebar.js';
 import { Topbar } from './components/layout/Topbar.js';
 import { HelpModal } from './components/common/HelpModal.js';
@@ -14,23 +13,23 @@ import { ConnectorModal } from './components/common/ConnectorModal.js';
 import { IdentifierType, Investigation, SourceConnector, WorkspaceStats } from './types/vendor.js';
 import { getInvestigationIdentityKey, keepLatestInvestigationPerIdentity } from './utils/investigationIdentity.js';
 import { openCustomVendorSearch } from './components/overview/customVendorSearch.js';
-import { getStorageReadError, loadWorkspace, updateWorkspace, WorkspaceSnapshot } from './persistence/localStore.js';
+import { clearLegacyBrowserWorkspace, emptyWorkspace, getStorageReadError, hydrateWorkspace, loadWorkspace, readLegacyWorkspaceForMigration, updateWorkspace, WorkspaceSnapshot } from './persistence/localStore.js';
 import { applyFindingReviewResults, getHumanReviewCount } from './utils/reviewPolicy.js';
 
 const OverviewView = lazy(() => import('./components/overview/OverviewView.js').then((module) => ({ default: module.OverviewView })));
 const InvestigationView = lazy(() => import('./components/investigations/InvestigationView.js').then((module) => ({ default: module.InvestigationView })));
 const VendorsView = lazy(() => import('./components/vendors/VendorsView.js').then((module) => ({ default: module.VendorsView })));
 const MonitoringView = lazy(() => import('./components/monitoring/MonitoringView.js').then((module) => ({ default: module.MonitoringView })));
+const AutomatedMonitoringView = lazy(() => import('./components/monitoring/AutomatedMonitoringView.js').then((module) => ({ default: module.AutomatedMonitoringView })));
+const MonitoringNotificationsView = lazy(() => import('./components/monitoring/MonitoringNotificationsView.js').then((module) => ({ default: module.MonitoringNotificationsView })));
 const SettingsView = lazy(() => import('./components/settings/SettingsView.js').then((module) => ({ default: module.SettingsView })));
-const DemoScenarioWalkthrough = lazy(() => import('./components/investigations/DemoScenarioWalkthrough.js').then((module) => ({ default: module.DemoScenarioWalkthrough })));
 const InvestigationHistoryView = lazy(() => import('./components/investigations/InvestigationHistoryView.js').then((module) => ({ default: module.InvestigationHistoryView })));
 const LiveEvidenceView = lazy(() => import('./components/investigations/LiveEvidenceView.js').then((module) => ({ default: module.LiveEvidenceView })));
 const LandingPage = lazy(() => import('./components/landing/LandingPage.js').then((module) => ({ default: module.LandingPage })));
 
-function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
+function DashboardApp() {
   const [savedWorkspace] = useState<WorkspaceSnapshot>(() => loadWorkspace());
   const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => savedWorkspace.preferences.executionMode !== 'LIVE');
   const [workspace] = useState('Tata Steel Ltd. • Vendor Due Diligence');
   const [stats, setStats] = useState<WorkspaceStats | null>(null);
   const [connectors, setConnectors] = useState<SourceConnector[]>([]);
@@ -44,6 +43,8 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
   const [investigationSubTab, setInvestigationSubTab] = useState<'resolution' | 'evidence' | 'graph' | 'sources'>('evidence');
   const [investigationDraft, setInvestigationDraft] = useState<{ targetName: string; identifierType: IdentifierType; identifierValue: string } | null>(null);
   const [monitoringSelection, setMonitoringSelection] = useState<{ baselineId: string; latestId: string } | null>(null);
+  const [automatedMonitorReportId, setAutomatedMonitorReportId] = useState<string | null>(null);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [investigationWorkspaceKey, setInvestigationWorkspaceKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isReviewProcessing, setIsReviewProcessing] = useState(() => savedWorkspace.investigations.some((item) =>
@@ -79,6 +80,8 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
     updateWorkspace((current) => ({ ...current, preferences: { ...current.preferences, sidebarCollapsed: collapsed } }));
   };
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const [workspaceLoadError, setWorkspaceLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (getStorageReadError()) setStorageWarning(getStorageReadError());
@@ -88,13 +91,93 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
   }, []);
 
   useEffect(() => {
-    updateWorkspace((current) => ({ ...current, investigations }));
-  }, [investigations]);
+    if (workspaceReady) updateWorkspace((current) => ({ ...current, investigations }));
+  }, [investigations, workspaceReady]);
+
+  useEffect(() => {
+    if (!workspaceReady) return;
+    let active = true;
+    const refreshUnreadNotifications = async () => {
+      try {
+        const response = await apiFetch('/api/monitoring/notifications?unread=true');
+        if (!response.ok) return;
+        const data = await response.json() as { notifications?: Array<{ id: string }> };
+        if (active) setUnreadNotificationCount(data.notifications?.length || 0);
+      } catch {
+        // Badge refresh is best-effort; the Notifications tab reports its own loading errors.
+      }
+    };
+    void refreshUnreadNotifications();
+    const timer = window.setInterval(() => void refreshUnreadNotifications(), 30_000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [workspaceReady]);
+
+  useEffect(() => {
+    if (!workspaceReady || !['overview', 'history', 'monitoring', 'auto-monitoring'].includes(currentTab)) return;
+    let active = true;
+    const refreshSavedReports = async () => {
+      try {
+        const response = await apiFetch('/api/workspace');
+        if (!response.ok) return;
+        const data = await response.json() as { snapshot?: WorkspaceSnapshot | null };
+        if (!active || !data.snapshot) return;
+        hydrateWorkspace(data.snapshot);
+        setInvestigations(data.snapshot.investigations);
+        setCurrentInvestigation((current) => current
+          ? data.snapshot!.investigations.find((item) => item.id === current.id) || current
+          : null);
+      } catch {
+        // Reopening a monitoring/report view refreshes its persisted state when available.
+      }
+    };
+    void refreshSavedReports();
+    const timer = currentTab === 'auto-monitoring'
+      ? window.setInterval(() => void refreshSavedReports(), 30_000)
+      : null;
+    return () => { active = false; if (timer) window.clearInterval(timer); };
+  }, [currentTab, workspaceReady]);
 
   // Fetch initial system state
   const loadWorkspaceData = async () => {
-    let mergedInvestigations = [...savedWorkspace.investigations];
+    let mergedInvestigations: Investigation[] = [];
     try {
+      setWorkspaceLoadError(null);
+      const workspaceRes = await apiFetch('/api/workspace');
+      const workspaceData = await workspaceRes.json().catch(() => ({})) as { exists?: boolean; snapshot?: WorkspaceSnapshot | null; error?: string };
+      if (!workspaceRes.ok) throw new Error(workspaceData.error || `Supabase workspace could not be loaded (HTTP ${workspaceRes.status}).`);
+
+      let snapshot = workspaceData.snapshot || null;
+      if (!workspaceData.exists || !snapshot) {
+        const legacy = readLegacyWorkspaceForMigration();
+        if (legacy.error) throw new Error(`Legacy browser data was not imported: ${legacy.error}`);
+        snapshot = legacy.snapshot || emptyWorkspace();
+        const importRes = await apiFetch('/api/workspace', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ snapshot }),
+        });
+        if (!importRes.ok) {
+          const importData = await importRes.json().catch(() => ({})) as { error?: string };
+          throw new Error(importData.error || `Workspace migration to Supabase failed (HTTP ${importRes.status}).`);
+        }
+        clearLegacyBrowserWorkspace();
+      }
+
+      hydrateWorkspace(snapshot);
+      mergedInvestigations = [...snapshot.investigations];
+      setInvestigations(mergedInvestigations);
+      const savedCurrentId = snapshot.preferences.currentInvestigationId;
+      setCurrentInvestigation(typeof savedCurrentId === 'string'
+        ? mergedInvestigations.find((item) => item.id === savedCurrentId) || null
+        : null);
+      if (snapshot.preferences.executionMode !== 'LIVE') {
+        snapshot = { ...snapshot, preferences: { ...snapshot.preferences, executionMode: 'LIVE' } };
+        hydrateWorkspace(snapshot);
+        updateWorkspace((current) => ({ ...current, preferences: { ...current.preferences, executionMode: 'LIVE' } }));
+      }
+      setIsSidebarCollapsed(snapshot.preferences.sidebarCollapsed === true);
+      setWorkspaceReady(true);
+
       // 1. Health check
       const healthRes = await apiFetch('/api/health');
       if (healthRes.ok) {
@@ -119,7 +202,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
       const invRes = await apiFetch('/api/investigations');
       if (invRes.ok) {
         const invData = await invRes.json();
-        // An empty dev-server repository is not authoritative over browser history.
+        // Supabase workspace history is authoritative; the API contributes server-side investigation records.
         if (invData.investigations?.length) {
           const merged = new Map(mergedInvestigations.map((item) => [item.id, item]));
           invData.investigations.forEach((item: Investigation) => merged.set(item.id, item));
@@ -170,7 +253,9 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
     } catch (err) {
       console.error('Error loading initial workspace data:', err);
       setIsBackendHealthy(false);
+      setWorkspaceLoadError(err instanceof Error ? err.message : 'Supabase workspace could not be loaded.');
     } finally {
+      setWorkspaceReady(true);
       setIsReviewProcessing(false);
     }
   };
@@ -200,7 +285,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...params, useMock: isDemoMode, clientRunId }),
+        body: JSON.stringify({ ...params, useMock: false, clientRunId }),
       });
 
       if (!res.ok) {
@@ -259,11 +344,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
   };
 
   const handleSelectInvestigation = async (id: string) => {
-    let found = investigations.find((investigation) => investigation.id === id);
-    if (!found && (id === 'inv_demo_run_01' || id === 'inv_demo_run_02')) {
-      const { DEMO_INVESTIGATION_RUN_1, DEMO_INVESTIGATION_RUN_2 } = await import('./server/demo/demoDataset.js');
-      found = id === DEMO_INVESTIGATION_RUN_1.id ? DEMO_INVESTIGATION_RUN_1 : id === DEMO_INVESTIGATION_RUN_2.id ? DEMO_INVESTIGATION_RUN_2 : undefined;
-    }
+    const found = investigations.find((investigation) => investigation.id === id);
     if (found) {
       setInvestigationDraft(null);
       setMonitoringSelection(null);
@@ -314,26 +395,6 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
     });
   };
 
-  const handleLoadScenarioStep = async (stepNumber: number) => {
-    const { DEMO_INVESTIGATION_RUN_1, DEMO_INVESTIGATION_RUN_2 } = await import('./server/demo/demoDataset.js');
-    if (stepNumber === 1) {
-      setCurrentInvestigation(DEMO_INVESTIGATION_RUN_1);
-      setCurrentTab('investigations');
-      setInvestigationSubTab('resolution');
-    } else if (stepNumber === 4) {
-      setCurrentInvestigation(DEMO_INVESTIGATION_RUN_1);
-      setCurrentTab('investigations');
-      setInvestigationSubTab('graph');
-    } else if (stepNumber <= 5) {
-      setCurrentInvestigation(DEMO_INVESTIGATION_RUN_1);
-      setCurrentTab('investigations');
-      setInvestigationSubTab('evidence');
-    } else {
-      setCurrentInvestigation(DEMO_INVESTIGATION_RUN_2);
-      setCurrentTab('monitoring');
-    }
-  };
-
   const activeConnectorsCount = connectors.filter((c) => c.status === 'HEALTHY').length;
   const unavailableConnectorsCount = connectors.filter((c) => c.status === 'UNAVAILABLE').length;
   const uniqueInvestigationCount = keepLatestInvestigationPerIdentity(investigations).length;
@@ -345,8 +406,25 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
     highRiskFlags: investigations.reduce((total, item) => total + (item.findingsCount.materialRisk || 0), 0),
   } : stats;
 
+  if (!workspaceReady) {
+    return <main className="flex h-screen items-center justify-center bg-[#F5F7F8] text-sm text-[#687385]">Loading TinyTrace workspace from Supabase…</main>;
+  }
+
+  if (workspaceLoadError) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#F5F7F8] px-4 py-10">
+        <section className="w-full max-w-xl rounded-2xl border border-amber-200 bg-white p-7 shadow-sm">
+          <h1 className="text-lg font-bold text-[#1C1F26]">Supabase workspace unavailable</h1>
+          <p className="mt-2 text-sm leading-relaxed text-[#687385]">{workspaceLoadError}</p>
+          <p className="mt-3 text-xs leading-relaxed text-[#687385]">Run <code>supabase/schema.sql</code> in the Supabase SQL Editor, set <code>SUPABASE_URL</code> and <code>SUPABASE_SECRET_KEY</code> in the server environment, then restart TinyTrace. Existing browser data is only removed after a successful import.</p>
+          <button type="button" onClick={loadWorkspaceData} className="mt-5 rounded-lg bg-[#087F61] px-4 py-2 text-sm font-semibold text-white hover:bg-[#066C53]">Retry connection</button>
+        </section>
+      </main>
+    );
+  }
+
   return (
-    <div className="dashboard-canvas h-screen flex overflow-hidden bg-[#F5F7F8] text-[#1C1F26]">
+    <div className="dashboard-canvas h-dvh w-full flex overflow-hidden bg-[#F5F7F8] text-[#1C1F26]">
       {/* Desktop Sidebar */}
       <div className={`hidden md:block h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-0' : 'w-[286px]'}`}>
         <Sidebar
@@ -356,6 +434,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
           activeConnectorsCount={activeConnectorsCount}
           unavailableConnectorsCount={unavailableConnectorsCount}
           totalConnectorsCount={connectors.length}
+          unreadNotificationCount={unreadNotificationCount}
           onOpenHelp={() => setIsHelpModalOpen(true)}
           onStartInvestigation={() => openNewInvestigation()}
           isNewInvestigation={currentTab === 'investigations' && currentInvestigation === null}
@@ -394,6 +473,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
               activeConnectorsCount={activeConnectorsCount}
               unavailableConnectorsCount={unavailableConnectorsCount}
               totalConnectorsCount={connectors.length}
+              unreadNotificationCount={unreadNotificationCount}
               onOpenHelp={() => {
                 setIsHelpModalOpen(true);
                 setIsMobileMenuOpen(false);
@@ -417,13 +497,6 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
           onOpenHelp={() => setIsHelpModalOpen(true)}
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           isBackendHealthy={isBackendHealthy}
-          isDemoMode={isDemoMode}
-          onSignOut={onSignOut}
-          onToggleMode={(mode) => {
-            const demoMode = mode === 'DEMO';
-            setIsDemoMode(demoMode);
-            updateWorkspace((current) => ({ ...current, preferences: { ...current.preferences, executionMode: mode } }));
-          }}
         />
 
         {/* Global Notification Banner if present */}
@@ -443,17 +516,6 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
         {storageWarning && <div role="alert" className="px-5 py-2 text-xs bg-amber-100 text-amber-950 border-b border-amber-300 flex justify-between">{storageWarning}<button onClick={() => { setSettingsInitialTab('persistence'); setSettingsInstanceKey((key) => key + 1); setCurrentTab('settings'); }} className="underline font-semibold">Open backup options</button></div>}
         <main className="mx-auto w-full max-w-[1380px] flex-1 space-y-6 px-4 py-5 sm:px-6 md:py-7 xl:px-8">
           <Suspense fallback={<div className="rounded-xl border border-[#E4E9EB] bg-white p-6 text-sm text-[#687385]">Loading workspace view…</div>}>
-          {/* Guided Demo Walkthrough Banner when Demo Mode is active */}
-          {isDemoMode && currentTab === 'overview' && (
-            <DemoScenarioWalkthrough
-              isDemoMode={isDemoMode}
-              onLoadScenarioStep={handleLoadScenarioStep}
-              onSwitchToLive={() => {
-                setIsDemoMode(false);
-                updateWorkspace((current) => ({ ...current, preferences: { ...current.preferences, executionMode: 'LIVE' } }));
-              }}
-            />
-          )}
           {currentTab === 'overview' && (
             <OverviewView
               stats={displayStats}
@@ -462,9 +524,9 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
               isReviewProcessing={isReviewProcessing}
               onStartInvestigation={openNewInvestigation}
               onSelectInvestigation={handleSelectInvestigation}
+              onDeleteInvestigation={handleDeleteInvestigation}
               onSelectConnectorDetails={(conn) => setSelectedConnector(conn)}
               isLoading={isLoading}
-              onDirectInvestigate={(draft) => openNewInvestigation(draft)}
               onOpenCustomResolver={() => openCustomVendorSearch(
                 (tab) => handleNavigation(tab),
                 (tab) => setInvestigationSubTab(tab),
@@ -480,7 +542,6 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
               onInvestigate={handleInvestigate}
               onCancelInvestigation={handleCancelInvestigation}
               isLoading={isLoading}
-              isDemoMode={isDemoMode}
               activeSubTab={investigationSubTab}
               onSubTabChange={setInvestigationSubTab}
               onOpenMonitoring={() => setCurrentTab('monitoring')}
@@ -490,7 +551,6 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
           {currentTab === 'live-search' && (
             <LiveEvidenceView
               investigations={investigations}
-              isDemoMode={isDemoMode}
             />
           )}
 
@@ -529,13 +589,43 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
               investigations={investigations}
               selectedInvestigation={currentInvestigation}
               comparisonSelection={monitoringSelection}
-              isDemoMode={isDemoMode}
               onTriggerReRun={handleTriggerReRun}
               isLoading={isLoading}
               onInvestigationUpdated={(updated) => {
                 setInvestigations((prev) => [updated, ...prev.filter((i) => i.id !== updated.id)]);
                 setCurrentInvestigation(updated);
                 loadWorkspaceData();
+              }}
+              onOpenAutomatedMonitoring={(reportId) => {
+                setAutomatedMonitorReportId(reportId || null);
+                setCurrentTab('auto-monitoring');
+              }}
+            />
+          )}
+
+          {currentTab === 'auto-monitoring' && (
+            <AutomatedMonitoringView investigations={investigations} initialReportId={automatedMonitorReportId} />
+          )}
+
+          {currentTab === 'notifications' && (
+            <MonitoringNotificationsView
+              onUnreadCountChange={setUnreadNotificationCount}
+              onOpenComparison={async (comparisonId) => {
+                try {
+                  const response = await apiFetch('/api/workspace');
+                  if (response.ok) {
+                    const data = await response.json() as { snapshot?: WorkspaceSnapshot | null };
+                    if (data.snapshot) {
+                      hydrateWorkspace(data.snapshot);
+                      const comparison = data.snapshot.comparisons.find((item) => item.comparisonId === comparisonId);
+                      if (comparison) setMonitoringSelection({ baselineId: comparison.previousInvestigationId, latestId: comparison.latestInvestigationId });
+                      setInvestigations(data.snapshot.investigations);
+                    }
+                  }
+                } catch {
+                  // Still take the user to Compare reports if the refresh request fails.
+                }
+                setCurrentTab('monitoring');
               }}
             />
           )}
@@ -567,5 +657,5 @@ export default function App() {
     return <Suspense fallback={<div className="p-8 text-sm text-[#687385]">Loading TinyTrace…</div>}><LandingPage /></Suspense>;
   }
 
-  return <GoogleSignInGate>{(onSignOut) => <DashboardApp onSignOut={onSignOut} />}</GoogleSignInGate>;
+  return <DashboardApp />;
 }

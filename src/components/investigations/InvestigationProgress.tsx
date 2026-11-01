@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useEffect, useState } from 'react';
 import {
   CheckCircle2,

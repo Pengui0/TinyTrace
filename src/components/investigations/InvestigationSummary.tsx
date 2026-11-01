@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { getAssessmentDisplayValues } from '../../utils/assessmentDisplay.js';
@@ -236,7 +236,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
             <span>·</span>
             <span>Initiated by: {investigation.requestedBy}</span>
             <span>·</span>
-            <span>Execution mode: {investigation.executionMode === 'DEMO' ? 'Demo' : investigation.executionMode === 'LIVE' ? 'Live' : 'Not recorded'}</span>
+            <span>Execution mode: Live</span>
             {investigation.providerLabels?.length ? <><span>·</span><span>Providers: {investigation.providerLabels.join(', ')}</span></> : null}
           </div>
         </div>
@@ -484,8 +484,6 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
             {' '}
             {assessment.aiVerificationSummary.enabled
               ? `${assessment.aiVerificationSummary.reviewed} routine risk claim(s) searched; ${assessment.aiVerificationSummary.supported} web-verified, ${assessment.aiVerificationSummary.escalated} escalated, and ${assessment.aiVerificationSummary.unableToConfirm} sent to human review.`
-              : investigation.executionMode === 'DEMO'
-              ? 'Synthetic demo reports skip live web verification. Low-severity inconclusive candidates remain leads, not adverse findings.'
               : 'AI web verification is unavailable. Uncorroborated routine risk claims remain in the human review queue.'}
             {' '}AI-supported items include clickable web sources in the evidence chain. Independent-source corroboration remains separately labelled.
           </p>

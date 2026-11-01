@@ -249,7 +249,7 @@ export async function runChangeDetectionTests(): Promise<{
 
   const config = changeDetectionService.getMonitoringConfig('ven_test_01');
   assert(config.status === 'SCHEDULING_NOT_ENABLED_IN_THIS_DEPLOYMENT', 'Monitoring status explicitly declares scheduling not enabled');
-  assert(config.notice.includes('Scheduling not enabled'), 'Config notice contains explicit manual-only restriction');
+  assert(config.notice.includes('Automated monitoring is available'), 'Config notice points to the automated monitoring workflow');
 
   const updatedConfig = changeDetectionService.setMonitoringPreference('ven_test_01', 'WEEKLY');
   assert(updatedConfig.preference === 'WEEKLY', 'Preference saved');

@@ -7,7 +7,6 @@
 [![Build Status](https://img.shields.io/badge/build-passing-success)](#)
 [![Test Suite](https://img.shields.io/badge/tests-485%20passed%20%2F%200%20failed-success)](#)
 [![TypeScript](https://img.shields.io/badge/typescript-strict%20%E2%9C%93-blue)](#)
-[![Demo Mode](https://img.shields.io/badge/demo%20mode-deterministic%20synthetic-purple)](#)
 
 ---
 
@@ -15,14 +14,12 @@
 1. [Product Overview](#product-overview)
 2. [The 4-Layer Architecture](#the-4-layer-architecture)
 3. [6.5-Hour Hackathon MVP Alignment](#65-hour-hackathon-mvp-alignment)
-4. [Deterministic Demo Mode](#deterministic-demo-mode)
 5. [Professional Workflows & Exports](#professional-workflows--exports)
 6. [Security & Isolation](#security--isolation)
 7. [Integrations & Environment Secrets](#integrations--environment-secrets)
 8. [Storage Architecture](#storage-architecture)
 9. [Local Development & Testing](#local-development--testing)
 10. [Cloud Run Deployment Guide](#cloud-run-deployment-guide)
-11. [6-Step Hackathon Pitch & Demo Script](#6-step-hackathon-pitch--demo-script)
 
 ---
 
@@ -107,17 +104,6 @@ flowchart TD
 - **Audit History**: Vendor profile tracks longitudinal posture and trend (`IMPROVING`, `DETERIORATING`, `STABLE`).
 
 
-## Deterministic Demo Mode
-
-TinyTrace includes a **zero-dependency, offline-capable Demo Mode** designed for live stage presentations where external networks or API quotas might fluctuate.
-
-- **Synthetic Identity**: Target is `Acme Horizon Technologies Pvt Ltd (SYNTHETIC DEMO)` with synthetic CIN `U99999XX2024PTC999999`, GSTIN `99AAAAA9999A1Z5`, and DIN `99999999`. Real public companies are never used for synthetic risk signals.
-- **Prominent Disclaimers**: Every demo screen, PDF report, and CSV register displays the notice:
-  > `DEMO DATA — SYNTHETIC EXAMPLE: Entirely fictional corporate entity and evidence for demonstration purposes. Not real findings or allegations.`
-- **Switch to Live**: Toggle seamlessly to live mode with provider health checks and connectivity verification.
-
----
-
 ## Professional Workflows & Exports
 
 ### Multi-Attribute Search & Filter
@@ -160,32 +146,38 @@ TinyTrace keeps all credentials strictly server-side. **No API keys or auth head
 |---|---|---|
 | `GEMINI_API_KEY` | Recommended | Powers deterministic evidence summaries and brief compliance briefs. |
 | `TINYFISH_API_KEY` | Required | Required for live web crawling, litigation dockets, and SSE streaming. |
-| `INDIACOS_API_KEY` | Optional in Demo | Required for live MCA21 master data and Director DIN lookups. |
+| `INDIACOS_API_KEY` | Optional | Used for MCA21 master data and Director DIN lookups. |
 | `TINYTRACE_INVESTIGATION_TIMEOUT_MS` | Optional | Overall live investigation deadline in milliseconds (default and maximum: `120000`). |
 | `TINYTRACE_AGENT_TIMEOUT_MS` | Optional | Per-agent deadline in milliseconds (default: `45000`, maximum: `120000`). |
 | `TINYTRACE_AGENT_MAX_ATTEMPTS` | Optional | Total attempts per agent, including the first attempt (default and maximum: `2`; minimum: `1`). Authentication failures are never retried. |
 | `TINYTRACE_AGENT_RETRY_BACKOFF_MS` | Optional | Base retry backoff in milliseconds (default: `300`, maximum: `2000`). |
 | `PORT` | Optional | Application listening port (default: `3000`). |
 | `NODE_ENV` | Optional | Set to `production` or `development`. |
-| `ENABLE_AUTH` | Optional | Set to `true` to require Google sign-in for every API route except readiness and auth configuration. |
-| `GOOGLE_CLIENT_ID` | Required when auth is enabled | Google OAuth web client ID. Google Identity Services uses it in the sign-in screen; the server validates the ID-token audience. |
-| `GOOGLE_ALLOWED_DOMAIN` | One allowlist option required when auth is enabled | Exact Google Workspace domain allowed to sign in (for example, `example.com`). |
-| `GOOGLE_ALLOWED_EMAILS` | One allowlist option required when auth is enabled | Comma-separated exact verified Google email addresses allowed to sign in. Use this for personal Gmail accounts. |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Reserved | No Firestore repository adapter is wired in the current implementation; setting this variable alone does not enable durable storage. |
+| `SUPABASE_URL` | Required for workspace persistence | Project URL from Supabase, used only by the Node server. |
+| `SUPABASE_SECRET_KEY` | Required for workspace persistence | Supabase Secret API key (`sb_secret_...`), server only. It bypasses RLS; never put it in frontend variables, source control, or chat. |
+| `SUPABASE_WORKSPACE_ID` | Optional | Workspace row key; defaults to `default_ws` for this single shared workspace. |
 
 ---
 
-## Storage Architecture
+## Supabase Storage Setup
 
-The shipped implementation currently wires **`DevInMemoryRepositoryAdapter` only**:
+TinyTrace stores the application workspace in `public.tinytrace_workspace_snapshots` and server domain records (vendors, investigations, signals, evidence, relationships, and run comparisons) in `public.tinytrace_domain_records`. Automated schedules and their notifications use dedicated Supabase tables. Browser `localStorage` is used only once to import the existing workspace when the Supabase row is empty; the old browser keys are removed only after that import succeeds. Provider/API credentials remain server-side environment secrets. The app has no sign-in gate; restrict access at the hosting/network layer before exposing it publicly because the workspace is shared.
 
-- It is zero-configuration and seeded with deterministic demo datasets.
-- Vendor and investigation records are stored in process memory and may reset when the server restarts.
-- `firestore.rules` is included as a rules file, but a rules file alone does not implement database persistence.
-- **No `FirestoreRepositoryAdapter` is present or registered in this build.** Setting `FIREBASE_CONFIG` or `GOOGLE_APPLICATION_CREDENTIALS` alone does not make data durable.
-- App authentication validates Google Workspace ID-token signatures, issuer, audience, expiry, verified email, and the configured hosted domain. API tokens are held in browser memory and are not persisted in local storage.
-- The repository currently stores one shared workspace and does not isolate records per customer or Workspace domain. Google sign-in limits access to the configured domain; it does not make this a multi-tenant SaaS.
-- Implement and test an actual persistent repository adapter, access rules, and tenant isolation before describing this as durable multi-user SaaS or deploying with real customer data.
+1. In Supabase Dashboard, open **SQL Editor**, paste the complete [`supabase/schema.sql`](supabase/schema.sql) script, and run it. It creates the workspace snapshot, domain-record, automated-monitor, and notification tables; it is safe to run again when updating the schema.
+2. Copy the Supabase **Project URL** and create a **Secret API key** (`sb_secret_...`) in **Project Settings → API Keys**.
+3. Add these server-only values to `.env` for local use, or your host's environment settings for deployment:
+
+```env
+SUPABASE_URL="https://YOUR_PROJECT_REF.supabase.co"
+SUPABASE_SECRET_KEY="sb_secret_REPLACE_ME"
+SUPABASE_WORKSPACE_ID="default_ws"
+```
+
+4. Restart TinyTrace. The first load imports the current browser workspace if the Supabase table has no row. The browser never connects to Supabase directly; reads and writes pass through the TinyTrace server. Restrict access at the host/network layer because the app has no sign-in and uses one shared workspace.
+
+The server currently uses one shared workspace and does not provide per-customer tenant isolation. The Supabase Secret API key bypasses RLS, so only the backend may use it. Never prefix these settings with `VITE_` or place the secret key in browser code.
+
+Automated checks are scheduled in Supabase and polled by the TinyTrace server once per minute. Keep one server instance continuously running for unattended checks; for Cloud Run, use minimum and maximum instances of `1` to avoid scale-to-zero pauses and duplicate runners. Each scheduled check performs a live investigation and consumes the configured provider API usage. New and changed findings are written to the persistent notification inbox; missing results are not treated as clearance.
 
 ---
 
@@ -225,7 +217,7 @@ Visit `http://localhost:3000` in your browser.
 TinyTrace is packaged as a unified Node.js Express + Vite application that compiles into a single deployable container.
 
 > [!IMPORTANT]
-> **Controlled Deployment Protocol**: Before deployment, configure `ENABLE_AUTH=true`, `GOOGLE_CLIENT_ID`, and either `GOOGLE_ALLOWED_DOMAIN` or `GOOGLE_ALLOWED_EMAILS`, and confirm project ID, region, secret bindings, and access controls. This build has no verified durable storage or per-customer data isolation. Keep Cloud Run private; do not enable unauthenticated public access.
+> **Controlled Deployment Protocol**: The current app uses one shared workspace and has no application sign-in. Keep Cloud Run private; do not enable unauthenticated public access. Configure `SUPABASE_URL` and the server-side `SUPABASE_SECRET_KEY` before deployment.
 
 ### Build and Test Verification Before Deployment
 ```bash
@@ -253,8 +245,11 @@ gcloud run deploy tinytrace \
   --source . \
   --platform managed \
   --port 3000 \
+  --min 1 \
+  --max 1 \
   --no-allow-unauthenticated \
-  --set-env-vars NODE_ENV=production,ENABLE_AUTH=true,GOOGLE_CLIENT_ID=YOUR_OAUTH_CLIENT_ID,GOOGLE_ALLOWED_EMAILS=you@example.com \
+  --set-env-vars NODE_ENV=production,SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co,SUPABASE_WORKSPACE_ID=default_ws \
+  --set-secrets SUPABASE_SECRET_KEY=SUPABASE_SECRET_KEY:latest \
   --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest \
   --set-secrets TINYFISH_API_KEY=TINYFISH_API_KEY:latest \
   --set-secrets INDIACOS_API_KEY=INDIACOS_API_KEY:latest

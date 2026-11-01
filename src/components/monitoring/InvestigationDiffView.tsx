@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { loadWorkspace, updateWorkspace } from '../../persistence/localStore.js';
@@ -6,8 +6,6 @@ import { validateInvestigationComparison } from '../../utils/investigationCompar
 import {
   RunComparisonReport,
   SignalDiffItem,
-  MonitoringConfig,
-  MonitoringFrequencyPreference,
 } from '../../types/monitoringDiff.js';
 import { Card } from '../common/Card.js';
 import { Badge } from '../common/Badge.js';
@@ -17,13 +15,9 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
-  Clock,
   ArrowRight,
   ExternalLink,
-  ShieldAlert,
-  Info,
-  Calendar,
-  Layers,
+  ScanSearch,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -32,16 +26,16 @@ interface InvestigationDiffViewProps {
   currentInvestigation: Investigation | null;
   comparisonSelection?: { baselineId: string; latestId: string } | null;
   allInvestigations: Investigation[];
-  isDemoMode: boolean;
   onInvestigationUpdated?: (updatedInv: Investigation) => void;
+  onOpenAutomatedMonitoring?: (reportId: string) => void;
 }
 
 export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
   currentInvestigation,
   comparisonSelection,
   allInvestigations,
-  isDemoMode,
   onInvestigationUpdated,
+  onOpenAutomatedMonitoring,
 }) => {
   const [isReRunning, setIsReRunning] = useState<boolean>(false);
   const [comparisonReport, setComparisonReport] = useState<RunComparisonReport | null>(null);
@@ -50,8 +44,6 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
   const [selectedBaselineId, setSelectedBaselineId] = useState<string>('');
   const [selectedLatestId, setSelectedLatestId] = useState<string>('');
   const [rerunTargetId, setRerunTargetId] = useState<string>(currentInvestigation?.id || '');
-  const [monitoringConfig, setMonitoringConfig] = useState<MonitoringConfig | null>(null);
-  const [isSavingPref, setIsSavingPref] = useState<boolean>(false);
   const [expandedDiffId, setExpandedDiffId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -89,19 +81,8 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
     setComparisonReport(savedComparison || null);
   }, [selectedBaselineId, selectedLatestId]);
 
-  // Load monitoring configuration
-  useEffect(() => {
-    const vendorId = currentInvestigation?.id || 'ven_default';
-    apiFetch(`/api/monitoring/config/${vendorId}`)
-      .then((res) => res.json())
-      .then((data: MonitoringConfig) => setMonitoringConfig(loadWorkspace().monitoringConfigs[vendorId] || data))
-      .catch((err) => console.error('Failed to load monitoring config:', err));
-  }, [currentInvestigation?.id]);
-
   useEffect(() => {
     const saved = loadWorkspace();
-    const vendorId = currentInvestigation?.id || 'ven_default';
-    if (saved.monitoringConfigs[vendorId]) setMonitoringConfig(saved.monitoringConfigs[vendorId]);
     const selections = saved.preferences.monitoringSelection as { baselineId?: string; latestId?: string } | undefined;
     if (!comparisonSelection) {
       if (selections?.baselineId) setSelectedBaselineId(selections.baselineId);
@@ -122,7 +103,7 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
       const res = await apiFetch(`/api/investigations/${rerunTarget.id}/rerun`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ useMock: isDemoMode, baseline: rerunTarget }),
+        body: JSON.stringify({ baseline: rerunTarget }),
       });
 
       if (res.ok) {
@@ -180,31 +161,6 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
     }
   };
 
-  // Handle Frequency Preference Change
-  const handlePreferenceChange = async (pref: MonitoringFrequencyPreference) => {
-    const vendorId = currentInvestigation?.id || 'ven_default';
-    setIsSavingPref(true);
-    try {
-      const res = await apiFetch(`/api/monitoring/config/${vendorId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preference: pref }),
-      });
-      const current = monitoringConfig || { vendorId, preference: pref, status: 'SCHEDULING_NOT_ENABLED_IN_THIS_DEPLOYMENT' as const, lastCheckedAt: null, nextScheduledCheck: null, notice: 'Scheduling is not enabled; this preference is saved for future automation.' };
-      const localConfig = { ...current, vendorId, preference: pref };
-      updateWorkspace((saved) => ({ ...saved, monitoringConfigs: { ...saved.monitoringConfigs, [vendorId]: localConfig } }));
-      setMonitoringConfig(localConfig);
-      if (res.ok) {
-        const updated = await res.json();
-        setMonitoringConfig(updated);
-      }
-    } catch (e) {
-      console.error('Failed to update monitoring config:', e);
-    } finally {
-      setIsSavingPref(false);
-    }
-  };
-
   return (
     <div className="space-y-5">
       {/* Header with Re-Run Action */}
@@ -253,55 +209,14 @@ export const InvestigationDiffView: React.FC<InvestigationDiffViewProps> = ({
         )}
       </div>
 
-      {/* Honest Scheduling Notice Card */}
-      <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-lg flex items-start gap-3 text-xs">
-        <Clock className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-bold text-amber-950">
-              Scheduled checks are off
-            </span>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-200 text-amber-900">
-              MANUAL RUNS ONLY
-            </span>
-          </div>
-          <p className="text-[11px] text-amber-800 leading-relaxed">
-            Re-checks run only when you select a report and click Re-run. Automated scheduling is not active in this deployment.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+        <p className="text-xs text-emerald-950">Want recurring checks? Configure a background schedule for a completed live report.</p>
+        {onOpenAutomatedMonitoring && (
+          <button type="button" onClick={() => onOpenAutomatedMonitoring(rerunTarget?.id || currentInvestigation?.id || '')} disabled={!rerunTarget || rerunTarget.status !== 'COMPLETED'} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-[#087F61] px-3 text-xs font-semibold text-white hover:bg-[#066C53] disabled:cursor-not-allowed disabled:opacity-50">
+            <ScanSearch className="h-3.5 w-3.5" /> Set up automated monitoring
+          </button>
+        )}
       </div>
-
-      {/* Monitoring Frequency Preference Selector */}
-      <Card header="Monitoring frequency preference">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
-          <div>
-            <span className="font-semibold text-[#1C1F26] block">
-              Desired Target Frequency
-            </span>
-            <p className="text-[11px] text-[#687385]">
-              Saved as a preference for future automation. Checks currently run manually.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 rounded-xl bg-[#EEF2F3] p-1.5">
-            {(['MANUAL_ONLY', 'DAILY', 'WEEKLY', 'MONTHLY'] as MonitoringFrequencyPreference[]).map((pref) => (
-              <button
-                key={pref}
-                type="button"
-                onClick={() => handlePreferenceChange(pref)}
-                disabled={isSavingPref}
-                className={`min-h-10 min-w-[88px] px-4 py-2 rounded-lg text-xs font-semibold border cursor-pointer transition-all ${
-                  monitoringConfig?.preference === pref
-                  ? 'bg-[#087F61] text-white border-[#1C1F26] shadow-sm'
-                    : 'bg-white text-[#687385] border-transparent hover:border-[#D7DFE3] hover:text-[#1C1F26]'
-                }`}
-              >
-                {pref.replace('_', ' ')}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
 
       {/* Historical Comparator Controls */}
       {allInvestigations.length >= 2 && (

@@ -189,7 +189,7 @@ export interface PaginatedResult<T> {
 }
 
 export interface StorageStatus {
-  mode: 'FIRESTORE' | 'DEVELOPMENT_IN_MEMORY_NON_DURABLE';
+  mode: 'FIRESTORE' | 'SUPABASE_POSTGRES' | 'SUPABASE_NOT_CONFIGURED' | 'DEVELOPMENT_IN_MEMORY_NON_DURABLE';
   isDurable: boolean;
   activeAdapterName: string;
   warning?: string;

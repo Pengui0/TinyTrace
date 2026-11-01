@@ -17,14 +17,12 @@ import { runExportTests } from './exportService.test.js';
 import { runFilterTests } from './investigationFilter.test.js';
 import { runSecurityHardeningTests } from './securityHardening.test.js';
 import { runIntegrationTests } from './integrations.test.js';
-import { runDemoConsistencyTests } from './demoConsistency.test.js';
 import { runLiveProviderContractTests } from './liveProviderContract.test.js';
 import { runLocalStoragePersistenceTests } from './localStoragePersistence.test.js';
 import { runCustomVendorSearchTests } from './customVendorSearch.test.js';
 import { runRepositoryVerification } from './repositoryVerification.test.js';
 import { runAssessmentDisplayTests } from './assessmentDisplay.test.js';
 import { runInvestigationComparisonTests } from './investigationComparison.test.js';
-import { runGoogleAuthTests } from './googleAuth.test.js';
 import { runGroundedAIVerificationTests } from './groundedAIVerification.test.js';
 
 interface TestResult {
@@ -54,7 +52,6 @@ const suites: TestSuite[] = [
   { name: 'Workflows: Multi-Attribute Investigation Search & Filtering', fn: runFilterTests },
   { name: 'Security Hardening: SSRF Allowlist, Payloads & Auth', fn: runSecurityHardeningTests },
   { name: 'End-to-End Orchestration Integration Pipeline', fn: runIntegrationTests },
-  { name: 'Demo Fixture Integrity & Confidence Consistency', fn: runDemoConsistencyTests },
   { name: 'Live Provider Contract Tests (Mocked HTTP)', fn: runLiveProviderContractTests },
   { name: 'Browser LocalStorage Persistence (Offline)', fn: runLocalStoragePersistenceTests },
   { name: 'Custom Vendor Search & Resolver UI Flow (Offline)', fn: runCustomVendorSearchTests },
@@ -68,7 +65,6 @@ const suites: TestSuite[] = [
   } },
   { name: 'Assessment Score & Vendor Trend Display', fn: runAssessmentDisplayTests },
   { name: 'Investigation Comparison Input Validation', fn: runInvestigationComparisonTests },
-  { name: 'Google Workspace API Authentication', fn: runGoogleAuthTests },
   { name: 'Grounded AI Verification Citation Rules', fn: runGroundedAIVerificationTests },
 ];
 

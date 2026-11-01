@@ -1,10 +1,10 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Card } from '../common/Card.js';
 import { Button } from '../common/Button.js';
 import { Badge } from '../common/Badge.js';
 import { CandidateSelectionModal } from './CandidateSelectionModal.js';
-import { buildCustomResolverPayload, isValidCandidate, profileMatchesCandidate, resolutionModeLabel, CustomVendorSearchInput } from '../overview/customVendorSearch.js';
+import { buildCustomResolverPayload, isValidCandidate, profileMatchesCandidate, CustomVendorSearchInput } from '../overview/customVendorSearch.js';
 import { CompanyProfileCard } from './CompanyProfileCard.js';
 import {
   detectIdentifierKind,
@@ -28,20 +28,13 @@ import {
 
 interface LiveLookupWorkflowProps {
   onEntityResolved?: (profile: ResolvedCompanyProfile) => void;
-  isDemoMode: boolean;
 }
 
-export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
-  onEntityResolved,
-  isDemoMode,
-}) => {
+export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntityResolved }) => {
   const [searchInput, setSearchInput] = useState<CustomVendorSearchInput>({ legalName: '', cin: '', gstin: '', websiteUrl: '' });
   const queryInput = searchInput.cin.trim() || searchInput.gstin.trim() || searchInput.legalName.trim();
-  const useMock = isDemoMode;
   const [isLoading, setIsLoading] = useState(false);
-  const [detection, setDetection] = useState<IdentifierDetectionResult>(() =>
-    detectIdentifierKind('L27100MH1907PLC000260')
-  );
+  const [detection, setDetection] = useState<IdentifierDetectionResult>(() => detectIdentifierKind(''));
   const [resolvedProfile, setResolvedProfile] = useState<ResolvedCompanyProfile | null>(null);
   const [candidates, setCandidates] = useState<CandidateEntity[]>([]);
   const [isDisambiguationOpen, setIsDisambiguationOpen] = useState(false);
@@ -49,7 +42,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
   const [cacheStats, setCacheStats] = useState<any>(null);
   const [unitTestReport, setUnitTestReport] = useState<any | null>(null);
   const [isRunningUnitTests, setIsRunningUnitTests] = useState(false);
-  const [resolvedMode, setResolvedMode] = useState<'Demo fixture' | 'Live provider' | null>(null);
+  const [resolvedMode, setResolvedMode] = useState<string | null>(null);
   const [isScanningWebsite, setIsScanningWebsite] = useState(false);
   const [websiteScanMessage, setWebsiteScanMessage] = useState<string | null>(null);
 
@@ -74,7 +67,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
     setResolvedProfile(null);
 
     try {
-      let payload = buildCustomResolverPayload(searchInput, useMock, candidateToConfirm);
+      let payload = buildCustomResolverPayload(searchInput, candidateToConfirm);
       let res = await apiFetch('/api/integrations/indiacos/resolve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +97,6 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
         throw new Error(data.error || 'Resolution failed');
       }
 
-      if (Boolean(data.isMock) !== useMock) throw new Error('Resolver mode did not match the selected Demo/Live mode. No result was accepted.');
       if (data.profile && payload.cin) {
         const returnedCin = String(data.profile.cin || '').toUpperCase();
         const formerCins = (data.profile.formerCins || []).map((identifier: string) => identifier.toUpperCase());
@@ -139,7 +131,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
           : 'Identity match needs your review. Select the correct legal entity to confirm it.');
       } else if (data.profile) {
         setResolvedProfile(data.profile);
-        setResolvedMode(resolutionModeLabel(Boolean(data.isMock)));
+        setResolvedMode('Live provider');
         setIsDisambiguationOpen(false);
         setResolutionMessage(canFallbackToName
           ? `Searched by legal name after the identifier returned 404. Confirm this candidate; any GSTIN you entered was not verified. ${data.message || ''}`.trim()
@@ -148,7 +140,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
       } else {
         const status = String(data.status || '').toUpperCase();
         if (['NOT_CONFIGURED', 'UNAVAILABLE', 'RATE_LIMITED', 'UPSTREAM_FAILURE'].includes(status)) {
-          throw new Error(useMock ? 'Demo resolver fixtures are unavailable.' : `Live resolver provider is unavailable${data.message ? `: ${data.message}` : '.'}`);
+          throw new Error(`Live resolver provider is unavailable${data.message ? `: ${data.message}` : '.'}`);
         }
         throw new Error(canFallbackToName
           ? `The identifier returned 404 and the legal-name search found no registry match. The GSTIN, if entered, was not verified. ${data.message || ''}`.trim()
@@ -195,12 +187,10 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
         body: JSON.stringify({
           url: parsed.toString(),
           goal: 'Identify the company or brand represented by this website. Return the official name, primary heading, and a brief description from the page. Do not infer legal registration details.',
-          useMock,
         }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.diagnosticMessage || 'Website scan failed.');
-      if (Boolean(result.isMock) !== useMock) throw new Error('Website scan mode did not match the selected app mode.');
       if (result.status === 'SUCCESS' && result.result) {
         setWebsiteScanMessage(`${result.result.title || 'Website scanned'}${result.result.heading ? ` · ${result.result.heading}` : ''}${result.result.summary ? ` — ${result.result.summary}` : ''}`);
       } else {
@@ -213,58 +203,11 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
     }
   };
 
-  const loadPreset = (query: string) => {
-    const detected = detectIdentifierKind(query);
-    setSearchInput({ legalName: detected.kind === 'COMPANY_NAME' ? query : '', cin: detected.kind === 'CIN' ? detected.normalizedValue : '', gstin: detected.kind === 'GSTIN' ? detected.normalizedValue : '', websiteUrl: '' });
-    setResolvedProfile(null);
-    setResolvedMode(null);
-    setCandidates([]);
-    setResolutionMessage(null);
-  };
-
   return (
     <div className="space-y-4">
       {/* Test Lookup Controls Card */}
-      <Card
-        header="Indian Registry Identity Lookup"
-        headerAction={
-          <span className={`text-[11px] font-semibold px-2 py-1 rounded ${useMock ? 'bg-purple-50 text-purple-800' : 'bg-blue-50 text-blue-800'}`}>Current mode: {useMock ? 'Demo fixtures' : 'Live provider'}</span>
-        }
-      >
+      <Card header="Indian Registry Identity Lookup">
         <div className="space-y-4 text-xs">
-          {/* Quick Scenario Buttons */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] text-[#8490A0] mr-1">Sample Indian registry lookups:</span>
-            <button
-              type="button"
-              onClick={() => loadPreset('L27100MH1907PLC000260')}
-              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
-            >
-              Tata Steel (CIN)
-            </button>
-            <button
-              type="button"
-              onClick={() => loadPreset('07AAAAA0000A1Z5')}
-              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
-            >
-              Sharma Fasteners (Proprietor GSTIN - No CIN)
-            </button>
-            <button
-              type="button"
-              onClick={() => loadPreset('AAA-1234')}
-              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
-            >
-              Apex Digital (LLPIN)
-            </button>
-            <button
-              type="button"
-              onClick={() => loadPreset('Apex Infra')}
-              className="px-2 py-1 rounded bg-[#F5F7F8] border border-[#E4E9EB] text-[11px] text-[#1C1F26] hover:bg-[#EEF2F3] cursor-pointer"
-            >
-              Apex Infra (Multi-Match Ambiguity)
-            </button>
-          </div>
-
           {/* Input & Live Format Detector */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -320,7 +263,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
               <span>{resolutionMessage}</span>
               {resolvedProfile && (
                 <span className="font-semibold text-emerald-700">
-                  {resolvedMode || (resolvedProfile.isCached ? (useMock ? 'Demo fixture cache' : 'Live provider cache') : useMock ? 'Demo fixture result' : 'Live provider result')}
+                  {resolvedMode || (resolvedProfile.isCached ? 'Live provider cache' : 'Live provider result')}
                 </span>
               )}
             </div>
@@ -381,7 +324,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({
       {/* Resolved Company Profile */}
       {resolvedProfile && (
         <>
-          <div className={`p-2 rounded text-xs font-semibold ${resolvedMode === 'Demo fixture' ? 'bg-purple-50 text-purple-900' : 'bg-blue-50 text-blue-900'}`}>Resolution source: {resolvedMode}. {resolvedMode === 'Demo fixture' ? 'Synthetic fixtures; not a live registry result.' : 'Live provider response.'}</div>
+          <div className="rounded bg-blue-50 p-2 text-xs font-semibold text-blue-900">Resolution source: {resolvedMode || 'Live provider response'}.</div>
           <CompanyProfileCard profile={resolvedProfile} />
         </>
       )}

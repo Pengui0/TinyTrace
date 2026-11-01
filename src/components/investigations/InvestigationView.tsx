@@ -25,7 +25,6 @@ interface InvestigationViewProps {
   }) => void;
   onCancelInvestigation: () => void;
   isLoading: boolean;
-  isDemoMode: boolean;
   activeSubTab?: 'resolution' | 'evidence' | 'graph' | 'sources';
   onSubTabChange?: (tab: 'resolution' | 'evidence' | 'graph' | 'sources') => void;
   onOpenMonitoring?: () => void;
@@ -37,7 +36,6 @@ export const InvestigationView: React.FC<InvestigationViewProps> = ({
   onInvestigate,
   onCancelInvestigation,
   isLoading,
-  isDemoMode,
   activeSubTab,
   onSubTabChange,
   onOpenMonitoring,
@@ -148,7 +146,7 @@ export const InvestigationView: React.FC<InvestigationViewProps> = ({
       {/* Tab 1: Live Lookup & Candidate Disambiguation Workflow */}
       {activeTab === 'resolution' && (
         <div className="space-y-6">
-          <LiveLookupWorkflow onEntityResolved={handleEntityResolved} isDemoMode={isDemoMode} />
+          <LiveLookupWorkflow onEntityResolved={handleEntityResolved} />
 
           {activeProfile && (
             <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-3">

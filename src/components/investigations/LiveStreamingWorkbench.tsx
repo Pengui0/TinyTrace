@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Activity,
@@ -34,7 +34,6 @@ interface Workstream {
 interface LiveStreamingWorkbenchProps {
   targetName: string;
   identifiers?: string[];
-  isDemoMode: boolean;
   onRunStream?: () => void;
   onCancelStream?: () => void;
 }
@@ -42,7 +41,6 @@ interface LiveStreamingWorkbenchProps {
 export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
   targetName,
   identifiers = [],
-  isDemoMode,
 }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
@@ -153,7 +151,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
   };
 
   // Launch Live Streaming Run via SSE
-  const handleStartLiveRun = async (useMock = isDemoMode) => {
+  const handleStartLiveRun = async () => {
     const runSequence = ++runSequenceRef.current;
     const isCurrentRun = () => runSequenceRef.current === runSequence && !cancelledRef.current;
     cancelledRef.current = false;
@@ -166,27 +164,19 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
     setStreamEvents([]);
     setLastCompletedRun(null);
 
-    if (useMock) {
-      setWorkstreams((prev) => prev.map((workstream) => ({
-        ...workstream,
-        status: 'running',
-        message: 'Running deterministic demo fixture...',
-      })));
-    } else {
-      setWorkstreams((prev) => prev.map((workstream) => ({
+    setWorkstreams((prev) => prev.map((workstream) => ({
         ...workstream,
         status: 'running',
         message: 'Running as part of the concurrent live investigation; awaiting provider result.',
       })));
-      try {
-        const limitsResponse = await apiFetch('/api/investigations/limits');
-        if (limitsResponse.ok && isCurrentRun()) {
-          const limits = await limitsResponse.json();
-          setAgentTimeoutMs(Number(limits.liveStreamTimeoutMs) || 120000);
-        }
-      } catch {
-        // The configured timeout display is optional; provider execution proceeds independently.
+    try {
+      const limitsResponse = await apiFetch('/api/investigations/limits');
+      if (limitsResponse.ok && isCurrentRun()) {
+        const limits = await limitsResponse.json();
+        setAgentTimeoutMs(Number(limits.liveStreamTimeoutMs) || 120000);
       }
+    } catch {
+      // The configured timeout display is optional; provider execution proceeds independently.
     }
 
     if (!isCurrentRun()) return;
@@ -198,12 +188,8 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...(useMock ? { url: 'https://gem.gov.in', goal: `Synthetic procurement debarment search for ${targetName || 'the target vendor'}.` } : {}),
           targetName,
           identifiers: identifiers.slice(0, 5),
-          useMock,
-          mockScenario: 'STANDARD',
-          ...(useMock ? { timeoutMs: 20000 } : {}),
         }),
         signal: controller.signal,
       });
@@ -275,11 +261,8 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
               const hasDimensionResults = reportDimensions.some((task) => task?.status === 'completed' || task?.findings?.length || task?.sourcesChecked?.length);
               const hasPartialReport = Boolean(ev.result?.dimensions)
                 && (ev.result?.coverageStatus !== 'COMPLETE' || ev.result?.status === 'partial_failure' || (hasDimensionOutage && hasDimensionResults));
-              setRunStatus(useMock && validCompletion ? 'COMPLETED' : validCompletion ? reportComplete ? 'COMPLETED' : hasPartialReport ? 'PARTIAL' : ev.result?.status === 'failed' ? 'FAILED' : 'PARTIAL' : 'FAILED');
+              setRunStatus(validCompletion ? reportComplete ? 'COMPLETED' : hasPartialReport ? 'PARTIAL' : ev.result?.status === 'failed' ? 'FAILED' : 'PARTIAL' : 'FAILED');
               setWorkstreams((prev) => prev.map((workstream) => {
-                if (useMock) {
-                  return { ...workstream, status: validCompletion ? 'completed' : 'failed', message: validCompletion ? 'Synthetic demo task completed; no live evidence is claimed.' : 'Demo run completed without a valid result.' };
-                }
                 const dimensions = ev.result?.dimensions || {};
                 const taskKeys = workstream.id === 'mca_gst'
                   ? ['company_registry', 'gst_compliance']
@@ -413,7 +396,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
         await apiFetch('/api/investigations/tinyfish/cancel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ runId: activeRunId, useMock: isDemoMode }),
+          body: JSON.stringify({ runId: activeRunId }),
         });
       } catch {
         setActiveError('Cancellation was sent locally; upstream cancellation could not be confirmed.');
@@ -443,13 +426,11 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
           <div className="flex items-center gap-2">
             <Radio className={`w-4 h-4 ${isRunning ? 'text-amber-600 animate-pulse' : 'text-[#1C1F26]'}`} />
             <h2 className="text-sm font-bold text-[#1C1F26] uppercase tracking-wide">
-              {isDemoMode ? 'Demo Investigation Event Workbench' : 'Live Search & Evidence Workbench'}
+              Live Search & Evidence Workbench
             </h2>
           </div>
           <p className="text-xs text-[#687385] mt-0.5">
-            {isDemoMode
-              ? 'Deterministic synthetic event stream for demonstration. No live browser session or upstream audit is claimed.'
-              : 'TinyTrace runs bounded registry, court, procurement, and adverse-media checks. Missing or inaccessible evidence never verifies a clean record.'}
+            TinyTrace runs bounded registry, court, procurement, and adverse-media checks. Missing or inaccessible evidence never verifies a clean record.
           </p>
         </div>
 
@@ -467,13 +448,13 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
           ) : (
             <button
               type="button"
-              onClick={() => handleStartLiveRun(isDemoMode)}
+              onClick={() => handleStartLiveRun()}
               disabled={!targetName.trim()}
               title={!targetName.trim() ? 'Enter a company or vendor name before launching.' : undefined}
               className="px-3.5 py-1.5 bg-[#087F61] hover:bg-[#066C53] disabled:bg-[#A8A8A8] disabled:cursor-not-allowed text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
             >
               <Play className="w-3 h-3 fill-current" />
-              <span>{isDemoMode ? 'Run Demo Agent Simulation' : 'Launch Live Agent Stream'}</span>
+              <span>Launch Live Agent Stream</span>
             </button>
           )}
 
@@ -538,7 +519,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                     </span>
                   ) : isCurrent ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-300 animate-pulse">
-                      <Clock className="w-2.5 h-2.5 text-amber-600 animate-spin" /> {isDemoMode ? 'Simulating' : 'Live'}
+                      <Clock className="w-2.5 h-2.5 text-amber-600 animate-spin" /> Live
                     </span>
                   ) : isFailed ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
@@ -562,7 +543,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
                     {ws.name}
                   </h4>
                   <span className="text-[10px] text-[#8490A0] block mt-0.5">
-                    {isDemoMode ? 'Synthetic demo simulation' : ws.provider}
+                    {ws.provider}
                   </span>
                 </div>
               </div>
@@ -719,7 +700,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
               ? 'No match was found in the searched sources. This does not verify a clean debarment record.'
               : lastCompletedRun.result?.evidenceSearchOutcome === 'SOURCE_UNAVAILABLE'
               ? 'Some source content was inaccessible or entity identity was ambiguous. Manual review is required.'
-              : 'Synthetic provider result; no live source evidence is claimed.'}
+              : 'The provider returned a result without a searchable evidence summary.'}
           </p>
           {(lastCompletedRun.result?.findings || []).flatMap((finding: any) => finding.evidence || []).slice(0, 3).map((evidence: any, index: number) => (
             <div key={`${evidence.url || evidence.sourceName}-${index}`} className="border-t border-[#E4E9EB] pt-2 text-[11px] space-y-1">
@@ -748,7 +729,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
           </div>
           <button
             type="button"
-            onClick={() => handleStartLiveRun(isDemoMode)}
+            onClick={() => handleStartLiveRun()}
             className="px-3 py-1 bg-rose-700 hover:bg-rose-800 text-white rounded text-xs font-medium self-end sm:self-auto flex items-center gap-1 cursor-pointer"
           >
             <RefreshCw className="w-3 h-3" />
@@ -761,7 +742,7 @@ export const LiveStreamingWorkbench: React.FC<LiveStreamingWorkbenchProps> = ({
       {streamEvents.length > 0 && (
         <div className="space-y-1.5 pt-2 border-t border-[#E4E9EB]">
           <span className="text-[10px] font-bold text-[#8490A0] uppercase tracking-wider block">
-            {isDemoMode ? 'Demo Event Log' : 'Search Workflow Events'} ({streamEvents.length})
+            Search Workflow Events ({streamEvents.length})
           </span>
           <div className="space-y-1 max-h-32 overflow-y-auto font-mono text-[10px] bg-white p-2.5 rounded border border-[#E4E9EB]">
             {streamEvents.map((ev, i) => (

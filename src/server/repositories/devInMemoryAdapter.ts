@@ -406,7 +406,7 @@ export class DevInMemoryUnitOfWork implements IUnitOfWork {
       isDurable: false,
       activeAdapterName: 'DevInMemoryRepositoryAdapter',
       warning:
-        'DEVELOPMENT NOTICE: This data is residing in non-durable server process memory. Data will reset on server restart. For persistent production storage, provision Google Cloud Firestore.',
+        'Development fallback only: domain repository data is held in server memory and resets on restart. Configure Supabase to make these records durable.',
     };
   }
 

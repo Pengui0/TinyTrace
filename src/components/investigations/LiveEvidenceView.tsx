@@ -1,29 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Radio, Search } from 'lucide-react';
 import type { Investigation } from '../../types/vendor.js';
 import { LiveStreamingWorkbench } from './LiveStreamingWorkbench.js';
 
 interface LiveEvidenceViewProps {
   investigations: Investigation[];
-  isDemoMode: boolean;
 }
 
-export const LiveEvidenceView: React.FC<LiveEvidenceViewProps> = ({ investigations, isDemoMode }) => {
+export const LiveEvidenceView: React.FC<LiveEvidenceViewProps> = ({ investigations }) => {
   const [targetName, setTargetName] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [selectedHistoryId, setSelectedHistoryId] = useState('');
-
-  useEffect(() => {
-    try {
-      window.localStorage.removeItem('tinytrace.live-workbench-target.v1');
-      window.localStorage.removeItem('vendortrace.live-workbench-target.v1');
-      for (const key of Object.keys(window.localStorage)) {
-        if (key.startsWith('vendortrace.live-workbench.v1:') || key.startsWith('tinytrace.live-workbench.v1:')) window.localStorage.removeItem(key);
-      }
-    } catch {
-      // Live research still starts cleanly when browser storage is unavailable.
-    }
-  }, []);
 
   const useHistoryReport = (reportId: string) => {
     setSelectedHistoryId(reportId);
@@ -49,7 +36,7 @@ export const LiveEvidenceView: React.FC<LiveEvidenceViewProps> = ({ investigatio
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-800">Separate live workspace</p>
             <h1 className="text-xl font-bold tracking-tight text-[#1C1F26]">Live Search & Evidence</h1>
           </div>
-          <span className="ml-auto rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold tracking-wider text-emerald-800">LAYER 1 ONLY · {isDemoMode ? 'DEMO' : 'LIVE'}</span>
+          <span className="ml-auto rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold tracking-wider text-emerald-800">LAYER 1 ONLY · LIVE</span>
         </div>
         <p className="max-w-3xl text-xs leading-relaxed text-[#687385]">
           Run and review the bounded registry, court, procurement, and adverse-media workstreams here. This workspace is separate from the standard investigation report and history.
@@ -87,10 +74,9 @@ export const LiveEvidenceView: React.FC<LiveEvidenceViewProps> = ({ investigatio
 
       {targetName.trim() ? (
         <LiveStreamingWorkbench
-          key={`${targetName.trim().toUpperCase()}|${identifier.trim().toUpperCase()}|${isDemoMode ? 'demo' : 'live'}`}
+          key={`${targetName.trim().toUpperCase()}|${identifier.trim().toUpperCase()}`}
           targetName={targetName.trim()}
           identifiers={identifier.trim() ? [identifier.trim()] : []}
-          isDemoMode={isDemoMode}
         />
       ) : (
         <div className="rounded-xl border border-dashed border-[#D7DFE3] bg-white px-5 py-8 text-center">

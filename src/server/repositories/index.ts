@@ -4,22 +4,15 @@
  */
 
 import { IUnitOfWork } from './interfaces.js';
-import { DevInMemoryUnitOfWork } from './devInMemoryAdapter.js';
+import { SupabaseDomainUnitOfWork } from './supabaseDomainAdapter.js';
 
 class RepositoryManager {
   private activeUnitOfWork: IUnitOfWork;
 
   constructor() {
-    // Check if Firestore environment or config file is present
-    const hasFirestoreConfig = Boolean(process.env.FIREBASE_CONFIG || process.env.GOOGLE_APPLICATION_CREDENTIALS);
-
-    if (hasFirestoreConfig) {
-      // If Firestore credentials were fully configured, initialize Firestore adapter.
-      // Currently, fallback to explicitly-labelled non-durable DevInMemory adapter.
-      this.activeUnitOfWork = new DevInMemoryUnitOfWork();
-    } else {
-      this.activeUnitOfWork = new DevInMemoryUnitOfWork();
-    }
+    // Never silently accept server-memory persistence. With no Supabase config,
+    // repository operations fail clearly instead of losing records on restart.
+    this.activeUnitOfWork = new SupabaseDomainUnitOfWork();
   }
 
   public get uow(): IUnitOfWork {

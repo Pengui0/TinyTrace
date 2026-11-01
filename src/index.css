@@ -21,7 +21,13 @@
 
   *, *::before, *::after { box-sizing: border-box; }
 
-  html { min-width: 320px; background: var(--canvas-bg); }
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+    min-width: 320px;
+    overflow: hidden;
+    background: var(--canvas-bg);
+  }
 
   body {
     background-color: var(--canvas-bg);
@@ -65,6 +71,9 @@
 }
 
 .dashboard-canvas {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
   background-image:
     radial-gradient(ellipse at 82% 10%, rgba(16, 185, 129, 0.10), transparent 40%),
     radial-gradient(ellipse at 54% 100%, rgba(8, 127, 97, 0.05), transparent 46%);

@@ -54,12 +54,13 @@ export const SourceHealthGrid: React.FC<SourceHealthGridProps> = ({
         </span>
       }
       noPadding
+      className="flex h-full flex-col"
     >
-      <div className="divide-y divide-[#E4E9EB]">
+      <div className="flex flex-1 flex-col divide-y divide-[#E4E9EB]">
         {connectors.map((c) => (
           <div
             key={c.id}
-            className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F5F7F8]/60 transition-colors"
+            className="flex flex-1 flex-col justify-between gap-3 p-3.5 hover:bg-[#F5F7F8]/60 transition-colors sm:flex-row sm:items-center"
           >
             <div className="flex items-start gap-3">
               <div className="p-2 rounded bg-[#F5F7F8] border border-[#E4E9EB] mt-0.5">

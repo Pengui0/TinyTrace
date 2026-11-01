@@ -6,20 +6,20 @@ interface MonitoringViewProps {
   investigations: Investigation[];
   selectedInvestigation: Investigation | null;
   comparisonSelection?: { baselineId: string; latestId: string } | null;
-  isDemoMode: boolean;
   onTriggerReRun: (inv: Investigation) => void;
   isLoading: boolean;
   onInvestigationUpdated?: (updatedInv: Investigation) => void;
+  onOpenAutomatedMonitoring?: (reportId: string) => void;
 }
 
 export const MonitoringView: React.FC<MonitoringViewProps> = ({
   investigations,
   selectedInvestigation,
   comparisonSelection,
-  isDemoMode,
   onTriggerReRun,
   isLoading,
   onInvestigationUpdated,
+  onOpenAutomatedMonitoring,
 }) => {
   const currentInvestigation = selectedInvestigation && investigations.some((item) => item.id === selectedInvestigation.id)
     ? selectedInvestigation
@@ -30,8 +30,8 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({
       <InvestigationDiffView
         currentInvestigation={currentInvestigation}
         comparisonSelection={comparisonSelection}
+        onOpenAutomatedMonitoring={onOpenAutomatedMonitoring}
         allInvestigations={investigations}
-        isDemoMode={isDemoMode}
         onInvestigationUpdated={(updated) => {
           if (onInvestigationUpdated) {
             onInvestigationUpdated(updated);

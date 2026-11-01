@@ -10,9 +10,11 @@ import {
   Radio,
   Plus,
   PanelLeftClose,
+  Bell,
+  ScanSearch,
 } from 'lucide-react';
 
-export type NavigationTab = 'overview' | 'investigations' | 'live-search' | 'history' | 'vendors' | 'monitoring' | 'settings';
+export type NavigationTab = 'overview' | 'investigations' | 'live-search' | 'history' | 'vendors' | 'monitoring' | 'auto-monitoring' | 'notifications' | 'settings';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -21,6 +23,7 @@ interface SidebarProps {
   activeConnectorsCount: number;
   unavailableConnectorsCount: number;
   totalConnectorsCount: number;
+  unreadNotificationCount: number;
   onOpenHelp: () => void;
   onStartInvestigation: () => void;
   isNewInvestigation: boolean;
@@ -35,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeConnectorsCount,
   unavailableConnectorsCount,
   totalConnectorsCount,
+  unreadNotificationCount,
   onOpenHelp,
   onStartInvestigation,
   isNewInvestigation,
@@ -83,6 +87,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Compare reports',
       icon: GitCompareArrows,
       badge: null,
+    },
+    {
+      id: 'auto-monitoring' as NavigationTab,
+      label: 'Automated monitoring',
+      icon: ScanSearch,
+      badge: null,
+    },
+    {
+      id: 'notifications' as NavigationTab,
+      label: 'Notifications',
+      icon: Bell,
+      badge: unreadNotificationCount > 0 ? String(unreadNotificationCount) : null,
     },
     ] },
     { label: 'Administration', items: [

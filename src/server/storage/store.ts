@@ -1,11 +1,5 @@
 import { Investigation, SourceConnector, WorkspaceStats } from '../../types/vendor.js';
-import {
-  DEMO_INVESTIGATION_RUN_1,
-  DEMO_INVESTIGATION_RUN_2,
-  FICTIONAL_VENDOR_NAME,
-  FICTIONAL_CIN,
-  FICTIONAL_GSTIN,
-} from '../demo/demoDataset.js';
+import type { Vendor } from '../../types/domain.js';
 
 /**
  * TinyTrace In-Memory / File Persistent Store
@@ -16,23 +10,6 @@ import {
 class DataStore {
   private investigations: Map<string, Investigation> = new Map();
   private trackedVendors: Map<string, { id: string; name: string; cin: string | null; gstin: string | null; addedAt: string }> = new Map();
-
-  constructor() {
-    // Preload verified deterministic synthetic demo dataset for hackathon presentation
-    this.initializeDemoData();
-  }
-
-  public initializeDemoData() {
-    this.investigations.set(DEMO_INVESTIGATION_RUN_1.id, DEMO_INVESTIGATION_RUN_1);
-    this.investigations.set(DEMO_INVESTIGATION_RUN_2.id, DEMO_INVESTIGATION_RUN_2);
-    this.trackedVendors.set('ven_demo_01', {
-      id: 'ven_demo_01',
-      name: FICTIONAL_VENDOR_NAME,
-      cin: FICTIONAL_CIN,
-      gstin: FICTIONAL_GSTIN,
-      addedAt: DEMO_INVESTIGATION_RUN_1.createdAt,
-    });
-  }
 
   public getStats(): WorkspaceStats {
     const totalInv = this.investigations.size;
@@ -126,6 +103,35 @@ class DataStore {
   public createInvestigation(inv: Investigation): Investigation {
     this.investigations.set(inv.id, inv);
     return inv;
+  }
+
+  public hydrateWorkspace(investigations: Investigation[], vendors: Vendor[]): void {
+    this.investigations.clear();
+    this.trackedVendors.clear();
+    investigations.forEach((investigation) => this.investigations.set(investigation.id, investigation));
+    vendors.forEach((vendor) => this.trackedVendors.set(vendor.id, {
+      id: vendor.id,
+      name: vendor.canonicalName,
+      cin: vendor.cin,
+      gstin: vendor.gstins[0] || null,
+      addedAt: vendor.firstSeenAt,
+    }));
+    investigations.forEach((investigation) => {
+      const id = `ven_${investigation.id}`;
+      if (this.trackedVendors.has(id)) return;
+      this.trackedVendors.set(id, {
+        id,
+        name: investigation.targetName,
+        cin: investigation.identifierType === 'CIN' ? investigation.identifierValue : null,
+        gstin: investigation.identifierType === 'GSTIN' ? investigation.identifierValue : null,
+        addedAt: investigation.createdAt,
+      });
+    });
+  }
+
+  public resetWorkspaceData(): void {
+    this.investigations.clear();
+    this.trackedVendors.clear();
   }
 
   public getAllVendors() {

@@ -1,6 +1,6 @@
 /**
  * Repository Interfaces for TinyTrace Data Access Layer
- * Supports pluggable backends (Firestore / Development In-Memory)
+ * Supports Supabase PostgreSQL and development-only in-memory storage.
  */
 
 import {
@@ -87,10 +87,11 @@ export interface IUnitOfWork {
   relationships: IRelationshipRepository;
   comparisons: IRunComparisonRepository;
   getStorageMode(): {
-    mode: 'FIRESTORE' | 'DEVELOPMENT_IN_MEMORY_NON_DURABLE';
+    mode: 'FIRESTORE' | 'SUPABASE_POSTGRES' | 'SUPABASE_NOT_CONFIGURED' | 'DEVELOPMENT_IN_MEMORY_NON_DURABLE';
     isDurable: boolean;
     activeAdapterName: string;
     warning?: string;
   };
   clearAllForTesting?(): Promise<void>;
+  checkConnection?(): Promise<{ success: boolean; details: string[] }>;
 }

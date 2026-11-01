@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Vendor } from '../../types/domain.js';
 import { EmptyState } from '../common/EmptyState.js';
@@ -8,7 +8,7 @@ import { Badge } from '../common/Badge.js';
 import { VendorProfileView } from './VendorProfileView.js';
 import { Building2, Plus, Search, ShieldCheck, MapPin, Tag, ArrowLeft, ExternalLink, Trash2 } from 'lucide-react';
 import { Investigation } from '../../types/vendor.js';
-import { loadWorkspace } from '../../persistence/localStore.js';
+import { loadWorkspace, updateWorkspace } from '../../persistence/localStore.js';
 
 interface VendorsViewProps {
   onStartInvestigation: () => void;
@@ -39,6 +39,13 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
       .then((data) => {
         const fromServer: Vendor[] = data.vendors || [];
         setVendors(fromServer);
+        if (!query && fromServer.length) {
+          updateWorkspace((workspace) => {
+            const merged = new Map(workspace.vendors.map((vendor) => [vendor.id, vendor]));
+            fromServer.forEach((vendor) => merged.set(vendor.id, vendor));
+            return { ...workspace, vendors: [...merged.values()] };
+          });
+        }
         if (data.storageStatus) setStorageStatus(data.storageStatus);
       })
       .catch((err) => console.error('Error fetching vendors:', err))
@@ -66,6 +73,7 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
       const response = await apiFetch(`/api/vendors/${encodeURIComponent(vendor.id)}`, { method: 'DELETE' });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'Vendor record could not be deleted.');
+      updateWorkspace((workspace) => ({ ...workspace, vendors: workspace.vendors.filter((item) => item.id !== vendor.id) }));
       fetchVendors(searchQuery);
     } catch (error: any) {
       setDeleteError(error.message || 'Vendor record could not be deleted.');
@@ -130,10 +138,10 @@ export const VendorsView: React.FC<VendorsViewProps> = ({
         <div className="flex items-center gap-2">
           <span className="text-[#8490A0]">Repository Storage:</span>
           <span className="font-mono text-[#1C1F26] text-[11px]">
-            {storageStatus?.activeAdapterName || 'DevInMemoryRepositoryAdapter'}
+            {storageStatus?.activeAdapterName || 'SupabaseNotConfigured'}
           </span>
           <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-            {storageStatus?.isDurable ? 'Durable Firestore' : 'Non-Durable In-Memory Adapter'}
+            {storageStatus?.isDurable ? 'Durable Supabase PostgreSQL' : 'Supabase Not Configured'}
           </span>
         </div>
         <span className="text-[11px] text-[#687385]">

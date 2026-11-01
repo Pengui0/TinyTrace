@@ -1,5 +1,5 @@
 import React from 'react';
-import { IdentifierType, Investigation, SourceConnector, WorkspaceStats } from '../../types/vendor.js';
+import { Investigation, SourceConnector, WorkspaceStats } from '../../types/vendor.js';
 import { MetricCounter } from './MetricCounter.js';
 import { SourceHealthGrid } from './SourceHealthGrid.js';
 import { EmptyState } from '../common/EmptyState.js';
@@ -8,15 +8,14 @@ import { Badge, BadgeTone } from '../common/Badge.js';
 import { getAICheckedCount, getHumanReviewCount } from '../../utils/reviewPolicy.js';
 import {
   ArrowRight,
-  ArrowUpRight,
   Building2,
   FileText,
   Layers3,
-  Play,
   Plus,
   Search,
   SearchCheck,
   ShieldCheck,
+  Trash2,
   UsersRound,
   TriangleAlert,
 } from 'lucide-react';
@@ -27,10 +26,10 @@ interface OverviewViewProps {
   investigations: Investigation[];
   onStartInvestigation: () => void;
   onSelectInvestigation: (id: string) => void;
+  onDeleteInvestigation: (id: string) => Promise<void>;
   onSelectConnectorDetails: (connector: SourceConnector) => void;
   isLoading: boolean;
   isReviewProcessing: boolean;
-  onDirectInvestigate?: (params: { targetName: string; identifierType: IdentifierType; identifierValue: string; freshRun?: boolean }) => void;
   onOpenCustomResolver?: () => void;
 }
 
@@ -39,11 +38,11 @@ const formatDate = (value: string) => new Date(value).toLocaleString(undefined, 
 });
 
 const reviewState = (investigation: Investigation, isReviewProcessing: boolean): { label: string; tone: BadgeTone } => {
-  if (isReviewProcessing && investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 3) {
+  if (isReviewProcessing && investigation.assessmentReport?.reviewPolicyVersion !== 3) {
     return { label: 'AI verification running', tone: 'neutral' };
   }
   const humanReviews = getHumanReviewCount(investigation);
-  if (investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 3) {
+  if (investigation.assessmentReport?.reviewPolicyVersion !== 3) {
     return {
       label: humanReviews > 0 ? `${humanReviews} human review${humanReviews === 1 ? '' : 's'} · AI unavailable` : 'AI verification unavailable',
       tone: humanReviews > 0 ? 'caution' : 'neutral',
@@ -70,18 +69,28 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   investigations,
   onStartInvestigation,
   onSelectInvestigation,
+  onDeleteInvestigation,
   onSelectConnectorDetails,
   isLoading,
-  onDirectInvestigate,
   onOpenCustomResolver,
   isReviewProcessing,
 }) => {
+  const [deleting, setDeleting] = React.useState<string | null>(null);
+  const deleteReport = async (investigation: Investigation) => {
+    const prompt = `Delete ${investigation.targetName} from report history? This removes its saved report and duplicate runs for the same identifier.`;
+    if (!window.confirm(prompt)) return;
+    setDeleting(investigation.id);
+    try { await onDeleteInvestigation(investigation.id); }
+    catch (error) { window.alert(error instanceof Error ? error.message : 'Unable to delete this report.'); }
+    finally { setDeleting(null); }
+  };
+
   const recentInvestigations = [...investigations]
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
     .slice(0, 6);
 
   return (
-    <div className="space-y-6 sm:space-y-7">
+    <div className="flex min-h-full flex-col space-y-6 sm:space-y-7">
       <section className="flex flex-col gap-4 border-b border-[#E4E9EB] pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#087F61]">Vendor intelligence workspace</p>
@@ -108,7 +117,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="min-w-0">
                 <h2 className="text-sm font-bold uppercase tracking-[0.08em] text-[#171C25] sm:text-base">Quick-start a due diligence run</h2>
                 <p className="mt-1 text-xs leading-5 text-[#687385] sm:text-sm">
-                  Start from a sample, prepare a known entity, or resolve a company using its name or identifier.
+                  Start a live investigation from a company name or identifier.
                 </p>
               </div>
             </div>
@@ -117,27 +126,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
             <button
               type="button"
-              onClick={() => onSelectInvestigation('inv_demo_run_01')}
-              className="group flex min-h-[58px] items-center gap-3 rounded-xl border border-violet-200/90 bg-violet-50/75 px-3.5 py-3 text-left text-sm font-semibold text-violet-950 shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
-            >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-violet-700 shadow-sm"><Play className="h-4 w-4 fill-current" /></span>
-              <span className="min-w-0 flex-1">Open synthetic walkthrough <span className="block text-xs font-normal text-violet-700">Demo report · Acme Horizon</span></span>
-              <ArrowUpRight className="h-4 w-4 shrink-0 text-violet-600 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (onDirectInvestigate) onDirectInvestigate({ targetName: 'Tata Steel Limited', identifierType: 'CIN', identifierValue: 'L27100MH1907PLC000260' });
-                else onStartInvestigation();
-              }}
+              onClick={onStartInvestigation}
               className="group flex min-h-[58px] items-center gap-3 rounded-xl border border-[#DDE6E8] bg-white/80 px-3.5 py-3 text-left text-sm font-semibold text-[#171C25] shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E7F5F0] text-[#087F61]"><FileText className="h-4 w-4" /></span>
-              <span className="min-w-0 flex-1">Prepare Tata Steel investigation<span className="block text-xs font-normal text-[#687385]">Open the form with CIN filled in</span></span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E7F5F0] text-[#087F61]"><SearchCheck className="h-4 w-4" /></span>
+              <span className="min-w-0 flex-1">Start a live investigation<span className="block text-xs font-normal text-[#687385]">Enter the company details to verify</span></span>
               <ArrowRight className="h-4 w-4 shrink-0 text-[#8490A0] transition-transform group-hover:translate-x-0.5" />
             </button>
 
@@ -194,7 +190,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   <th className="px-4 py-3">Sources</th>
                   <th className="px-4 py-3">Last run</th>
                   <th className="px-4 py-3">Review status</th>
-                  <th className="w-12 px-4 py-3"><span className="sr-only">Open report</span></th>
+                  <th className="w-24 px-4 py-3 text-right"><span className="sr-only">Report actions</span></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E4E9EB]">
@@ -213,7 +209,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#E4E9EB] bg-[#F8FAFB] text-[#087F61]"><Building2 className="h-4 w-4" /></span>
                           <div className="min-w-0">
                             <div className="max-w-[280px] truncate text-xs font-semibold text-[#171C25]">{investigation.targetName}</div>
-                            <div className="mt-0.5 text-[10px] text-[#8490A0]">{investigation.executionMode === 'DEMO' ? 'Synthetic demo' : 'Corporate entity'} · {investigation.status === 'COMPLETED' ? 'Report saved' : investigation.status === 'PARTIAL_FAILURE' ? 'Coverage gaps recorded' : investigation.status === 'FAILED' ? 'Run incomplete' : investigation.status === 'CANCELLED' ? 'Run cancelled' : investigation.status.replace(/_/g, ' ').toLowerCase()}</div>
+                            <div className="mt-0.5 text-[10px] text-[#8490A0]">Corporate entity · {investigation.status === 'COMPLETED' ? 'Report saved' : investigation.status === 'PARTIAL_FAILURE' ? 'Coverage gaps recorded' : investigation.status === 'FAILED' ? 'Run incomplete' : investigation.status === 'CANCELLED' ? 'Run cancelled' : investigation.status.replace(/_/g, ' ').toLowerCase()}</div>
                           </div>
                         </div>
                       </td>
@@ -221,7 +217,21 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                       <td className="px-4 py-3.5 text-xs text-[#526176]">{investigation.sourcesChecked.length} sources</td>
                       <td className="px-4 py-3.5 text-xs tabular-nums text-[#687385]">{formatDate(investigation.completedAt || investigation.createdAt)}</td>
                       <td className="px-4 py-3.5"><Badge tone={review.tone} size="sm">{review.label}</Badge></td>
-                      <td className="px-4 py-3.5 text-right"><ArrowRight className="ml-auto h-4 w-4 text-[#8490A0] transition-transform group-hover:translate-x-0.5 group-hover:text-[#087F61]" /></td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            aria-label={`Delete ${investigation.targetName} from report history`}
+                            title="Delete report and duplicate runs"
+                            disabled={deleting === investigation.id}
+                            onClick={(event) => { event.stopPropagation(); void deleteReport(investigation); }}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-rose-200 bg-white text-rose-700 transition hover:border-rose-300 hover:bg-rose-50 disabled:cursor-wait disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                          <ArrowRight className="h-4 w-4 text-[#8490A0] transition-transform group-hover:translate-x-0.5 group-hover:text-[#087F61]" />
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -231,7 +241,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         )}
       </section>
 
-      <SourceHealthGrid connectors={connectors} onConfigureClick={onSelectConnectorDetails} />
+      <div className="flex-1">
+        <SourceHealthGrid connectors={connectors} onConfigureClick={onSelectConnectorDetails} />
+      </div>
     </div>
   );
 };

@@ -72,3 +72,32 @@ export interface MonitoringConfig {
   nextScheduledCheck: string | null;
   notice: string;
 }
+
+export type AutomatedMonitoringFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY';
+
+export interface AutomatedMonitoringJob {
+  monitorId: string;
+  companyName: string;
+  identifierType: string;
+  identifierValue: string;
+  baselineReportId: string;
+  frequency: AutomatedMonitoringFrequency;
+  enabled: boolean;
+  lastCheckedAt: string | null;
+  nextCheckAt: string;
+  lastError: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MonitoringNotification {
+  id: string;
+  monitorId: string;
+  companyName: string;
+  comparisonId: string;
+  title: string;
+  summary: string;
+  changes: SignalDiffItem[];
+  createdAt: string;
+  readAt: string | null;
+}

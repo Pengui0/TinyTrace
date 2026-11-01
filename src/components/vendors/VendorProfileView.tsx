@@ -1,4 +1,4 @@
-import { apiFetch } from '../../api/authenticatedFetch.js';
+import { apiFetch } from '../../api/apiFetch.js';
 import React, { useState, useEffect } from 'react';
 import { Investigation } from '../../types/vendor.js';
 import { getAssessmentDisplayValues, getAssessmentTrend, AssessmentTrend } from '../../utils/assessmentDisplay.js';
