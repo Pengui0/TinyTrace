@@ -16,7 +16,7 @@ import { executeHardenedRequest } from './httpClient.js';
 import { registryCache } from './cache.js';
 
 // Fail promptly when a live registry identity request stalls; these lookups do not retry.
-const IDENTITY_LOOKUP_TIMEOUT_MS = 10_000;
+const IDENTITY_LOOKUP_TIMEOUT_MS = 5_000;
 const DIRECTOR_LOOKUP_TIMEOUT_MS = 12_000;
 
 
