@@ -101,8 +101,14 @@ flowchart TD
 
 ### Layer 4: Interactive Graph, Monitoring & Workflows
 - **Interactive Network Graph**: Rendered via `@xyflow/react` with accessible table fallback. Red/amber colors indicate verified risk; unverified candidate links remain neutral slate gray.
-- **Monitoring & Diff Engine**: Re-running an investigation compares the current run against the historical baseline, detecting `NEW`, `CHANGED`, and `RESOLVED` signals.
+- **Monitoring & Diff Engine**: Reports can be re-run manually and compared with a historical baseline to identify new, changed, and not-observed signals. Automated monitoring can schedule repeat live checks for completed reports.
 - **Audit History**: Vendor profile tracks longitudinal posture and trend (`IMPROVING`, `DETERIORATING`, `STABLE`).
+
+### Automated Company Monitoring
+- Start a monitor from a completed live investigation and choose a **daily, weekly, or monthly** check frequency. Monitors can be paused, resumed, or removed.
+- The TinyTrace server polls for due schedules every 60 seconds, runs a fresh live investigation, and compares each completed result with the prior baseline. The baseline advances only after a completed run.
+- New or changed findings appear in the persistent notification inbox. A finding missing from a later search is **not** treated as resolved or cleared; review the comparison and its source coverage.
+- Scheduled checks require the Supabase workspace tables and a continuously running TinyTrace server. The host must keep one instance running for unattended checks; each run uses configured provider services and may consume API credits. See [Supabase Storage and Account Setup](#supabase-storage-and-account-setup) for deployment details.
 
 
 ## Professional Workflows & Exports
