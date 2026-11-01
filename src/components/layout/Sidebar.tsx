@@ -19,6 +19,7 @@ interface SidebarProps {
   onSelectTab: (tab: NavigationTab) => void;
   investigationCount?: number | null;
   activeConnectorsCount: number;
+  unavailableConnectorsCount: number;
   totalConnectorsCount: number;
   onOpenHelp: () => void;
   onStartInvestigation: () => void;
@@ -32,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   investigationCount,
   activeConnectorsCount,
+  unavailableConnectorsCount,
   totalConnectorsCount,
   onOpenHelp,
   onStartInvestigation,
@@ -183,13 +185,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Source connectors indicator */}
         <div className="space-y-1 rounded-xl border border-[#E4E9EB] bg-[#F8FAFB] p-2.5 text-xs">
           <div className="flex items-center justify-between text-[11px] font-medium text-[#1C1F26]">
-            <span>Connector Probes</span>
-            <span className="text-[#087F61] font-mono tabular-nums text-[10px]">
-              {activeConnectorsCount}/{totalConnectorsCount} healthy
+            <span>Connector status</span>
+            <span className="text-[#687385] font-mono tabular-nums text-[10px]">
+              {totalConnectorsCount} sources
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-2 text-[10px] font-medium font-mono tabular-nums">
+            <span className="text-[#087F61]">{activeConnectorsCount} healthy</span>
+            <span className="text-[#B45309]">{unavailableConnectorsCount} unavailable</span>
+            <span className="text-[#687385]">
+              {Math.max(0, totalConnectorsCount - activeConnectorsCount - unavailableConnectorsCount)} not healthy yet
             </span>
           </div>
           <p className="line-clamp-2 text-[10px] leading-snug text-[#8490A0]">
-            Successful connection probes only. Configured credentials and completed investigations are tracked separately.
+            Healthy requires a passed live probe. Unavailable means no direct integration is connected here.
           </p>
         </div>
 

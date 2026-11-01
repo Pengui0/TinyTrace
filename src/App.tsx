@@ -335,6 +335,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
   };
 
   const activeConnectorsCount = connectors.filter((c) => c.status === 'HEALTHY').length;
+  const unavailableConnectorsCount = connectors.filter((c) => c.status === 'UNAVAILABLE').length;
   const uniqueInvestigationCount = keepLatestInvestigationPerIdentity(investigations).length;
   const displayStats = stats && investigations.length > 0 ? {
     ...stats,
@@ -353,6 +354,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
           onSelectTab={handleNavigation}
           investigationCount={uniqueInvestigationCount > 0 ? uniqueInvestigationCount : null}
           activeConnectorsCount={activeConnectorsCount}
+          unavailableConnectorsCount={unavailableConnectorsCount}
           totalConnectorsCount={connectors.length}
           onOpenHelp={() => setIsHelpModalOpen(true)}
           onStartInvestigation={() => openNewInvestigation()}
@@ -390,6 +392,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
               }}
               investigationCount={uniqueInvestigationCount > 0 ? uniqueInvestigationCount : null}
               activeConnectorsCount={activeConnectorsCount}
+              unavailableConnectorsCount={unavailableConnectorsCount}
               totalConnectorsCount={connectors.length}
               onOpenHelp={() => {
                 setIsHelpModalOpen(true);
