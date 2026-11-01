@@ -50,6 +50,13 @@ export async function runLiveProviderContractTests(): Promise<TestResult> {
           init?.signal?.addEventListener('abort', () => reject(new DOMException('The operation was aborted.', 'AbortError')), { once: true });
         });
       }
+      if (url.pathname === '/api/v1/company/UTESTCIN0000000000004') {
+        return new Response(new ReadableStream<Uint8Array>({
+          start(controller) {
+            init?.signal?.addEventListener('abort', () => controller.error(new DOMException('The operation was aborted.', 'AbortError')), { once: true });
+          },
+        }), { status: 200, headers: { 'content-type': 'application/json' } });
+      }
       if (url.pathname === '/api/v1/company/UTESTCIN0000000000001') {
         return new Response(JSON.stringify({
           cin: 'UTESTCIN0000000000001',
@@ -122,6 +129,8 @@ export async function runLiveProviderContractTests(): Promise<TestResult> {
 
     const timedOutLookup = await provider.lookupByCIN('UTESTCIN0000000000003', { timeoutMs: 20 });
     assert(!timedOutLookup.success && timedOutLookup.errorCategory === 'TIMEOUT' && /timed out after 20ms/i.test(timedOutLookup.message || ''), 'A stalled IndiaCos identity request returns a clear timeout without retries');
+    const stalledBodyLookup = await provider.lookupByCIN('UTESTCIN0000000000004', { timeoutMs: 20 });
+    assert(!stalledBodyLookup.success && stalledBodyLookup.errorCategory === 'TIMEOUT' && /timed out after 20ms/i.test(stalledBodyLookup.message || ''), 'IndiaCos response-body stalls remain covered by the lookup timeout');
 
     const companyCases = await provider.lookupCases('UTESTCIN0000000000001', { identifierType: 'CIN' });
     assert(companyCases.cases[0]?.caseId === 'ecourts-001' && companyCases.cases[0]?.caseNumber === 'CS 42/2024', 'IndiaCos company case response preserves the provider case ID and number');

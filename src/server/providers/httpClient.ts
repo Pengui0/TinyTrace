@@ -112,8 +112,6 @@ export async function executeHardenedRequest(
         signal: controller.signal,
       });
 
-      clearTimeout(timer);
-      options.signal?.removeEventListener('abort', abortFromCaller);
       const attemptLatency = Date.now() - attemptStart;
       const upstreamRequestId = extractRequestId(response.headers);
 
@@ -122,10 +120,13 @@ export async function executeHardenedRequest(
         let json: any = null;
         try {
           json = await response.json();
-        } catch {
+        } catch (error) {
+          if (controller.signal.aborted) throw error;
           json = {};
         }
 
+        clearTimeout(timer);
+        options.signal?.removeEventListener('abort', abortFromCaller);
         return {
           ok: true,
           status: response.status,
@@ -138,6 +139,8 @@ export async function executeHardenedRequest(
       }
 
       // Non-2xx response handling
+      clearTimeout(timer);
+      options.signal?.removeEventListener('abort', abortFromCaller);
 
       // 1. Authentication failure (HTTP 401, 403) -> DO NOT RETRY
       if (response.status === 401 || response.status === 403) {

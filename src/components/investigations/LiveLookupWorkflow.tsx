@@ -72,6 +72,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        timeoutMs: 8_000,
       });
 
       let data = await res.json();
@@ -89,6 +90,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          timeoutMs: 8_000,
         });
         data = await res.json();
       }
@@ -150,7 +152,7 @@ export const LiveLookupWorkflow: React.FC<LiveLookupWorkflowProps> = ({ onEntity
       const message = String(e?.message || 'Resolution failed');
       if (/HTTP 404/i.test(message)) {
         setResolutionMessage('IndiaCos returned 404 for this identifier lookup. The registry record was not resolved; this does not prove the company does not exist. Check the identifier/provider configuration or try the legal name without the CIN.');
-      } else if (/timed out after \d+ms/i.test(message)) {
+      } else if (/timed out after \d+ms|timeout/i.test(message)) {
         setResolutionMessage('IndiaCos is taking longer than expected. This lookup timed out, so no identity match was verified. Retry shortly or try the other identifier.');
       } else {
         setResolutionMessage(`Error: ${message}`);
