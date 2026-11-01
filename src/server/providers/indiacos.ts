@@ -15,8 +15,8 @@ import {
 import { executeHardenedRequest } from './httpClient.js';
 import { registryCache } from './cache.js';
 
-// Registry identity lookups can be slower than lightweight connector probes.
-const IDENTITY_LOOKUP_TIMEOUT_MS = 20_000;
+// Fail promptly when a live registry identity request stalls; these lookups do not retry.
+const IDENTITY_LOOKUP_TIMEOUT_MS = 10_000;
 const DIRECTOR_LOOKUP_TIMEOUT_MS = 12_000;
 
 

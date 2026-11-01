@@ -45,6 +45,11 @@ export async function runLiveProviderContractTests(): Promise<TestResult> {
         assert(headers.get('x-api-key') === 'tinytrace-test-only-key', 'IndiaCos request includes documented API-key header');
       }
 
+      if (url.pathname === '/api/v1/company/UTESTCIN0000000000003') {
+        return await new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new DOMException('The operation was aborted.', 'AbortError')), { once: true });
+        });
+      }
       if (url.pathname === '/api/v1/company/UTESTCIN0000000000001') {
         return new Response(JSON.stringify({
           cin: 'UTESTCIN0000000000001',
@@ -114,6 +119,9 @@ export async function runLiveProviderContractTests(): Promise<TestResult> {
     assert(called.some((call) => call.includes('/company/UTESTCIN0000000000001/directors')), 'CIN lookup requests the documented directors endpoint when count is nonzero');
     assert(company.profile?.registeredOffice?.includes('Mumbai') === true, 'Object-shaped registered office is normalized to readable text');
     assert(company.profile?.gstins.join(',') === '27AAACW1234F1Z5,29AAACW1234F1Z3', 'CIN lookup exposes deduplicated valid GSTINs from IndiaCos registration arrays');
+
+    const timedOutLookup = await provider.lookupByCIN('UTESTCIN0000000000003', { timeoutMs: 20 });
+    assert(!timedOutLookup.success && timedOutLookup.errorCategory === 'TIMEOUT' && /timed out after 20ms/i.test(timedOutLookup.message || ''), 'A stalled IndiaCos identity request returns a clear timeout without retries');
 
     const companyCases = await provider.lookupCases('UTESTCIN0000000000001', { identifierType: 'CIN' });
     assert(companyCases.cases[0]?.caseId === 'ecourts-001' && companyCases.cases[0]?.caseNumber === 'CS 42/2024', 'IndiaCos company case response preserves the provider case ID and number');
