@@ -53,6 +53,17 @@
   display: none;
 }
 
+/* Keep whole-screen navigation scrollable without showing the outer browser-like bar. */
+.app-screen-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-gutter: auto;
+  overscroll-behavior-y: contain;
+}
+.app-screen-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* Subtle enterprise scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

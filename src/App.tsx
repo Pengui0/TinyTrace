@@ -408,7 +408,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
       )}
 
       {/* Main Viewport Container */}
-      <div className="flex-1 flex flex-col min-w-0 h-full min-h-0 overflow-y-auto">
+      <div className="app-screen-scroll flex-1 flex flex-col min-w-0 h-full min-h-0 overflow-y-auto">
         <Topbar
           currentWorkspace={workspace}
           onOpenHelp={() => setIsHelpModalOpen(true)}
