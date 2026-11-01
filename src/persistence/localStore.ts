@@ -67,6 +67,14 @@ export function loadWorkspace(storage?: StorageLike): WorkspaceSnapshot {
   return storage ? loadWorkspaceFromStorage(storage) : workspaceCache;
 }
 
+export function resetWorkspaceCache(): void {
+  workspaceCache = emptyWorkspace();
+  storageReadError = null;
+  // A cleared in-memory cache is not an authoritative server snapshot and must
+  // never be queued back to Supabase while the next account is loading.
+  remotePersistenceReady = false;
+}
+
 export function hydrateWorkspace(snapshot: WorkspaceSnapshot): void {
   workspaceCache = removeSyntheticDemoData(migrateWorkspace(snapshot));
   // A prior session's 401 may have been surfaced as a save warning. A successful

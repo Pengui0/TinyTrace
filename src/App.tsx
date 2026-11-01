@@ -83,6 +83,7 @@ function DashboardApp() {
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const [workspaceReady, setWorkspaceReady] = useState(false);
   const [workspaceLoadError, setWorkspaceLoadError] = useState<string | null>(null);
+  const skipInitialInvestigationSync = useRef(true);
 
   useEffect(() => {
     if (getStorageReadError()) setStorageWarning(getStorageReadError());
@@ -92,7 +93,12 @@ function DashboardApp() {
   }, []);
 
   useEffect(() => {
-    if (workspaceReady) updateWorkspace((current) => ({ ...current, investigations }));
+    if (!workspaceReady) return;
+    if (skipInitialInvestigationSync.current) {
+      skipInitialInvestigationSync.current = false;
+      return;
+    }
+    updateWorkspace((current) => ({ ...current, investigations }));
   }, [investigations, workspaceReady]);
 
   useEffect(() => {
@@ -143,6 +149,7 @@ function DashboardApp() {
     let mergedInvestigations: Investigation[] = [];
     try {
       setWorkspaceLoadError(null);
+      setWorkspaceReady(false);
       const workspaceRes = await apiFetch('/api/workspace');
       const workspaceData = await workspaceRes.json().catch(() => ({})) as { exists?: boolean; snapshot?: WorkspaceSnapshot | null; error?: string };
       if (!workspaceRes.ok) throw new Error(workspaceData.error || `Supabase workspace could not be loaded (HTTP ${workspaceRes.status}).`);
@@ -152,16 +159,21 @@ function DashboardApp() {
         const legacy = readLegacyWorkspaceForMigration();
         if (legacy.error) throw new Error(`Legacy browser data was not imported: ${legacy.error}`);
         snapshot = legacy.snapshot || emptyWorkspace();
-        const importRes = await apiFetch('/api/workspace', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ snapshot }),
-        });
-        if (!importRes.ok) {
-          const importData = await importRes.json().catch(() => ({})) as { error?: string };
-          throw new Error(importData.error || `Workspace migration to Supabase failed (HTTP ${importRes.status}).`);
+        // Only migrate actual legacy records. Never create an empty Supabase
+        // snapshot merely because the selected account has no row; it can hide
+        // older data that is still safely stored under another workspace ID.
+        if (legacy.snapshot) {
+          const importRes = await apiFetch('/api/workspace', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ snapshot }),
+          });
+          if (!importRes.ok) {
+            const importData = await importRes.json().catch(() => ({})) as { error?: string };
+            throw new Error(importData.error || `Workspace migration to Supabase failed (HTTP ${importRes.status}).`);
+          }
+          clearLegacyBrowserWorkspace();
         }
-        clearLegacyBrowserWorkspace();
       }
 
       hydrateWorkspace(snapshot);
@@ -256,7 +268,6 @@ function DashboardApp() {
       setIsBackendHealthy(false);
       setWorkspaceLoadError(err instanceof Error ? err.message : 'Supabase workspace could not be loaded.');
     } finally {
-      setWorkspaceReady(true);
       setIsReviewProcessing(false);
     }
   };
@@ -407,7 +418,7 @@ function DashboardApp() {
     highRiskFlags: investigations.reduce((total, item) => total + (item.findingsCount.materialRisk || 0), 0),
   } : stats;
 
-  if (!workspaceReady) {
+  if (!workspaceReady && !workspaceLoadError) {
     return <main className="flex h-screen items-center justify-center bg-[#F5F7F8] text-sm text-[#687385]">Loading TinyTrace workspace from Supabase…</main>;
   }
 

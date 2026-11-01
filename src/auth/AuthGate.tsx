@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import { getActiveSession, handleAuthStorageEvent, restoreSession, TinyTraceSession } from './supabaseAuth.js';
-import { emptyWorkspace, hydrateWorkspace } from '../persistence/localStore.js';
+import { resetWorkspaceCache } from '../persistence/localStore.js';
 const AuthPage = lazy(() => import('../components/auth/AuthPage.js').then((module) => ({ default: module.AuthPage })));
 
 interface AuthGateProps { children: React.ReactNode }
@@ -12,7 +12,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const activeUserId = useRef(session?.user.id || null);
 
   const acceptSession = (next: TinyTraceSession | null) => {
-    if (activeUserId.current !== (next?.user.id || null)) hydrateWorkspace(emptyWorkspace());
+    if (activeUserId.current !== (next?.user.id || null)) resetWorkspaceCache();
     activeUserId.current = next?.user.id || null;
     setSession(next);
   };
