@@ -345,7 +345,7 @@ function DashboardApp({ onSignOut }: { onSignOut?: () => void }) {
   } : stats;
 
   return (
-    <div className="h-screen flex overflow-hidden bg-[#F5F7F8] text-[#1C1F26]">
+    <div className="dashboard-canvas h-screen flex overflow-hidden bg-[#F5F7F8] text-[#1C1F26]">
       {/* Desktop Sidebar */}
       <div className={`hidden md:block h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-0' : 'w-[286px]'}`}>
         <Sidebar
