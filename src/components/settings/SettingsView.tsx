@@ -25,13 +25,14 @@ interface SettingsViewProps {
     isConfigured: boolean;
     status: string;
   }>;
+  initialTab?: 'integrations' | 'persistence' | 'rules';
 }
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
-  const [activeTab, setActiveTab] = useState<'integrations' | 'persistence' | 'rules'>(() => {
+export const SettingsView: React.FC<SettingsViewProps> = ({ connectors, initialTab }) => {
+  const [activeTab, setActiveTab] = useState<'integrations' | 'persistence' | 'rules'>(() => initialTab || (() => {
     const saved = readSavedSettings().activeTab;
     return saved === 'persistence' || saved === 'rules' ? saved : 'integrations';
-  });
+  })());
 
   const [storageStatus, setStorageStatus] = useState<{
     mode: string;
@@ -211,7 +212,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ connectors }) => {
               <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="text-[#1C1F26]">Two-Source Corroboration Rule: </strong>
-                Any finding corroborated across &ge; 2 independent registries is marked as verified. Single-source findings automatically route to the compliance officer review queue.
+                Findings with two or more independent sources are marked as corroborated. Routine single-source findings receive a second-layer AI evidence-packet check; critical findings, identity concerns, conflicts, and AI escalations go to the human review queue. AI packet checks do not count as independent source corroboration.
               </div>
             </div>
 

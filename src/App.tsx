@@ -26,6 +26,7 @@ import { LiveEvidenceView } from './components/investigations/LiveEvidenceView.j
 import { openCustomVendorSearch } from './components/overview/customVendorSearch.js';
 import { getStorageReadError, loadWorkspace, updateWorkspace, WorkspaceSnapshot } from './persistence/localStore.js';
 import { LandingPage } from './components/landing/LandingPage.js';
+import { applyFindingReviewResults, getHumanReviewCount } from './utils/reviewPolicy.js';
 
 function DashboardApp() {
   const [savedWorkspace] = useState<WorkspaceSnapshot>(() => loadWorkspace());
@@ -46,11 +47,16 @@ function DashboardApp() {
   const [monitoringSelection, setMonitoringSelection] = useState<{ baselineId: string; latestId: string } | null>(null);
   const [investigationWorkspaceKey, setInvestigationWorkspaceKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isReviewProcessing, setIsReviewProcessing] = useState(() => savedWorkspace.investigations.some((item) =>
+    item.executionMode !== 'DEMO' && item.assessmentReport?.reviewPolicyVersion !== 2 && Boolean(item.normalizedFindings?.length)
+  ));
   const [isBackendHealthy, setIsBackendHealthy] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [selectedConnector, setSelectedConnector] = useState<SourceConnector | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => savedWorkspace.preferences.sidebarCollapsed === true);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'integrations' | 'persistence' | 'rules'>('integrations');
+  const [settingsInstanceKey, setSettingsInstanceKey] = useState(0);
   const [notification, setNotification] = useState<string | null>(null);
   const activeInvestigationRunIdRef = useRef<string | null>(null);
   const openNewInvestigation = (draft: { targetName: string; identifierType: IdentifierType; identifierValue: string } | null = null) => {
@@ -88,6 +94,7 @@ function DashboardApp() {
 
   // Fetch initial system state
   const loadWorkspaceData = async () => {
+    let mergedInvestigations = [...savedWorkspace.investigations];
     try {
       // 1. Health check
       const healthRes = await fetch('/api/health');
@@ -115,16 +122,57 @@ function DashboardApp() {
         const invData = await invRes.json();
         // An empty dev-server repository is not authoritative over browser history.
         if (invData.investigations?.length) {
-          setInvestigations((previous) => {
-            const merged = new Map(previous.map((item) => [item.id, item]));
-            invData.investigations.forEach((item: Investigation) => merged.set(item.id, item));
-            return [...merged.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-          });
+          const merged = new Map(mergedInvestigations.map((item) => [item.id, item]));
+          invData.investigations.forEach((item: Investigation) => merged.set(item.id, item));
+          mergedInvestigations = [...merged.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        }
+      }
+      setInvestigations(mergedInvestigations);
+
+      // Older saved reports have no second-layer result. Run it before marking their review status final.
+      const needsReviewPass = mergedInvestigations.filter((item) =>
+        item.executionMode !== 'DEMO' &&
+        item.assessmentReport?.reviewPolicyVersion !== 2 &&
+        Boolean(item.normalizedFindings?.length)
+      );
+      setIsReviewProcessing(needsReviewPass.length > 0);
+      for (let offset = 0; offset < needsReviewPass.length; offset += 2) {
+        const batch = needsReviewPass.slice(offset, offset + 2);
+        const results = await Promise.all(batch.map(async (item) => {
+          try {
+            const response = await fetch(`/api/investigations/${encodeURIComponent(item.id)}/assessment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ investigation: item }),
+            });
+            if (!response.ok) return null;
+            const assessment = await response.json();
+            return {
+              ...item,
+              assessmentReport: assessment,
+              findings: applyFindingReviewResults(item.findings, assessment.reviewedFindings || []),
+              findingsCount: {
+                ...item.findingsCount,
+                requiresReview: assessment.humanReviewQueue?.length || 0,
+              },
+            } as Investigation;
+          } catch {
+            return null;
+          }
+        }));
+        const completed = results.filter((item): item is Investigation => item !== null);
+        if (completed.length) {
+          const completedById = new Map(completed.map((item) => [item.id, item]));
+          mergedInvestigations = mergedInvestigations.map((item) => completedById.get(item.id) || item);
+          setInvestigations(mergedInvestigations);
+          setCurrentInvestigation((current) => current ? completedById.get(current.id) || current : current);
         }
       }
     } catch (err) {
       console.error('Error loading initial workspace data:', err);
       setIsBackendHealthy(false);
+    } finally {
+      setIsReviewProcessing(false);
     }
   };
 
@@ -289,7 +337,7 @@ function DashboardApp() {
     ...stats,
     totalInvestigations: investigations.length,
     totalTrackedVendors: uniqueInvestigationCount,
-    pendingReviews: investigations.reduce((total, item) => total + (item.findingsCount.requiresReview || 0), 0),
+    pendingReviews: investigations.reduce((total, item) => total + getHumanReviewCount(item), 0),
     highRiskFlags: investigations.reduce((total, item) => total + (item.findingsCount.materialRisk || 0), 0),
   } : stats;
 
@@ -385,7 +433,7 @@ function DashboardApp() {
         )}
 
         {/* Main Content View */}
-        {storageWarning && <div role="alert" className="px-5 py-2 text-xs bg-amber-100 text-amber-950 border-b border-amber-300 flex justify-between">{storageWarning}<button onClick={() => setCurrentTab('settings')} className="underline font-semibold">Open backup options</button></div>}
+        {storageWarning && <div role="alert" className="px-5 py-2 text-xs bg-amber-100 text-amber-950 border-b border-amber-300 flex justify-between">{storageWarning}<button onClick={() => { setSettingsInitialTab('persistence'); setSettingsInstanceKey((key) => key + 1); setCurrentTab('settings'); }} className="underline font-semibold">Open backup options</button></div>}
         <main className="mx-auto w-full max-w-[1380px] flex-1 space-y-6 px-4 py-5 sm:px-6 md:py-7 xl:px-8">
           {/* Guided Demo Walkthrough Banner when Demo Mode is active */}
           {isDemoMode && currentTab === 'overview' && (
@@ -403,6 +451,7 @@ function DashboardApp() {
               stats={displayStats}
               connectors={connectors}
               investigations={investigations}
+              isReviewProcessing={isReviewProcessing}
               onStartInvestigation={openNewInvestigation}
               onSelectInvestigation={handleSelectInvestigation}
               onSelectConnectorDetails={(conn) => setSelectedConnector(conn)}
@@ -484,7 +533,7 @@ function DashboardApp() {
           )}
 
           {currentTab === 'settings' && (
-            <SettingsView connectors={connectors} />
+            <SettingsView key={settingsInstanceKey} connectors={connectors} initialTab={settingsInitialTab} />
           )}
         </main>
       </div>

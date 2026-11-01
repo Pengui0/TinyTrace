@@ -475,14 +475,28 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
         </div>
       )}
 
-      {/* 6. "Needs Human Review" Queue */}
+      {assessment?.aiVerificationSummary && (
+        <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-3.5 text-xs text-sky-950">
+          <div className="font-bold">Second verification pass · AI evidence review</div>
+          <p className="mt-1 leading-relaxed">
+            Runs automatically after source cross-validation and before the human review queue is built. The list below contains only escalated or extreme cases.
+            {' '}
+            {assessment.aiVerificationSummary.enabled
+              ? `${assessment.aiVerificationSummary.reviewed} routine evidence packet(s) checked; ${assessment.aiVerificationSummary.supported} supported, ${assessment.aiVerificationSummary.escalated} escalated, and ${assessment.aiVerificationSummary.unableToConfirm} unable to confirm.`
+              : 'AI is not configured. Uncorroborated routine items are escalated for human review until AI verification is available.'}
+            {' '}This check assesses supplied evidence only. It does not independently verify sources or replace two-source corroboration.
+          </p>
+        </div>
+      )}
+
+      {/* 6. Extreme and unresolved cases only */}
       {assessment?.humanReviewQueue && assessment.humanReviewQueue.length > 0 && (
         <div className="bg-white border border-amber-300 rounded-lg shadow-xs overflow-hidden">
           <div className="p-3.5 bg-amber-50/70 border-b border-amber-200 flex items-center justify-between">
             <div className="flex items-center gap-2 text-amber-950">
               <AlertTriangle className="w-4 h-4 text-amber-700" />
               <span className="text-xs font-bold uppercase tracking-wider">
-                Needs Human Review Queue ({assessment.humanReviewQueue.length} Matters)
+                Human Review — Critical or Escalated ({assessment.humanReviewQueue.length} Matters)
               </span>
             </div>
             <button
@@ -509,7 +523,7 @@ export const InvestigationSummary: React.FC<InvestigationSummaryProps> = ({
                     {item.neutralSummary}
                   </p>
                   <div className="p-2 bg-[#F8FAFB] border border-[#E4E9EB] rounded text-[11px] text-[#1C1F26] font-medium">
-                    Review Reason: <span className="text-amber-900 font-normal">{item.humanReviewReason || 'Single source claim requires officer verification.'}</span>
+                    Review Reason: <span className="text-amber-900 font-normal">{item.humanReviewReason || 'Critical or unresolved evidence requires officer verification.'}</span>
                   </div>
                 </div>
               ))}

@@ -428,6 +428,7 @@ export const DEMO_ENTITY_GRAPH: EntityGraph = {
 // Initial Demo Investigation Object
 export const DEMO_INVESTIGATION_RUN_1: Investigation = {
   id: 'inv_demo_run_01',
+  executionMode: 'DEMO',
   targetName: FICTIONAL_VENDOR_NAME,
   identifierType: 'CIN',
   identifierValue: FICTIONAL_CIN,

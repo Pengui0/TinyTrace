@@ -5,6 +5,7 @@ import { SourceHealthGrid } from './SourceHealthGrid.js';
 import { EmptyState } from '../common/EmptyState.js';
 import { Button } from '../common/Button.js';
 import { Badge, BadgeTone } from '../common/Badge.js';
+import { getAICheckedCount, getHumanReviewCount } from '../../utils/reviewPolicy.js';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -28,6 +29,7 @@ interface OverviewViewProps {
   onSelectInvestigation: (id: string) => void;
   onSelectConnectorDetails: (connector: SourceConnector) => void;
   isLoading: boolean;
+  isReviewProcessing: boolean;
   onDirectInvestigate?: (params: { targetName: string; identifierType: IdentifierType; identifierValue: string; freshRun?: boolean }) => void;
   onOpenCustomResolver?: () => void;
 }
@@ -36,12 +38,23 @@ const formatDate = (value: string) => new Date(value).toLocaleString(undefined, 
   month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
 });
 
-const reviewState = (investigation: Investigation): { label: string; tone: BadgeTone } => {
+const reviewState = (investigation: Investigation, isReviewProcessing: boolean): { label: string; tone: BadgeTone } => {
+  if (isReviewProcessing && investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 2) {
+    return { label: 'AI verification running', tone: 'neutral' };
+  }
+  const humanReviews = getHumanReviewCount(investigation);
+  if (investigation.executionMode !== 'DEMO' && investigation.assessmentReport?.reviewPolicyVersion !== 2) {
+    return {
+      label: humanReviews > 0 ? `${humanReviews} human review${humanReviews === 1 ? '' : 's'} · AI unavailable` : 'AI verification unavailable',
+      tone: humanReviews > 0 ? 'caution' : 'neutral',
+    };
+  }
+  if (humanReviews > 0) {
+    return { label: `${humanReviews} human review${humanReviews === 1 ? '' : 's'}`, tone: 'caution' };
+  }
+  if (getAICheckedCount(investigation) > 0) return { label: 'AI review complete', tone: 'verified' };
   if (investigation.findingsCount.materialRisk > 0) {
     return { label: `${investigation.findingsCount.materialRisk} material risk${investigation.findingsCount.materialRisk === 1 ? '' : 's'}`, tone: 'risk' };
-  }
-  if (investigation.findingsCount.requiresReview > 0) {
-    return { label: `${investigation.findingsCount.requiresReview} review needed`, tone: 'caution' };
   }
   if (investigation.coverageGaps?.length || investigation.status === 'PARTIAL_FAILURE') {
     return { label: 'Partial coverage', tone: 'caution' };
@@ -61,6 +74,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   isLoading,
   onDirectInvestigate,
   onOpenCustomResolver,
+  isReviewProcessing,
 }) => {
   const recentInvestigations = [...investigations]
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
@@ -143,7 +157,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       <section aria-label="Workspace metrics" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCounter label="Total investigations" value={stats?.totalInvestigations} subtext="Recorded in this workspace" icon={<FileText className="h-4 w-4" />} />
         <MetricCounter label="Tracked vendors" value={stats?.totalTrackedVendors} subtext="Corporate entities on record" icon={<Layers3 className="h-4 w-4" />} tone="verified" />
-        <MetricCounter label="Human reviews needed" value={stats?.pendingReviews} subtext="Unverified or single-source findings" icon={<UsersRound className="h-4 w-4" />} tone={stats?.pendingReviews ? 'caution' : 'default'} />
+        <MetricCounter label="Human reviews needed" value={stats?.pendingReviews} subtext="Critical, conflicting, or AI-escalated items" icon={<UsersRound className="h-4 w-4" />} tone={stats?.pendingReviews ? 'caution' : 'default'} />
         <MetricCounter label="Material risk flags" value={stats?.highRiskFlags} subtext="Corroborated risk findings" icon={<TriangleAlert className="h-4 w-4" />} tone={stats?.highRiskFlags ? 'risk' : 'default'} />
       </section>
 
@@ -185,7 +199,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               </thead>
               <tbody className="divide-y divide-[#E4E9EB]">
                 {recentInvestigations.map((investigation) => {
-                  const review = reviewState(investigation);
+                  const review = reviewState(investigation, isReviewProcessing);
                   return (
                     <tr
                       key={investigation.id}

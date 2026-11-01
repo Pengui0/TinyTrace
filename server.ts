@@ -22,6 +22,7 @@ import { runTinyFishStreamingTests } from './src/server/tests/tinyfishStreaming.
 import { FICTIONAL_CIN } from './src/server/demo/demoDataset.js';
 import { runEntityTracingTests } from './src/server/tests/entityTracing.test.js';
 import { crossValidationService } from './src/server/services/crossValidationService.js';
+import { CrossValidatedFinding } from './src/types/crossValidation.js';
 import { getAssessmentDisplayValues, getAssessmentTrend } from './src/utils/assessmentDisplay.js';
 import { runCrossValidationTests } from './src/server/tests/crossValidation.test.js';
 import { changeDetectionService } from './src/server/services/changeDetectionService.js';
@@ -52,6 +53,21 @@ const configuredLimit = (name: string, fallback: number, maximum: number): numbe
     ? Math.min(Math.trunc(parsed), maximum)
     : fallback;
 };
+
+function applyAssessmentReviewPolicy(findings: Finding[], reviewed: CrossValidatedFinding[] = []): void {
+  findings.forEach((finding, index) => {
+    const assessment = reviewed[index];
+    if (!assessment) return;
+    if (assessment.confidence === 'conflicting_sources') finding.verificationStatus = 'CONFLICTING_EVIDENCE';
+    else if (assessment.needsHumanReview) finding.verificationStatus = 'REQUIRES_HUMAN_REVIEW';
+    else if (assessment.aiVerificationStatus === 'AI_SUPPORTED') finding.verificationStatus = 'AI_REVIEWED';
+    else if (assessment.confidence === 'multiple_independent_sources') finding.verificationStatus = 'CORROBORATED';
+    else finding.verificationStatus = 'UNRESOLVED';
+    if (assessment.aiVerificationRationale) {
+      finding.notesForOfficer = [finding.notesForOfficer, 'Second-layer AI packet check: ' + assessment.aiVerificationRationale].filter(Boolean).join(' ');
+    }
+  });
+}
 
 function isClientInvestigationSnapshot(value: unknown, expectedId: string): value is Investigation {
   if (!value || typeof value !== 'object') return false;
@@ -799,6 +815,7 @@ app.post('/api/investigations', async (req: Request, res: Response) => {
     investigationDate: discoveryReport.startedAt,
     sourcesChecked: checkedSources,
   });
+  applyAssessmentReviewPolicy(findings, assessmentReport.reviewedFindings);
 
   // 6. Persist Investigation record
   const investigationDomain = await db.investigations.save({
@@ -850,7 +867,7 @@ app.post('/api/investigations', async (req: Request, res: Response) => {
       verifiedClear: findings.filter((f) => f.riskLevel === 'VERIFIED_CLEAR').length,
       caution: findings.filter((f) => f.riskLevel === 'CAUTION').length,
       materialRisk: findings.filter((f) => f.riskLevel === 'MATERIAL_RISK').length,
-      requiresReview: findings.filter((f) => f.verificationStatus === 'REQUIRES_HUMAN_REVIEW').length,
+      requiresReview: assessmentReport.humanReviewQueue?.length || 0,
     },
     findings,
     normalizedFindings: discoveryReport.findings,
@@ -1074,7 +1091,7 @@ const getInvestigationAssessment = async (req: Request, res: Response) => {
     return;
   }
 
-  if (inv.assessmentReport) {
+  if (inv.assessmentReport?.reviewPolicyVersion === 2) {
     res.json(inv.assessmentReport);
     return;
   }
@@ -1096,6 +1113,8 @@ const getInvestigationAssessment = async (req: Request, res: Response) => {
   });
 
   inv.assessmentReport = report;
+  applyAssessmentReviewPolicy(inv.findings, report.reviewedFindings);
+  inv.findingsCount.requiresReview = report.humanReviewQueue?.length || 0;
   res.json(report);
 };
 app.get('/api/investigations/:id/assessment', asyncHandler(getInvestigationAssessment));
@@ -1253,6 +1272,7 @@ app.post('/api/investigations/:id/rerun', async (req: Request, res: Response) =>
         })),
       };
     });
+    applyAssessmentReviewPolicy(findings, assessmentReport.reviewedFindings);
 
     const newInvestigation: Investigation = {
       id: newInvId,
@@ -1270,7 +1290,7 @@ app.post('/api/investigations/:id/rerun', async (req: Request, res: Response) =>
         verifiedClear: findings.filter((f) => f.riskLevel === 'VERIFIED_CLEAR').length,
         caution: findings.filter((f) => f.riskLevel === 'CAUTION').length,
         materialRisk: findings.filter((f) => f.riskLevel === 'MATERIAL_RISK').length,
-        requiresReview: findings.filter((f) => f.verificationStatus === 'REQUIRES_HUMAN_REVIEW').length,
+        requiresReview: assessmentReport.humanReviewQueue?.length || 0,
       },
       findings,
       normalizedFindings: discoveryReport.findings,

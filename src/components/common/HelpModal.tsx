@@ -56,7 +56,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             <div>
               <strong className="text-[#1C1F26]">Layer 3: Cross-Validation</strong>
               <p className="mt-0.5 leading-relaxed">
-                Every finding attaches source URLs, short snippets, timestamps, and match confidence. Findings corroborated by 2+ independent sources are marked verified; single-source findings route to officer review.
+                Every finding attaches source URLs, short snippets, timestamps, and match confidence. Findings corroborated by 2+ independent sources are marked corroborated. Routine single-source findings receive an AI evidence-packet check; critical, conflicting, identity-uncertain, and AI-escalated findings route to an officer. AI review is not independent corroboration.
               </p>
             </div>
           </div>

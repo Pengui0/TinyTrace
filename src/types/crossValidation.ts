@@ -42,6 +42,16 @@ export interface CrossValidatedFinding extends RiskFinding {
   syndicatedOrExcludedSources: string[];
   needsHumanReview: boolean;
   humanReviewReason?: string;
+  aiVerificationStatus?: 'AI_SUPPORTED' | 'AI_ESCALATED' | 'AI_UNABLE_TO_CONFIRM' | 'NOT_RUN';
+  aiVerificationRationale?: string;
+}
+
+export interface AIVerificationSummary {
+  enabled: boolean;
+  reviewed: number;
+  supported: number;
+  escalated: number;
+  unableToConfirm: number;
 }
 
 export interface CoreDimensionCard {
@@ -79,6 +89,9 @@ export interface TinyTraceAssessmentReport {
   isStale?: boolean;
   staleNotice?: string;
   humanReviewQueue?: CrossValidatedFinding[];
+  reviewedFindings?: CrossValidatedFinding[];
+  aiVerificationSummary?: AIVerificationSummary;
+  reviewPolicyVersion?: number;
   fourDimensionCards?: {
     registry_gst: CoreDimensionCard;
     court_litigation: CoreDimensionCard;

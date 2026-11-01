@@ -106,8 +106,10 @@ export const EvidenceList: React.FC<EvidenceListProps> = ({
     switch (status) {
       case 'CORROBORATED':
         return <Badge tone="verified" size="sm">Corroborated (&ge;2 Sources)</Badge>;
+      case 'AI_REVIEWED':
+        return <Badge tone="verified" size="sm">AI Packet Check Passed</Badge>;
       case 'REQUIRES_HUMAN_REVIEW':
-        return <Badge tone="caution" size="sm">Requires Human Review (Single Source)</Badge>;
+        return <Badge tone="caution" size="sm">Requires Human Review</Badge>;
       case 'CONFLICTING_EVIDENCE':
         return <Badge tone="risk" size="sm">Conflicting Evidence</Badge>;
       case 'UNRESOLVED':
