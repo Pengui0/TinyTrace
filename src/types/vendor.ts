@@ -7,7 +7,7 @@ export type IdentifierType = 'CIN' | 'GSTIN' | 'PAN' | 'DIN' | 'NAME';
 
 export type SourceCategory = 'REGISTRY' | 'TAX' | 'LEGAL' | 'DEBARMENT' | 'MEDIA';
 
-export type ConnectorStatus = 'HEALTHY' | 'CONFIGURED' | 'DEGRADED' | 'UNAVAILABLE' | 'NOT_CONFIGURED';
+export type ConnectorStatus = 'HEALTHY' | 'CONFIGURED' | 'DEGRADED' | 'UNAVAILABLE' | 'NOT_CONFIGURED' | 'NOT_INTEGRATED';
 
 export interface SourceConnector {
   id: string;

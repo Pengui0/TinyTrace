@@ -409,6 +409,7 @@ function DashboardApp() {
 
   const activeConnectorsCount = connectors.filter((c) => c.status === 'HEALTHY').length;
   const unavailableConnectorsCount = connectors.filter((c) => c.status === 'UNAVAILABLE').length;
+  const notIntegratedConnectorsCount = connectors.filter((c) => c.status === 'NOT_INTEGRATED').length;
   const uniqueInvestigationCount = keepLatestInvestigationPerIdentity(investigations).length;
   const displayStats = stats && investigations.length > 0 ? {
     ...stats,
@@ -445,6 +446,7 @@ function DashboardApp() {
           investigationCount={uniqueInvestigationCount > 0 ? uniqueInvestigationCount : null}
           activeConnectorsCount={activeConnectorsCount}
           unavailableConnectorsCount={unavailableConnectorsCount}
+          notIntegratedConnectorsCount={notIntegratedConnectorsCount}
           totalConnectorsCount={connectors.length}
           unreadNotificationCount={unreadNotificationCount}
           onOpenHelp={() => setIsHelpModalOpen(true)}
@@ -484,6 +486,7 @@ function DashboardApp() {
               investigationCount={uniqueInvestigationCount > 0 ? uniqueInvestigationCount : null}
               activeConnectorsCount={activeConnectorsCount}
               unavailableConnectorsCount={unavailableConnectorsCount}
+              notIntegratedConnectorsCount={notIntegratedConnectorsCount}
               totalConnectorsCount={connectors.length}
               unreadNotificationCount={unreadNotificationCount}
               onOpenHelp={() => {

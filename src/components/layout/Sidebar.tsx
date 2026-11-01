@@ -22,6 +22,7 @@ interface SidebarProps {
   investigationCount?: number | null;
   activeConnectorsCount: number;
   unavailableConnectorsCount: number;
+  notIntegratedConnectorsCount: number;
   totalConnectorsCount: number;
   unreadNotificationCount: number;
   onOpenHelp: () => void;
@@ -37,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   investigationCount,
   activeConnectorsCount,
   unavailableConnectorsCount,
+  notIntegratedConnectorsCount,
   totalConnectorsCount,
   unreadNotificationCount,
   onOpenHelp,
@@ -209,12 +211,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex flex-wrap items-center gap-x-2 text-[10px] font-medium font-mono tabular-nums">
             <span className="text-[#087F61]">{activeConnectorsCount} healthy</span>
             <span className="text-[#B45309]">{unavailableConnectorsCount} unavailable</span>
+            <span className="text-[#687385]">{notIntegratedConnectorsCount} no direct connector</span>
             <span className="text-[#687385]">
-              {Math.max(0, totalConnectorsCount - activeConnectorsCount - unavailableConnectorsCount)} not healthy yet
+              {Math.max(0, totalConnectorsCount - activeConnectorsCount - unavailableConnectorsCount - notIntegratedConnectorsCount)} not healthy yet
             </span>
           </div>
           <p className="line-clamp-2 text-[10px] leading-snug text-[#8490A0]">
-            Healthy requires a passed live probe. Unavailable means no direct integration is connected here.
+            Healthy requires a passed live probe. “No direct connector” means the source is not connected through its own registry API.
           </p>
         </div>
 

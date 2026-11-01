@@ -53,7 +53,7 @@ export const ConnectorModal: React.FC<ConnectorModalProps> = ({
           <div className="flex justify-between">
             <span>Server-side Key Configured:</span>
             <strong className="text-[#1C1F26]">
-              {connector.isConfigured ? 'Yes (Detected in server environment)' : 'No (Requires Environment Secret)'}
+              {connector.isConfigured ? 'Yes (Detected in server environment)' : connector.status === 'NOT_INTEGRATED' ? 'Not applicable (no direct connector)' : 'No (Requires Environment Secret)'}
             </strong>
           </div>
           <div className="flex justify-between">

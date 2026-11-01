@@ -39,6 +39,8 @@ export const SourceHealthGrid: React.FC<SourceHealthGridProps> = ({
         return <Badge tone="caution" size="sm">Degraded</Badge>;
       case 'UNAVAILABLE':
         return <Badge tone="neutral" size="sm">Unavailable</Badge>;
+      case 'NOT_INTEGRATED':
+        return <Badge tone="subtle" size="sm">No Direct Connector</Badge>;
       case 'NOT_CONFIGURED':
       default:
         return <Badge tone="subtle" size="sm">Not Configured</Badge>;
