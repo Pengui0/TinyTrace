@@ -71,12 +71,12 @@ export class LiveIndiaCosProvider implements CompanyRegistryProvider {
   private getAuthHeaders(): Record<string, string> {
     const key = this.getApiKey();
     if (!key) return {};
-    // IndiaCos officially documents Authorization: Bearer YOUR_KEY or X-API-Key
+    // IndiaCos accepts either an Authorization bearer token or a dedicated X-API-Key header.
     return {
-      'Authorization': `Bearer ${key}`,
-      'X-API-Key': key,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Authorization: `Bearer ${key}`,
+      "X-API-Key": key,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
     };
   }
 
